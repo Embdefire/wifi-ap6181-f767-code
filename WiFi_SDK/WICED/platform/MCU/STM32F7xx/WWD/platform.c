@@ -81,18 +81,6 @@ const platform_gpio_t platform_gpio_pins[] =
  };
 
 
-//const platform_gpio_t wifi_control_pins[] =
-//{
-//    /* Reset pin unavailable */
-////    [WWD_PIN_POWER      ] = { GPIOB,  13 },
-////    [WWD_PIN_32K_CLK    ] = { GPIOA,  8 },
-////    [WWD_PIN_BOOTSTRAP_0] = { GPIOB,  1 },
-////    [WWD_PIN_BOOTSTRAP_1] = { GPIOC, 10 },
-//	  [WWD_PIN_RESET      ] = { GPIOB,  13 },
-////    [WWD_PIN_32K_CLK    ] = { GPIOA,  8 },
-////    [WWD_PIN_BOOTSTRAP_0] = { GPIOB,  1 },
-////    [WWD_PIN_BOOTSTRAP_1] = { GPIOC, 10 },
-//};
 
 const platform_gpio_t wifi_control_pins[] =
 {

@@ -124,7 +124,109 @@ platform_result_t platform_mcu_powersave_enable( void )
   */
 static void system_clock_config(void)
 {
+    RCC_ClkInitTypeDef rcc_clock_init_struct;
+    RCC_OscInitTypeDef rcc_oscillator_init_struct;
+    RCC_PeriphCLKInitTypeDef RCC_PeriphClkInit;
+    uint32_t flash_latency;
 
+    /* Enable use of Floating point instructions */
+#if (__FPU_PRESENT == 1) && (__FPU_USED == 1)
+    SCB->CPACR |= ((3UL << 10*2)|(3UL << 11*2));  /* set CP10 and CP11 Full Access */
+#endif
+
+    /*!< Supply configuration update enable */
+    MODIFY_REG(PWR->CR3, PWR_CR3_SCUEN, 0);
+
+    /* The voltage scaling allows optimizing the power consumption when the device is
+       clocked below the maximum system frequency, to update the voltage scaling value
+       regarding system frequency refer to product datasheet.  */
+    __HAL_PWR_VOLTAGESCALING_CONFIG(PWR_REGULATOR_VOLTAGE_SCALE1);
+
+    while ((PWR->D3CR & (PWR_D3CR_VOSRDY)) != PWR_D3CR_VOSRDY) {}
+
+    HAL_RCC_GetOscConfig(&rcc_oscillator_init_struct);
+
+    if(rcc_oscillator_init_struct.HSEState != RCC_HSE_ON || rcc_oscillator_init_struct.PLL.PLLSource != RCC_PLLSOURCE_HSE)
+    {
+        /* Enable HSE Oscillator and activate PLL with HSE as source */
+        rcc_oscillator_init_struct.OscillatorType = RCC_OSCILLATORTYPE_HSE;
+        rcc_oscillator_init_struct.HSEState       = RCC_HSE_ON;
+        rcc_oscillator_init_struct.LSIState       = RCC_LSI_ON;
+        rcc_oscillator_init_struct.LSEState       = RCC_LSE_ON;
+        rcc_oscillator_init_struct.HSIState       = RCC_HSI_DIV1;
+        rcc_oscillator_init_struct.PLL.PLLState   = RCC_PLL_ON;
+        rcc_oscillator_init_struct.PLL.PLLSource  = RCC_PLLSOURCE_HSE;
+        rcc_oscillator_init_struct.PLL.PLLM       = 5;
+        rcc_oscillator_init_struct.PLL.PLLN       = 160;
+        rcc_oscillator_init_struct.PLL.PLLP       = 2;
+        rcc_oscillator_init_struct.PLL.PLLR       = 2;
+        rcc_oscillator_init_struct.PLL.PLLQ       = 4;
+        rcc_oscillator_init_struct.PLL.PLLRGE     = RCC_PLL1VCIRANGE_2;
+        rcc_oscillator_init_struct.PLL.PLLVCOSEL  = RCC_PLL1VCOWIDE;
+        rcc_oscillator_init_struct.PLL.PLLFRACN   = 0;
+        rcc_oscillator_init_struct.HSICalibrationValue = 16;
+
+        if(HAL_RCC_OscConfig(&rcc_oscillator_init_struct) != HAL_OK)
+        {
+            /* Initialization Error */
+            error_handler();
+        }
+    }
+
+    HAL_RCC_GetClockConfig(&rcc_clock_init_struct, &flash_latency);
+    if(rcc_clock_init_struct.SYSCLKSource   != RCC_SYSCLKSOURCE_PLLCLK)
+    {
+        /**Initializes the CPU, AHB and APB busses clocks
+        */
+        rcc_clock_init_struct.ClockType = RCC_CLOCKTYPE_HCLK|RCC_CLOCKTYPE_SYSCLK
+                                    |RCC_CLOCKTYPE_PCLK1|RCC_CLOCKTYPE_PCLK2
+                                    |RCC_CLOCKTYPE_D3PCLK1|RCC_CLOCKTYPE_D1PCLK1;
+
+        rcc_clock_init_struct.SYSCLKSource   = RCC_SYSCLKSOURCE_PLLCLK;
+        rcc_clock_init_struct.SYSCLKDivider  = RCC_SYSCLK_DIV1;
+        rcc_clock_init_struct.AHBCLKDivider  = RCC_HCLK_DIV2;
+        rcc_clock_init_struct.APB3CLKDivider = RCC_APB3_DIV2;
+        rcc_clock_init_struct.APB1CLKDivider = RCC_APB1_DIV2;
+        rcc_clock_init_struct.APB2CLKDivider = RCC_APB2_DIV2;
+        rcc_clock_init_struct.APB4CLKDivider = RCC_APB4_DIV2;
+
+        if(HAL_RCC_ClockConfig(&rcc_clock_init_struct, FLASH_LATENCY_4) != HAL_OK)
+        {
+            /* Initialization Error */
+            error_handler();
+        }
+
+        RCC_PeriphClkInit.PeriphClockSelection      = RCC_PERIPHCLK_USART1 | RCC_PERIPHCLK_USART2;
+        RCC_PeriphClkInit.Usart16ClockSelection     = RCC_USART16CLKSOURCE_HSI;
+        RCC_PeriphClkInit.Usart234578ClockSelection = RCC_USART234578CLKSOURCE_HSI;
+        HAL_RCCEx_PeriphCLKConfig(&RCC_PeriphClkInit);
+    }
+    else
+    {
+        /* HAL_RCC_ClockConfig() is not called, call below two functions to update
+         * STM32 HAL Global variables.
+         */
+
+        /* Update SystemCoreClock in STM32 HAL */
+        SystemCoreClockUpdate();
+
+        /* Update SystemD2Clock in STM32 HAL */
+        HAL_RCC_GetHCLKFreq();
+    }
+
+    /* Configure the Systick interrupt time */
+    HAL_SYSTICK_Config(SystemCoreClock/1000);
+
+    /* Configure the Systick */
+    HAL_SYSTICK_CLKSourceConfig(SYSTICK_CLKSOURCE_HCLK);
+
+    /* define MEASURE_CLOCK_FREQUENCY to measure clock frequency
+     * on RCC_MCO1 and RCC_MCO2 pins.
+     */
+#ifdef MEASURE_CLOCK_FREQUENCY
+    HAL_RCC_MCOConfig(RCC_MCO1, RCC_MCO1SOURCE_HSE, RCC_MCODIV_1);
+    HAL_RCC_MCOConfig(RCC_MCO2, RCC_MCO2SOURCE_SYSCLK, RCC_MCODIV_10);
+#endif
 }
 /******************************************************
  *               Variable Definitions
@@ -222,61 +324,61 @@ static void MPU_Config(void)
 
 void SD_LowLevel_Init(void)
 {
-//		int i;
-//    GPIO_InitTypeDef GPIO_InitStruct;
+		int i;
+    GPIO_InitTypeDef GPIO_InitStruct;
 
-//    /* 使能 SDMMC 时钟 */
-//    __HAL_RCC_SDMMC1_CLK_ENABLE();
-//  
-//    /* 使能 GPIOs 时钟 */
-//    __HAL_RCC_GPIOC_CLK_ENABLE();
-//    __HAL_RCC_GPIOD_CLK_ENABLE();
-//  
-//    GPIO_InitStruct.Pin = GPIO_PIN_8|GPIO_PIN_9|GPIO_PIN_10|GPIO_PIN_11 
-//                          |GPIO_PIN_12;
-//    /*设置引脚的输出类型为推挽输出*/
-//    GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
-//    /*设置引脚为不需要上、下拉模式*/  
-//    GPIO_InitStruct.Pull = GPIO_NOPULL;
-//    /*设置引脚速率为高速 */      
-//    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
-//    /*设置为SDIO1复用 */  
-//    GPIO_InitStruct.Alternate = GPIO_AF12_SDIO1;
-//    /*调用库函数，使用上面配置的GPIO_InitStructure初始化GPIO*/  
-//    HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
+    /* 使能 SDMMC 时钟 */
+    __HAL_RCC_SDMMC1_CLK_ENABLE();
+  
+    /* 使能 GPIOs 时钟 */
+    __HAL_RCC_GPIOC_CLK_ENABLE();
+    __HAL_RCC_GPIOD_CLK_ENABLE();
+  
+    GPIO_InitStruct.Pin = GPIO_PIN_8|GPIO_PIN_9|GPIO_PIN_10|GPIO_PIN_11 
+                          |GPIO_PIN_12;
+    /*设置引脚的输出类型为推挽输出*/
+    GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
+    /*设置引脚为不需要上、下拉模式*/  
+    GPIO_InitStruct.Pull = GPIO_NOPULL;
+    /*设置引脚速率为高速 */      
+    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
+    /*设置为SDIO1复用 */  
+    GPIO_InitStruct.Alternate = GPIO_AF12_SDIO1;
+    /*调用库函数，使用上面配置的GPIO_InitStructure初始化GPIO*/  
+    HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 
-//    GPIO_InitStruct.Pin = GPIO_PIN_2;
-//    /*设置引脚的输出类型为推挽输出*/    
-//    GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
-//    /*设置引脚为不需要上、下拉模式*/  
-//    GPIO_InitStruct.Pull = GPIO_NOPULL;
-//    /*设置引脚速率为高速 */ 
-//    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
-//    /*设置为SDIO1复用 */  
-//    GPIO_InitStruct.Alternate = GPIO_AF12_SDIO1;
-//    /*调用库函数，使用上面配置的GPIO_InitStructure初始化GPIO*/ 
-//    HAL_GPIO_Init(GPIOD, &GPIO_InitStruct);
-//    //启用WIFI模块
+    GPIO_InitStruct.Pin = GPIO_PIN_2;
+    /*设置引脚的输出类型为推挽输出*/    
+    GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
+    /*设置引脚为不需要上、下拉模式*/  
+    GPIO_InitStruct.Pull = GPIO_NOPULL;
+    /*设置引脚速率为高速 */ 
+    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
+    /*设置为SDIO1复用 */  
+    GPIO_InitStruct.Alternate = GPIO_AF12_SDIO1;
+    /*调用库函数，使用上面配置的GPIO_InitStructure初始化GPIO*/ 
+    HAL_GPIO_Init(GPIOD, &GPIO_InitStruct);
+    //启用WIFI模块
 
-//    /*使能引脚时钟*/	
-//    __HAL_RCC_GPIOC_CLK_ENABLE();
-//    /*选择要控制的GPIO引脚*/															   
-//    GPIO_InitStruct.Pin = GPIO_PIN_2;	
-//    /*设置引脚的输出类型为推挽输出*/
-//    GPIO_InitStruct.Mode  = GPIO_MODE_OUTPUT_PP;      
-//    /*设置引脚为上拉模式*/
-//    GPIO_InitStruct.Pull  = GPIO_PULLUP;
-//    /*设置引脚速率为高速 */   
-//    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH; 
-//    /*调用库函数，使用上面配置的GPIO_InitStructure初始化GPIO*/
-//    HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);	
-//    /*禁用WiFi模块*/
-//    HAL_GPIO_WritePin(GPIOC,GPIO_PIN_2,GPIO_PIN_RESET);  
-//		for(i=0;i<0xffff;i++)
-//		{
-//			__nop();
-//		}
-//		HAL_GPIO_WritePin(GPIOC,GPIO_PIN_2,GPIO_PIN_SET);  
+    /*使能引脚时钟*/	
+    __HAL_RCC_GPIOC_CLK_ENABLE();
+    /*选择要控制的GPIO引脚*/															   
+    GPIO_InitStruct.Pin = GPIO_PIN_2;	
+    /*设置引脚的输出类型为推挽输出*/
+    GPIO_InitStruct.Mode  = GPIO_MODE_OUTPUT_PP;      
+    /*设置引脚为上拉模式*/
+    GPIO_InitStruct.Pull  = GPIO_PULLUP;
+    /*设置引脚速率为高速 */   
+    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH; 
+    /*调用库函数，使用上面配置的GPIO_InitStructure初始化GPIO*/
+    HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);	
+    /*禁用WiFi模块*/
+    HAL_GPIO_WritePin(GPIOC,GPIO_PIN_2,GPIO_PIN_RESET);  
+		for(i=0;i<0xffff;i++)
+		{
+			__nop();
+		}
+		HAL_GPIO_WritePin(GPIOC,GPIO_PIN_2,GPIO_PIN_SET);  
 
 }
 

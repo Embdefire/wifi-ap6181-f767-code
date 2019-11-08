@@ -243,6 +243,15 @@ void SD_LowLevel_Init(void)
 				__nop();
 		}
 		HAL_GPIO_WritePin(GPIOB,GPIO_PIN_13,GPIO_PIN_SET);  
+		
+
+}
+/*
+DMA≥ı ºªØ
+*/
+void DMA_Lowlevel_Init()
+{
+
 
 }
 

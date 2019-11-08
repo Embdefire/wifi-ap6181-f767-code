@@ -119,6 +119,10 @@
       <TargetDriverDllRegistry>
         <SetRegEntry>
           <Number>0</Number>
+          <Key>DLGUARM</Key>
+        </SetRegEntry>
+        <SetRegEntry>
+          <Number>0</Number>
           <Key>JL2CM3</Key>
           <Name>-U59407934 -O14 -S2 -ZTIFSpeedSel5000 -A0 -C0 -JU1 -JI127.0.0.1 -JP0 -RST0 -N00("ARM CoreSight JTAG-DP") -D00(5BA00477) -L00(4) -N01("Unknown JTAG device") -D01(06451041) -L01(5) -TO18 -TC10000000 -TP21 -TDS8007 -TDT0 -TDC1F -TIEFFFFFFFF -TIP8 -TB1 -TFE0 -FO15 -FD20020000 -FC1000 -FN1 -FF0STM32F7x_1024.FLM -FS08000000 -FL0100000 -FP0($$Device:STM32F767IGTx$CMSIS\Flash\STM32F7x_1024.FLM)</Name>
         </SetRegEntry>
@@ -130,16 +134,11 @@
         <SetRegEntry>
           <Number>0</Number>
           <Key>DLGTARM</Key>
-          <Name>(1010=326,118,736,664,0)(1007=356,151,533,415,0)(1008=-1,-1,-1,-1,0)(1009=-1,-1,-1,-1,0)(1012=-1,-1,-1,-1,0)</Name>
+          <Name>(1010=326,118,736,664,0)(6017=-1,-1,-1,-1,0)(1008=-1,-1,-1,-1,0)(6016=-1,-1,-1,-1,0)(1012=-1,-1,-1,-1,0)</Name>
         </SetRegEntry>
         <SetRegEntry>
           <Number>0</Number>
           <Key>ARMDBGFLAGS</Key>
-          <Name></Name>
-        </SetRegEntry>
-        <SetRegEntry>
-          <Number>0</Number>
-          <Key>DLGUARM</Key>
           <Name></Name>
         </SetRegEntry>
         <SetRegEntry>
@@ -153,14 +152,63 @@
           <Name>UL2CM3(-S0 -C0 -P0 ) -FN1 -FC1000 -FD20020000 -FF0STM32F7x_1024 -FL0100000 -FS08000000 -FP0($$Device:STM32F767IGTx$CMSIS\Flash\STM32F7x_1024.FLM)</Name>
         </SetRegEntry>
       </TargetDriverDllRegistry>
-      <Breakpoint/>
+      <Breakpoint>
+        <Bp>
+          <Number>0</Number>
+          <Type>0</Type>
+          <LineNumber>272</LineNumber>
+          <EnabledFlag>1</EnabledFlag>
+          <Address>134277416</Address>
+          <ByteObject>0</ByteObject>
+          <HtxType>0</HtxType>
+          <ManyObjects>0</ManyObjects>
+          <SizeOfObject>0</SizeOfObject>
+          <BreakByAccess>0</BreakByAccess>
+          <BreakIfRCount>1</BreakIfRCount>
+          <Filename>E:\閲庣伀鐢靛瓙\WIFI\WIFI__AP6181\base_code_f767\wifi_lwip_webclient\WiFi_SDK\WICED\WWD\internal\bus_protocols\SDIO\wwd_bus_protocol.c</Filename>
+          <ExecCommand></ExecCommand>
+          <Expression>\\USART1\../../../WiFi_SDK/WICED/WWD/internal/bus_protocols/SDIO/wwd_bus_protocol.c\272</Expression>
+        </Bp>
+        <Bp>
+          <Number>1</Number>
+          <Type>0</Type>
+          <LineNumber>513</LineNumber>
+          <EnabledFlag>1</EnabledFlag>
+          <Address>134259556</Address>
+          <ByteObject>0</ByteObject>
+          <HtxType>0</HtxType>
+          <ManyObjects>0</ManyObjects>
+          <SizeOfObject>0</SizeOfObject>
+          <BreakByAccess>0</BreakByAccess>
+          <BreakIfRCount>1</BreakIfRCount>
+          <Filename>E:\閲庣伀鐢靛瓙\WIFI\WIFI__AP6181\base_code_f767\wifi_lwip_webclient\WiFi_SDK\WICED\platform\MCU\STM32F7xx\WWD\wwd_SDIO.c</Filename>
+          <ExecCommand></ExecCommand>
+          <Expression>\\USART1\../../../WiFi_SDK/WICED/platform/MCU/STM32F7xx/WWD/wwd_SDIO.c\513</Expression>
+        </Bp>
+        <Bp>
+          <Number>2</Number>
+          <Type>0</Type>
+          <LineNumber>556</LineNumber>
+          <EnabledFlag>1</EnabledFlag>
+          <Address>134225882</Address>
+          <ByteObject>0</ByteObject>
+          <HtxType>0</HtxType>
+          <ManyObjects>0</ManyObjects>
+          <SizeOfObject>0</SizeOfObject>
+          <BreakByAccess>0</BreakByAccess>
+          <BreakIfRCount>1</BreakIfRCount>
+          <Filename>E:\閲庣伀鐢靛瓙\WIFI\WIFI__AP6181\base_code_f767\wifi_lwip_webclient\WiFi_SDK\WICED\platform\MCU\STM32F7xx\WWD\wwd_SDIO.c</Filename>
+          <ExecCommand></ExecCommand>
+          <Expression>\\USART1\../../../WiFi_SDK/WICED/platform/MCU/STM32F7xx/WWD/wwd_SDIO.c\556</Expression>
+        </Bp>
+      </Breakpoint>
       <Tracepoint>
         <THDelay>0</THDelay>
       </Tracepoint>
       <DebugFlag>
         <trace>0</trace>
         <periodic>0</periodic>
-        <aLwin>1</aLwin>
+        <aLwin>0</aLwin>
         <aCover>0</aCover>
         <aSer1>0</aSer1>
         <aSer2>0</aSer2>
@@ -1112,7 +1160,7 @@
 
   <Group>
     <GroupName>FreeRTOS-Source-include</GroupName>
-    <tvExp>1</tvExp>
+    <tvExp>0</tvExp>
     <tvExpOptDlg>0</tvExpOptDlg>
     <cbSel>0</cbSel>
     <RteFlg>0</RteFlg>

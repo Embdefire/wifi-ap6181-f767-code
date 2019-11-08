@@ -632,15 +632,14 @@ HAL_SD_ErrorTypedef HAL_SD_ReadBlocks(SD_HandleTypeDef *hsd, uint32_t *pReadBuff
 }
 
 /**
-  * @brief  Allows to write block(s) to a specified address in a card. The Data
-  *         transfer is managed by polling mode.  
-  * @param  hsd: SD handle
-  * @param  pWriteBuffer: pointer to the buffer that will contain the data to transmit
-  * @param  WriteAddr: Address from where data is to be written 
-  * @param  BlockSize: SD card Data block size 
-  * @note   BlockSize must be 512 bytes.
-  * @param  NumberOfBlocks: Number of SD blocks to write 
-  * @retval SD Card error state
+  * @brief  允许将块写入卡中的指定地址。数据传输由轮询模式管理。
+  * @param  hsd: SD 句柄
+  * @param  pWriteBuffer: 指向将包含要传输的数据的缓冲区的指针
+  * @param  WriteAddr: 写入数据的地址
+  * @param  BlockSize: SD卡数据块大小
+  * @note   块大小必须为512字节。
+  * @param  NumberOfBlocks:要写入的SD块数
+  * @retval SD卡错误状态
   */
 HAL_SD_ErrorTypedef HAL_SD_WriteBlocks(SD_HandleTypeDef *hsd, uint32_t *pWriteBuffer, uint64_t WriteAddr, uint32_t BlockSize, uint32_t NumberOfBlocks)
 {
@@ -651,7 +650,7 @@ HAL_SD_ErrorTypedef HAL_SD_WriteBlocks(SD_HandleTypeDef *hsd, uint32_t *pWriteBu
   uint32_t *tempbuff = (uint32_t *)pWriteBuffer;
   uint8_t cardstate  = 0;
   
-  /* Initialize data control register */
+  /* 初始化数据控制寄存器 */
   hsd->Instance->DCTRL = 0;
   
   if (hsd->CardType == HIGH_CAPACITY_SD_CARD)
@@ -660,7 +659,7 @@ HAL_SD_ErrorTypedef HAL_SD_WriteBlocks(SD_HandleTypeDef *hsd, uint32_t *pWriteBu
     WriteAddr /= 512;
   }
   
-  /* Set Block Size for Card */ 
+  /*设置卡的块大小 */ 
   sdmmc_cmdinitstructure.Argument         = (uint32_t)BlockSize;
   sdmmc_cmdinitstructure.CmdIndex         = SD_CMD_SET_BLOCKLEN;
   sdmmc_cmdinitstructure.Response         = SDMMC_RESPONSE_SHORT;
@@ -668,7 +667,7 @@ HAL_SD_ErrorTypedef HAL_SD_WriteBlocks(SD_HandleTypeDef *hsd, uint32_t *pWriteBu
   sdmmc_cmdinitstructure.CPSM             = SDMMC_CPSM_ENABLE;
   SDMMC_SendCommand(hsd->Instance, &sdmmc_cmdinitstructure);
   
-  /* Check for error conditions */
+  /*检查错误情况 */
   errorstate = SD_CmdResp1Error(hsd, SD_CMD_SET_BLOCKLEN);
   
   if (errorstate != SD_OK)

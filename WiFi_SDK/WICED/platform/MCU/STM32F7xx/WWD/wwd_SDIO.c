@@ -138,7 +138,7 @@ wwd_result_t host_enable_oob_interrupt( void )
 {
     /* Set GPIO_B[1:0] to input. One of them will be re-purposed as OOB interrupt */
 		/*初始化引脚*/
-    platform_gpio_init( &wifi_sdio_pins[ WWD_PIN_SDIO_OOB_IRQ ], INPUT_HIGH_IMPEDANCE );
+//    platform_gpio_init( &wifi_sdio_pins[ WWD_PIN_SDIO_OOB_IRQ ], INPUT_HIGH_IMPEDANCE );
 		/*使能引脚中断*/
     platform_gpio_irq_enable( &wifi_sdio_pins[ WWD_PIN_SDIO_OOB_IRQ ], sdio_oob_irq_handler, 0 );
 
@@ -151,9 +151,7 @@ uint8_t host_platform_get_oob_interrupt_pin( void )
 }
 #endif /* ifndef  WICED_DISABLE_MCU_POWERSAVE */
 extern void SD_LowLevel_Init(void);
-extern platform_result_t platform_gpio_set_alternate_function( platform_gpio_port_t* gpio_port, uint8_t pin_number, uint32_t mode, uint32_t pull_up_down_type, uint32_t alternation_function );
 
-#if 0//官方的驱动，需要依赖于gpio.h
 wwd_result_t host_platform_bus_init( void )
 {
     SDMMC_InitTypeDef sdio_init_structure;
@@ -198,82 +196,6 @@ wwd_result_t host_platform_bus_init( void )
 #endif
 
     /* Setup GPIO pins for SDIO data & clock */
-    for ( a = WWD_PIN_SDIO_CLK; a < WWD_PIN_SDIO_MAX; a++ )
-    {
-        if ( PLATFORM_SUCCESS != platform_gpio_set_alternate_function( 
-				wifi_sdio_pins[ a ].port, 
-				wifi_sdio_pins[ a ].pin_number, 
-				GPIO_MODE_AF_PP, 
-				GPIO_PULLUP, 
-				GPIO_AF12_SDIO1 ) )
-        {
-            return WICED_ERROR;
-        }
-    }
-
-    /* SDMMC Initialization Frequency (400KHz max) for IP CLK 200MHz*/
-    sdio_init_structure.ClockDiv            = SDMMC_INIT_CLK_DIV;
-    sdio_init_structure.ClockEdge           = SDMMC_CLOCK_EDGE_RISING;
-    sdio_init_structure.ClockPowerSave      = SDMMC_CLOCK_POWER_SAVE_DISABLE;
-    sdio_init_structure.BusWide             = SDMMC_BUS_WIDE_1B;
-    sdio_init_structure.HardwareFlowControl = SDMMC_HARDWARE_FLOW_CONTROL_DISABLE;
-    HAL_return                              = SDMMC_Init( SDMMC1, sdio_init_structure );
-    HAL_return                             |= SDMMC_PowerState_ON( SDMMC1 );
-    HAL_return                             |= SDMMC_SetSDMMCReadWaitMode( SDMMC1, SDMMC_READ_WAIT_MODE_CLK );
-
-    if ( HAL_return |= HAL_OK )
-    {
-        return (~WWD_SUCCESS);
-    }
-
-    platform_mcu_powersave_enable( );
-    return WWD_SUCCESS;
-}
-
-#endif
-
-wwd_result_t host_platform_bus_init( void )
-{
-    SDMMC_InitTypeDef sdio_init_structure;
-    wwd_result_t result;
-    uint8_t a;
-    HAL_StatusTypeDef HAL_return;
-
-    platform_mcu_powersave_disable( );
-
-    /* Reset SDIO Block */
-    SDMMC_PowerState_OFF( SDMMC1 );
-    __HAL_RCC_SDMMC1_FORCE_RESET( );
-    __HAL_RCC_SDMMC1_RELEASE_RESET( );
-
-    /* Enable the SDIO Clock */
-    __HAL_RCC_SDMMC1_CLK_ENABLE( );
-
-    result = host_rtos_init_semaphore( &sdio_transfer_finished_semaphore );
-    if ( result != WWD_SUCCESS )
-    {
-        return result;
-    }
-
-    /* Clear all SDIO interrupts */
-    SDMMC1->ICR = (uint32_t) 0xffffffff;
-
-    /* Turn on SDIO IRQ */
-    /* Must be lower priority than the value of configMAX_SYSCALL_INTERRUPT_PRIORITY */
-    /* otherwise FreeRTOS will not be able to mask the interrupt */
-    /* keep in mind that ARMCM7 interrupt priority logic is inverted, the highest value */
-    /* is the lowest priority */
-    HAL_NVIC_EnableIRQ( (IRQn_Type) SDIO_IRQ_CHANNEL );
-
-#ifdef WICED_WIFI_USE_GPIO_FOR_BOOTSTRAP_0
-    /* Set GPIO_B[1:0] to 00 to put WLAN module into SDIO mode */
-    platform_gpio_init( &wifi_control_pins[WWD_PIN_BOOTSTRAP_0], OUTPUT_PUSH_PULL );
-    platform_gpio_output_low( &wifi_control_pins[WWD_PIN_BOOTSTRAP_0] );
-#endif
-#ifdef WICED_WIFI_USE_GPIO_FOR_BOOTSTRAP_1
-    platform_gpio_init( &wifi_control_pins[WWD_PIN_BOOTSTRAP_1], OUTPUT_PUSH_PULL );
-    platform_gpio_output_low( &wifi_control_pins[WWD_PIN_BOOTSTRAP_1] );
-#endif
 
 		SD_LowLevel_Init();//WIFI SDIO初始化
 
@@ -285,10 +207,16 @@ wwd_result_t host_platform_bus_init( void )
     sdio_init_structure.BusWide             = SDMMC_BUS_WIDE_1B;
     sdio_init_structure.HardwareFlowControl = SDMMC_HARDWARE_FLOW_CONTROL_DISABLE;
     HAL_return                              = SDMMC_Init( SDMMC1, sdio_init_structure );
-
+		printf("HAL_return----->>>>%d\r\n",HAL_return);
     HAL_return                             |= SDMMC_PowerState_ON( SDMMC1 );
-
+		printf("HAL_return----->>>>%d\r\n",HAL_return);
     HAL_return                             |= SDMMC_SetSDMMCReadWaitMode( SDMMC1, SDMMC_READ_WAIT_MODE_CLK );
+		printf("HAL_return----->>>>%d\r\n",HAL_return);
+		
+				  /* SDIO 中断配置 */
+  HAL_NVIC_SetPriority(SDMMC1_IRQn, 5, 0);
+  HAL_NVIC_EnableIRQ(SDMMC1_IRQn);
+
 
     if ( HAL_return |= HAL_OK )
     {
@@ -298,8 +226,6 @@ wwd_result_t host_platform_bus_init( void )
     platform_mcu_powersave_enable( );
     return WWD_SUCCESS;
 }
-
-
 
 wwd_result_t host_platform_sdio_enumerate( void )
 {
@@ -421,11 +347,8 @@ wwd_result_t host_platform_sdio_transfer( wwd_bus_transfer_direction_t direction
 
         /* Send the command */
         SDMMC1->ARG = argument;
-//        SDMMC1->CMD = (uint32_t) ( command | SDMMC_RESPONSE_SHORT | SDMMC_WAIT_NO | SDMMC_CPSM_ENABLE | SDMMC_CMD_CMDTRANS );
-//				//先注释
-				SDMMC1->CMD = (uint32_t) ( command | SDMMC_RESPONSE_SHORT | SDMMC_WAIT_NO | SDMMC_CPSM_ENABLE | SD_CMD_SEND_STATUS );
-				//先注释
-
+        SDMMC1->CMD = (uint32_t) ( command | SDMMC_RESPONSE_SHORT | SDMMC_WAIT_NO | SDMMC_CPSM_ENABLE | SD_CMD_SD_ERASE_GRP_START );
+				//修改过
         /* Wait for the whole transfer to complete */
         result = host_rtos_get_semaphore( &sdio_transfer_finished_semaphore, (uint32_t) 50, WICED_TRUE );
         if ( result != WWD_SUCCESS )
@@ -451,16 +374,16 @@ wwd_result_t host_platform_sdio_transfer( wwd_bus_transfer_direction_t direction
 
         /* Wait till complete */
         loop_count = (uint32_t) SDIO_TX_RX_COMPLETE_TIMEOUT_LOOPS;
-//        do
-//        {
-//            loop_count--;
-//            if ( loop_count == 0 || ( ( SDMMC1->STA & SDIO_ERROR_MASK ) != 0 ) )
-//            {
+        do
+        {
+            loop_count--;
+            if ( loop_count == 0 || ( ( SDMMC1->STA & SDIO_ERROR_MASK ) != 0 ) )
+            {
 
-//                goto restart;
-//            }
-//        } while ( ( SDMMC1->STA & ( SDMMC_STA_CPSMACT | SDMMC_STA_DPSMACT ) ) != 0 );
-//先注释
+                goto restart;
+            }
+        } while ( ( SDMMC1->STA & ( SDMMC_STA_RXACT | SDMMC_STA_TXACT ) ) != 0 );//已修改
+
         if ( direction == BUS_READ )
         {
             memcpy( user_data, dma_data_source, (size_t) user_data_size );
@@ -477,16 +400,15 @@ wwd_result_t host_platform_sdio_transfer( wwd_bus_transfer_direction_t direction
         SDMMC1->CMD = (uint32_t) ( command | SDMMC_RESPONSE_SHORT | SDMMC_WAIT_NO | SDMMC_CPSM_ENABLE );
 
         loop_count = (uint32_t) COMMAND_FINISHED_CMD52_TIMEOUT_LOOPS;
-//        do
-//        {
-//            temp_sta = SDMMC1->STA;
-//            loop_count--;
-//            if ( loop_count == 0 || ( ( response_expected == RESPONSE_NEEDED ) && ( ( temp_sta & SDIO_ERROR_MASK ) != 0 ) ) )
-//            {
-//                goto restart;
-//            }
-//        } while ( ( temp_sta & ( SDMMC_STA_CPSMACT | SDMMC_STA_DPSMACT ) ) != 0 );
-			//先注释
+        do
+        {
+            temp_sta = SDMMC1->STA;
+            loop_count--;
+            if ( loop_count == 0 || ( ( response_expected == RESPONSE_NEEDED ) && ( ( temp_sta & SDIO_ERROR_MASK ) != 0 ) ) )
+            {
+                goto restart;
+            }
+        } while ( ( temp_sta & ( SDMMC_STA_RXACT | SDMMC_STA_TXACT ) ) != 0 );//已修改
     }
 
     if ( response != NULL )
@@ -502,8 +424,6 @@ wwd_result_t host_platform_sdio_transfer( wwd_bus_transfer_direction_t direction
 
 static void sdio_prepare_data_transfer( wwd_bus_transfer_direction_t direction, sdio_block_size_t block_size, /*@unique@*/uint8_t* data, uint16_t data_size ) /*@modifies dma_data_source, user_data, user_data_size, dma_transfer_size@*/
 {
-	
-#define SDMMC_DATATIMEOUT           ((uint32_t)100000000)
     /* Setup a single transfer using the temp buffer */
     user_data = data;
     user_data_size = data_size;
@@ -517,7 +437,7 @@ static void sdio_prepare_data_transfer( wwd_bus_transfer_direction_t direction, 
     {
         dma_data_source = temp_dma_buffer;
     }
-
+		#define SDMMC_DATATIMEOUT                  ((uint32_t)0xFFFFFFFFU)
     SDMMC1->DTIMER    = (uint32_t) SDMMC_DATATIMEOUT;
     SDMMC1->DLEN      = dma_transfer_size;
     SDMMC1->DCTRL     = (uint32_t) sdio_get_blocksize_dctrl( block_size ) | bus_direction_mapping[ (int) direction ] | SDMMC_TRANSFER_MODE_BLOCK | SDMMC_DPSM_DISABLE | SDMMC_DCTRL_SDIOEN;
@@ -525,20 +445,20 @@ static void sdio_prepare_data_transfer( wwd_bus_transfer_direction_t direction, 
 //    SDMMC1->IDMACTRL  = SDMMC_ENABLE_IDMA_SINGLE_BUFF;
 //    SDMMC1->IDMABASE0 = (uint32_t) dma_data_source;
 		
-		//先注释
-		
+//		SDMMC1->IDMACTRL  = SDMMC_ENABLE_IDMA_SINGLE_BUFF;
+    SDMMC1->FIFO = (uint32_t) dma_data_source;
 		
 }
 
 wwd_result_t host_platform_enable_high_speed_sdio( void )
 {
     SDMMC_InitTypeDef sdio_init_structure;
-
+#define SDMMC_NSpeed_CLK_DIV  			SDMMC_INIT_CLK_DIV
     /* bus_clock = input_clock / ( 2 * Clockdiv) */
 #ifdef SLOW_SDIO_CLOCK
     sdio_init_structure.ClockDiv       = (uint8_t) 10; /* 10 = 10 MHz if SDIO clock = 200MHz */
 #else
-    sdio_init_structure.ClockDiv       = SDMMC_TRANSFER_CLK_DIV; /* 4 = 25MHz if SDIO clock = 200MHz */
+    sdio_init_structure.ClockDiv       = SDMMC_NSpeed_CLK_DIV; /* 4 = 25MHz if SDIO clock = 200MHz */
 #endif
     sdio_init_structure.ClockEdge      = SDMMC_CLOCK_EDGE_RISING;
     sdio_init_structure.ClockPowerSave = SDMMC_CLOCK_POWER_SAVE_DISABLE;
@@ -671,7 +591,6 @@ void SDMMC1_IRQHandler()
             SDMMC1->DLEN     = 0;
             SDMMC1->DCTRL    = SDMMC_DCTRL_SDIOEN;
             //SDMMC1->IDMACTRL = SDMMC_DISABLE_IDMA;
-
             SDMMC1->CMD      = 0;
             result = host_rtos_set_semaphore( &sdio_transfer_finished_semaphore, WICED_TRUE );
             wiced_assert( "failed to set dma semaphore", result == WWD_SUCCESS );

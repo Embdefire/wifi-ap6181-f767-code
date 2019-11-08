@@ -528,7 +528,7 @@ wwd_result_t host_platform_enable_high_speed_sdio( void )
 #ifdef SLOW_SDIO_CLOCK
     sdio_init_structure.ClockDiv       = (uint8_t) 10; /* 10 = 10 MHz if SDIO clock = 200MHz */
 #else
-    //sdio_init_structure.ClockDiv       = SDMMC_NSpeed_CLK_DIV; /* 4 = 25MHz if SDIO clock = 200MHz */
+    sdio_init_structure.ClockDiv       = SDMMC_NSpeed_CLK_DIV; /* 4 = 25MHz if SDIO clock = 200MHz */
 #endif
     sdio_init_structure.ClockEdge      = SDMMC_CLOCK_EDGE_RISING;
     sdio_init_structure.ClockPowerSave = SDMMC_CLOCK_POWER_SAVE_DISABLE;

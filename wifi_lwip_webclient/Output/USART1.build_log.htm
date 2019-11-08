@@ -27,25 +27,29 @@ Project File Date:  11/08/2019
 <h2>Output:</h2>
 *** Using Compiler 'V5.06 update 6 (build 750)', folder: 'E:\Keil_v5\ARM\ARMCC\Bin'
 Build target 'AP6181'
+compiling platform_init.c...
+..\..\..\WiFi_SDK\WICED\platform\MCU\STM32F7xx\platform_init.c(281): warning:  #188-D: enumerated type mixed with another type
+          HAL_NVIC_SetPriority( i, 0xf, 0);
+..\..\..\WiFi_SDK\WICED\platform\MCU\STM32F7xx\platform_init.c(74): warning:  #177-D: function "error_handler"  was declared but never referenced
+  static void error_handler(void)
+..\..\..\WiFi_SDK\WICED\platform\MCU\STM32F7xx\platform_init.c(81): warning:  #177-D: variable "stm32f2_clock_needed_counter"  was declared but never referenced
+  static int32_t       stm32f2_clock_needed_counter = 0;
+..\..\..\WiFi_SDK\WICED\platform\MCU\STM32F7xx\platform_init.c: 3 warnings, 0 errors
 compiling wwd_SDIO.c...
 ..\..\..\WiFi_SDK\WICED\platform\MCU\STM32F7xx\WWD\wwd_SDIO.c(143): warning:  #223-D: function "platform_gpio_irq_enable" declared implicitly
       platform_gpio_irq_enable( &wifi_sdio_pins[ WWD_PIN_SDIO_OOB_IRQ ], sdio_oob_irq_handler, 0 );
-..\..\..\WiFi_SDK\WICED\platform\MCU\STM32F7xx\WWD\wwd_SDIO.c(239): warning:  #177-D: variable "a"  was declared but never referenced
+..\..\..\WiFi_SDK\WICED\platform\MCU\STM32F7xx\WWD\wwd_SDIO.c(159): warning:  #177-D: variable "a"  was declared but never referenced
       uint8_t a;
-..\..\..\WiFi_SDK\WICED\platform\MCU\STM32F7xx\WWD\wwd_SDIO.c(473): warning:  #177-D: variable "temp_sta"  was declared but never referenced
-          uint32_t temp_sta;
-..\..\..\WiFi_SDK\WICED\platform\MCU\STM32F7xx\WWD\wwd_SDIO.c(374): warning:  #550-D: variable "loop_count"  was set but never used
-      uint32_t loop_count = 0;
 ..\..\..\WiFi_SDK\WICED\platform\MCU\STM32F7xx\WWD\wwd_SDIO.c(93): warning:  #550-D: variable "current_command"  was set but never used
   static uint32_t               current_command;
 ..\..\..\WiFi_SDK\WICED\platform\MCU\STM32F7xx\WWD\wwd_SDIO.c(94): warning:  #550-D: variable "current_transfer_direction"  was set but never used
   static wwd_bus_transfer_direction_t current_transfer_direction;
-..\..\..\WiFi_SDK\WICED\platform\MCU\STM32F7xx\WWD\wwd_SDIO.c: 6 warnings, 0 errors
+..\..\..\WiFi_SDK\WICED\platform\MCU\STM32F7xx\WWD\wwd_SDIO.c: 4 warnings, 0 errors
 linking...
 ..\..\Output\USART1.axf: Warning: L6304W: Duplicate input file ..\..\output\43362a2_bin_1.o ignored.
-Program Size: Code=72928 RO-data=213936 RW-data=732 ZI-data=125980  
+Program Size: Code=72956 RO-data=213936 RW-data=732 ZI-data=125980  
 Finished: 0 information, 1 warning and 0 error messages.
-"..\..\Output\USART1.axf" - 0 Error(s), 7 Warning(s).
+"..\..\Output\USART1.axf" - 0 Error(s), 8 Warning(s).
 
 <h2>Software Packages used:</h2>
 
@@ -59,7 +63,7 @@ Package Vendor: Keil
   E:\Keil_v5\Packs\Keil\STM32F7xx_DFP\2.7.0\Drivers\CMSIS\Device\ST\STM32F7xx\Include
 
 <h2>Collection of Component Files used:</h2>
-Build Time Elapsed:  00:00:09
+Build Time Elapsed:  00:00:07
 </pre>
 </body>
 </html>

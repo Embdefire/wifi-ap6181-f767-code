@@ -2424,7 +2424,8 @@ static HAL_SD_ErrorTypedef SD_PowerON(SD_HandleTypeDef *hsd)
 
   /* 1ms: required power up waiting time before starting the SD initialization 
      sequence */
-  HAL_Delay(1);
+  //HAL_Delay(1);
+	vTaskDelay(1);
   
   /* Enable SDMMC Clock */
   __HAL_SD_SDMMC_ENABLE(hsd);

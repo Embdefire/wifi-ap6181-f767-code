@@ -263,10 +263,15 @@ wwd_result_t wwd_bus_init( void )
         loop_count++;
         if ( loop_count >= (uint32_t) F0_WORKING_TIMEOUT_MS )
         {
+					printf("byte_data->%d\r\n",byte_data);
+					while(1){}
             return WWD_TIMEOUT;
         }
     } while (byte_data != (uint8_t) SDIO_FUNC_ENABLE_1);
 
+		printf("byte_data->%d\r\n",byte_data);
+		while(1){}
+		
 #ifndef SDIO_1_BIT
     /* Read the bus width and set to 4 bits */
     VERIFY_RESULT( wwd_bus_read_register_value (BUS_FUNCTION, SDIOD_CCCR_BICTRL, (uint8_t) 1, &byte_data) );

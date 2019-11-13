@@ -152,78 +152,231 @@ uint8_t host_platform_get_oob_interrupt_pin( void )
 #endif /* ifndef  WICED_DISABLE_MCU_POWERSAVE */
 extern void SD_LowLevel_Init(void);
 
-wwd_result_t host_platform_bus_init( void )
+
+#define SD_CardInfo HAL_SD_CardInfoTypedef
+  
+#define MSD_OK                        ((uint8_t)0x00)
+#define MSD_ERROR                     ((uint8_t)0x01)
+static SD_HandleTypeDef uSdHandle;
+static SD_CardInfo      uSdCardInfo;
+
+/**
+  * @brief  初始化SD外设
+  * @param  hsd: SD 句柄
+  * @param  Params
+  * @retval None
+  */
+void BSP_SD_MspInit(SD_HandleTypeDef *hsd, void *Params)
 {
-    SDMMC_InitTypeDef sdio_init_structure;
-    wwd_result_t result;
-    uint8_t a;
-    HAL_StatusTypeDef HAL_return;
+  static DMA_HandleTypeDef dma_rx_handle;
+  static DMA_HandleTypeDef dma_tx_handle;
+  GPIO_InitTypeDef gpio_init_structure;
 
-    platform_mcu_powersave_disable( );
+  /* 使能 SDMMC 时钟 */
+  __HAL_RCC_SDMMC1_CLK_ENABLE();
+  
+  /* 使能 DMA2 时钟 */
+  __DMA2_CLK_ENABLE();
 
-    /* Reset SDIO Block */
-    SDMMC_PowerState_OFF( SDMMC1 );
-    __HAL_RCC_SDMMC1_FORCE_RESET( );
-    __HAL_RCC_SDMMC1_RELEASE_RESET( );
+  /* 使能 GPIOs 时钟 */
+  __HAL_RCC_GPIOC_CLK_ENABLE();
+  __HAL_RCC_GPIOD_CLK_ENABLE();
+  
+  /* 配置GPIO复用推挽、上拉、高速模式 */
+  gpio_init_structure.Mode      = GPIO_MODE_AF_PP;
+  gpio_init_structure.Pull      = GPIO_PULLUP;
+  gpio_init_structure.Speed     = GPIO_SPEED_HIGH;
+  gpio_init_structure.Alternate = GPIO_AF12_SDMMC1;
+  
+  /* GPIOC 配置 */
+  gpio_init_structure.Pin = GPIO_PIN_8 | GPIO_PIN_9 | GPIO_PIN_10 | GPIO_PIN_11 | GPIO_PIN_12;
+  HAL_GPIO_Init(GPIOC, &gpio_init_structure);
 
-    /* Enable the SDIO Clock */
-    __HAL_RCC_SDMMC1_CLK_ENABLE( );
+  /* GPIOD 配置 */
+  gpio_init_structure.Pin = GPIO_PIN_2;
+  HAL_GPIO_Init(GPIOD, &gpio_init_structure);
 
-    result = host_rtos_init_semaphore( &sdio_transfer_finished_semaphore );
-    if ( result != WWD_SUCCESS )
-    {
-        return result;
-    }
-
-    /* Clear all SDIO interrupts */
-    SDMMC1->ICR = (uint32_t) 0xffffffff;
-
-    /* Turn on SDIO IRQ */
-    /* Must be lower priority than the value of configMAX_SYSCALL_INTERRUPT_PRIORITY */
-    /* otherwise FreeRTOS will not be able to mask the interrupt */
-    /* keep in mind that ARMCM7 interrupt priority logic is inverted, the highest value */
-    /* is the lowest priority */
-    HAL_NVIC_EnableIRQ( (IRQn_Type) SDIO_IRQ_CHANNEL );
-
-#ifdef WICED_WIFI_USE_GPIO_FOR_BOOTSTRAP_0
-    /* Set GPIO_B[1:0] to 00 to put WLAN module into SDIO mode */
-    platform_gpio_init( &wifi_control_pins[WWD_PIN_BOOTSTRAP_0], OUTPUT_PUSH_PULL );
-    platform_gpio_output_low( &wifi_control_pins[WWD_PIN_BOOTSTRAP_0] );
-#endif
-#ifdef WICED_WIFI_USE_GPIO_FOR_BOOTSTRAP_1
-    platform_gpio_init( &wifi_control_pins[WWD_PIN_BOOTSTRAP_1], OUTPUT_PUSH_PULL );
-    platform_gpio_output_low( &wifi_control_pins[WWD_PIN_BOOTSTRAP_1] );
-#endif
-
-    /* Setup GPIO pins for SDIO data & clock */
-
-		SD_LowLevel_Init();//WIFI SDIO初始化
-
-    /* SDMMC Initialization Frequency (400KHz max) for IP CLK 200MHz*/
-
-    sdio_init_structure.ClockDiv            = SDMMC_INIT_CLK_DIV;
-    sdio_init_structure.ClockEdge           = SDMMC_CLOCK_EDGE_RISING;
-    sdio_init_structure.ClockPowerSave      = SDMMC_CLOCK_POWER_SAVE_DISABLE;
-    sdio_init_structure.BusWide             = SDMMC_BUS_WIDE_1B;
-    sdio_init_structure.HardwareFlowControl = SDMMC_HARDWARE_FLOW_CONTROL_DISABLE;
-    HAL_return                              = SDMMC_Init( SDMMC1, sdio_init_structure );
-		printf("HAL_return----->>>>%d\r\n",HAL_return);
-    HAL_return                             |= SDMMC_PowerState_ON( SDMMC1 );
-		printf("HAL_return----->>>>%d\r\n",HAL_return);
-    HAL_return                             |= SDMMC_SetSDMMCReadWaitMode( SDMMC1, SDMMC_READ_WAIT_MODE_CLK );
-		printf("HAL_return----->>>>%d\r\n",HAL_return);
-		
-				  /* SDIO 中断配置 */
+  /* SDIO 中断配置 */
   HAL_NVIC_SetPriority(SDMMC1_IRQn, 5, 0);
   HAL_NVIC_EnableIRQ(SDMMC1_IRQn);
+    
+  /* 配置 DMA 接收参数 */
+  dma_rx_handle.Init.Channel             = DMA_CHANNEL_4;
+  dma_rx_handle.Init.Direction           = DMA_PERIPH_TO_MEMORY;
+  dma_rx_handle.Init.PeriphInc           = DMA_PINC_DISABLE;
+  dma_rx_handle.Init.MemInc              = DMA_MINC_ENABLE;
+  dma_rx_handle.Init.PeriphDataAlignment = DMA_PDATAALIGN_WORD;
+  dma_rx_handle.Init.MemDataAlignment    = DMA_MDATAALIGN_WORD;
+  dma_rx_handle.Init.Mode                = DMA_PFCTRL;
+  dma_rx_handle.Init.Priority            = DMA_PRIORITY_VERY_HIGH;
+  dma_rx_handle.Init.FIFOMode            = DMA_FIFOMODE_ENABLE;
+  dma_rx_handle.Init.FIFOThreshold       = DMA_FIFO_THRESHOLD_FULL;
+  dma_rx_handle.Init.MemBurst            = DMA_MBURST_INC4;
+  dma_rx_handle.Init.PeriphBurst         = DMA_PBURST_INC4;
+  
+  dma_rx_handle.Instance = DMA2_Stream3;
+  
+  /* 关联DMA句柄 */
+  __HAL_LINKDMA(hsd, hdmarx, dma_rx_handle);
+  
+  /* 初始化传输数据流为默认值 */
+  HAL_DMA_DeInit(&dma_rx_handle);
+  
+  /* 配置 DMA 数据流 */
+  HAL_DMA_Init(&dma_rx_handle);
+  
+  /* 配置 DMA 发送参数 */
+  dma_tx_handle.Init.Channel             = DMA_CHANNEL_4;
+  dma_tx_handle.Init.Direction           = DMA_MEMORY_TO_PERIPH;
+  dma_tx_handle.Init.PeriphInc           = DMA_PINC_DISABLE;
+  dma_tx_handle.Init.MemInc              = DMA_MINC_ENABLE;
+  dma_tx_handle.Init.PeriphDataAlignment = DMA_PDATAALIGN_WORD;
+  dma_tx_handle.Init.MemDataAlignment    = DMA_MDATAALIGN_WORD;
+  dma_tx_handle.Init.Mode                = DMA_PFCTRL;
+  dma_tx_handle.Init.Priority            = DMA_PRIORITY_VERY_HIGH;
+  dma_tx_handle.Init.FIFOMode            = DMA_FIFOMODE_ENABLE;
+  dma_tx_handle.Init.FIFOThreshold       = DMA_FIFO_THRESHOLD_FULL;
+  dma_tx_handle.Init.MemBurst            = DMA_MBURST_INC4;
+  dma_tx_handle.Init.PeriphBurst         = DMA_PBURST_INC4;
+  
+  dma_tx_handle.Instance = DMA2_Stream6;
+  
+  /* 关联 DMA 句柄 */
+  __HAL_LINKDMA(hsd, hdmatx, dma_tx_handle);
+  
+  /* 初始化传输数据流为默认值 */
+  HAL_DMA_DeInit(&dma_tx_handle);
+  
+  /* 配置 DMA 数据流 */
+  HAL_DMA_Init(&dma_tx_handle); 
+  
+  /* 配置DMA接收传输完成中断 */
+  HAL_NVIC_SetPriority(DMA2_Stream3_IRQn, 6, 0);
+  HAL_NVIC_EnableIRQ(DMA2_Stream3_IRQn);
+  
+  /* 配置DMA发送传输完成中断 */
+  HAL_NVIC_SetPriority(DMA2_Stream6_IRQn, 6, 0);
+  HAL_NVIC_EnableIRQ(DMA2_Stream6_IRQn);
+}
 
 
-    if ( HAL_return |= HAL_OK )
+/**
+  * @brief  初始化SD卡设备
+  * @retval SD卡状态
+  */
+uint8_t BSP_SD_Init(void)
+{ 
+  uint8_t sd_state = MSD_OK;
+  
+  /* 定义SDMMC句柄 */
+  uSdHandle.Instance = SDMMC1;
+
+  uSdHandle.Init.ClockEdge           = SDMMC_CLOCK_EDGE_RISING;
+  uSdHandle.Init.ClockBypass         = SDMMC_CLOCK_BYPASS_DISABLE;
+  uSdHandle.Init.ClockPowerSave      = SDMMC_CLOCK_POWER_SAVE_DISABLE;
+  uSdHandle.Init.BusWide             = SDMMC_BUS_WIDE_1B;
+  uSdHandle.Init.HardwareFlowControl = SDMMC_HARDWARE_FLOW_CONTROL_DISABLE;
+  uSdHandle.Init.ClockDiv            = SDMMC_TRANSFER_CLK_DIV;
+  
+  /* 初始化SD底层驱动 */
+  BSP_SD_MspInit(&uSdHandle, NULL);
+
+  /* HAL SD 初始化 */
+  if(HAL_SD_Init(&uSdHandle, &uSdCardInfo) != SD_OK)
+  {
+    sd_state = MSD_ERROR;
+  }
+  
+  /* 配置SD总线位宽 */
+  if(sd_state == MSD_OK)
+  {
+    /* 配置为4bit模式 */
+    if(HAL_SD_WideBusOperation_Config(&uSdHandle, SDMMC_BUS_WIDE_4B) != SD_OK)
     {
-        return (~WWD_SUCCESS);
+      sd_state = MSD_ERROR;
     }
+    else
+    {
+      sd_state = MSD_OK;
+    }
+  }
+  
+  return  sd_state;
+}
 
-    platform_mcu_powersave_enable( );
+wwd_result_t host_platform_bus_init( void )
+{
+//    SDMMC_InitTypeDef sdio_init_structure;
+//    wwd_result_t result;
+//    uint8_t a;
+//    HAL_StatusTypeDef HAL_return;
+
+//    platform_mcu_powersave_disable( );
+
+//    /* Reset SDIO Block */
+//    SDMMC_PowerState_OFF( SDMMC1 );
+//    __HAL_RCC_SDMMC1_FORCE_RESET( );
+//    __HAL_RCC_SDMMC1_RELEASE_RESET( );
+
+//    /* Enable the SDIO Clock */
+//    __HAL_RCC_SDMMC1_CLK_ENABLE( );
+
+//    result = host_rtos_init_semaphore( &sdio_transfer_finished_semaphore );
+//    if ( result != WWD_SUCCESS )
+//    {
+//        return result;
+//    }
+
+//    /* Clear all SDIO interrupts */
+//    SDMMC1->ICR = (uint32_t) 0xffffffff;
+
+//    /* Turn on SDIO IRQ */
+//    /* Must be lower priority than the value of configMAX_SYSCALL_INTERRUPT_PRIORITY */
+//    /* otherwise FreeRTOS will not be able to mask the interrupt */
+//    /* keep in mind that ARMCM7 interrupt priority logic is inverted, the highest value */
+//    /* is the lowest priority */
+//    HAL_NVIC_EnableIRQ( (IRQn_Type) SDIO_IRQ_CHANNEL );
+
+//#ifdef WICED_WIFI_USE_GPIO_FOR_BOOTSTRAP_0
+//    /* Set GPIO_B[1:0] to 00 to put WLAN module into SDIO mode */
+//    platform_gpio_init( &wifi_control_pins[WWD_PIN_BOOTSTRAP_0], OUTPUT_PUSH_PULL );
+//    platform_gpio_output_low( &wifi_control_pins[WWD_PIN_BOOTSTRAP_0] );
+//#endif
+//#ifdef WICED_WIFI_USE_GPIO_FOR_BOOTSTRAP_1
+//    platform_gpio_init( &wifi_control_pins[WWD_PIN_BOOTSTRAP_1], OUTPUT_PUSH_PULL );
+//    platform_gpio_output_low( &wifi_control_pins[WWD_PIN_BOOTSTRAP_1] );
+//#endif
+
+//    /* Setup GPIO pins for SDIO data & clock */
+
+//		SD_LowLevel_Init();//WIFI SDIO初始化
+
+//    /* SDMMC Initialization Frequency (400KHz max) for IP CLK 200MHz*/
+
+//    sdio_init_structure.ClockDiv            = SDMMC_INIT_CLK_DIV;
+//    sdio_init_structure.ClockEdge           = SDMMC_CLOCK_EDGE_RISING;
+//    sdio_init_structure.ClockPowerSave      = SDMMC_CLOCK_POWER_SAVE_DISABLE;
+//    sdio_init_structure.BusWide             = SDMMC_BUS_WIDE_1B;
+//    sdio_init_structure.HardwareFlowControl = SDMMC_HARDWARE_FLOW_CONTROL_DISABLE;
+//    HAL_return                              = SDMMC_Init( SDMMC1, sdio_init_structure );
+//		printf("HAL_return----->>>>%d\r\n",HAL_return);
+//    HAL_return                             |= SDMMC_PowerState_ON( SDMMC1 );
+//		printf("HAL_return----->>>>%d\r\n",HAL_return);
+//    HAL_return                             |= SDMMC_SetSDMMCReadWaitMode( SDMMC1, SDMMC_READ_WAIT_MODE_CLK );
+//		printf("HAL_return----->>>>%d\r\n",HAL_return);
+//		
+//				  /* SDIO 中断配置 */
+//  HAL_NVIC_SetPriority(SDMMC1_IRQn, 5, 0);
+//  HAL_NVIC_EnableIRQ(SDMMC1_IRQn);
+
+
+//    if ( HAL_return |= HAL_OK )
+//    {
+//        return (~WWD_SUCCESS);
+//    }
+
+//    platform_mcu_powersave_enable( );
+		BSP_SD_Init();
     return WWD_SUCCESS;
 }
 
@@ -393,12 +546,13 @@ wwd_result_t host_platform_sdio_transfer( wwd_bus_transfer_direction_t direction
     /* ALl SDIO CMD other than CMD53 */
     else
     {
+				printf("命令编号：%d\r\n",command);
         uint32_t temp_sta;
 
         /* Send the command */
         SDMMC1->ARG = argument;
         SDMMC1->CMD = (uint32_t) ( command | SDMMC_RESPONSE_SHORT | SDMMC_WAIT_NO | SDMMC_CPSM_ENABLE );
-
+				vTaskDelay(1);
         loop_count = (uint32_t) COMMAND_FINISHED_CMD52_TIMEOUT_LOOPS;
         do
         {
@@ -410,7 +564,7 @@ wwd_result_t host_platform_sdio_transfer( wwd_bus_transfer_direction_t direction
             }
         } while ( ( temp_sta & ( SDMMC_STA_RXACT | SDMMC_STA_TXACT ) ) != 0 );//已修改
     }
-
+				printf("                        SDIO->STA->%d\r\n",SDMMC1->STA);
     if ( response != NULL )
     {
         *response = SDMMC1->RESP1;

@@ -286,7 +286,7 @@
   */
 static HAL_SD_ErrorTypedef SD_Initialize_Cards(SD_HandleTypeDef *hsd);
 static HAL_SD_ErrorTypedef SD_Select_Deselect(SD_HandleTypeDef *hsd, uint64_t addr);
-static HAL_SD_ErrorTypedef SD_PowerON(SD_HandleTypeDef *hsd); 
+HAL_SD_ErrorTypedef SD_PowerON(SD_HandleTypeDef *hsd); 
 static HAL_SD_ErrorTypedef SD_PowerOFF(SD_HandleTypeDef *hsd);
 static HAL_SD_ErrorTypedef SD_SendStatus(SD_HandleTypeDef *hsd, uint32_t *pCardStatus);
 static HAL_SD_CardStateTypedef SD_GetState(SD_HandleTypeDef *hsd);
@@ -384,6 +384,63 @@ HAL_SD_ErrorTypedef HAL_SD_Init(SD_HandleTypeDef *hsd, HAL_SD_CardInfoTypedef *S
   
   /* Configure SDMMC peripheral interface */
   SDMMC_Init(hsd->Instance, hsd->Init);   
+  
+  return errorstate;
+}
+
+
+HAL_SD_ErrorTypedef HAL_SDIO_WIFI_Init(SD_HandleTypeDef *hsd)
+{ 
+  __IO HAL_SD_ErrorTypedef errorstate = SD_OK;
+  SD_InitTypeDef tmpinit;
+  
+  /* Allocate lock resource and initialize it */
+  hsd->Lock = HAL_UNLOCKED;
+  
+  /* Initialize the low level hardware (MSP) */
+  HAL_SD_MspInit(hsd);
+  
+  /* Default SDMMC peripheral configuration for SD card initialization */
+  tmpinit.ClockEdge           = SDMMC_CLOCK_EDGE_RISING;
+  tmpinit.ClockBypass         = SDMMC_CLOCK_BYPASS_DISABLE;
+  tmpinit.ClockPowerSave      = SDMMC_CLOCK_POWER_SAVE_DISABLE;
+  tmpinit.BusWide             = SDMMC_BUS_WIDE_1B;
+  tmpinit.HardwareFlowControl = SDMMC_HARDWARE_FLOW_CONTROL_DISABLE;
+  tmpinit.ClockDiv            = SDMMC_INIT_CLK_DIV;
+  
+  /* Initialize SDMMC peripheral interface with default configuration */
+  SDMMC_Init(hsd->Instance, tmpinit);
+  
+  /* Identify card operating voltage */
+  
+	errorstate = SD_PowerON(hsd); 
+	
+  SDMMC1->POWER |= SDMMC_POWER_PWRCTRL;
+	
+  if(errorstate != SD_OK)     
+  {
+    return errorstate;
+  }
+  
+  /* Initialize the present SDMMC card(s) and put them in idle state */
+//  errorstate = SD_Initialize_Cards(hsd);
+//  
+//  if (errorstate != SD_OK)
+//  {
+//    return errorstate;
+//  }
+  
+  /* Read CSD/CID MSD registers */
+//errorstate = HAL_SD_Get_CardInfo(hsd, SDCardInfo);
+
+//if (errorstate == SD_OK)
+//{
+//	/* Select the Card */
+//	errorstate = SD_Select_Deselect(hsd, (uint32_t)(((uint32_t)SDCardInfo->RCA) << 16));
+//}
+  
+  /* Configure SDMMC peripheral interface */
+//  SDMMC_Init(hsd->Instance, hsd->Init);   
   
   return errorstate;
 }
@@ -2408,7 +2465,7 @@ static HAL_SD_ErrorTypedef SD_Select_Deselect(SD_HandleTypeDef *hsd, uint64_t ad
   * @param  hsd: SD handle
   * @retval SD Card error state
   */
-static HAL_SD_ErrorTypedef SD_PowerON(SD_HandleTypeDef *hsd)
+HAL_SD_ErrorTypedef SD_PowerON(SD_HandleTypeDef *hsd)
 {
   SDMMC_CmdInitTypeDef sdmmc_cmdinitstructure; 
   __IO HAL_SD_ErrorTypedef errorstate = SD_OK; 

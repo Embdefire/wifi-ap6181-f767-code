@@ -174,9 +174,7 @@ void BSP_SD_MspInit(SD_HandleTypeDef *hsd, void *Params)
 
   /* 使能 SDMMC 时钟 */
   __HAL_RCC_SDMMC1_CLK_ENABLE();
-  
-//  /* 使能 DMA2 时钟 */
-//  __DMA2_CLK_ENABLE();
+
 
   /* 使能 GPIOs 时钟 */
   __HAL_RCC_GPIOC_CLK_ENABLE();
@@ -200,6 +198,11 @@ void BSP_SD_MspInit(SD_HandleTypeDef *hsd, void *Params)
   HAL_NVIC_SetPriority(SDMMC1_IRQn, 5, 0);
   HAL_NVIC_EnableIRQ(SDMMC1_IRQn);
     
+		
+		  
+//  /* 使能 DMA2 时钟 */
+//  __DMA2_CLK_ENABLE();
+		
 	///* 配置 DMA 接收参数 */
 	//dma_rx_handle.Init.Channel             = DMA_CHANNEL_4;
 	//dma_rx_handle.Init.Direction           = DMA_PERIPH_TO_MEMORY;
@@ -264,43 +267,63 @@ void BSP_SD_MspInit(SD_HandleTypeDef *hsd, void *Params)
   * @brief  初始化SD卡设备
   * @retval SD卡状态
   */
+extern HAL_SD_ErrorTypedef HAL_SDIO_WIFI_Init(SD_HandleTypeDef *hsd);
+extern HAL_SD_ErrorTypedef SD_PowerON(SD_HandleTypeDef *hsd); 
 uint8_t BSP_SD_Init(void)
 { 
   uint8_t sd_state = MSD_OK;
-  
   /* 定义SDMMC句柄 */
   uSdHandle.Instance = SDMMC1;
-
-  uSdHandle.Init.ClockEdge           = SDMMC_CLOCK_EDGE_RISING;
-  uSdHandle.Init.ClockBypass         = SDMMC_CLOCK_BYPASS_DISABLE;
-  uSdHandle.Init.ClockPowerSave      = SDMMC_CLOCK_POWER_SAVE_DISABLE;
-  uSdHandle.Init.BusWide             = SDMMC_BUS_WIDE_1B;
-  uSdHandle.Init.HardwareFlowControl = SDMMC_HARDWARE_FLOW_CONTROL_DISABLE;
-  uSdHandle.Init.ClockDiv            = SDMMC_TRANSFER_CLK_DIV;
+  GPIO_InitTypeDef gpio_init_structure;
+	
+//  /* 初始化SD底层驱动 */
+  /* 使能 SDMMC 时钟 */
+  __HAL_RCC_SDMMC1_CLK_ENABLE();
+  /* 使能 GPIOs 时钟 */
+  __HAL_RCC_GPIOC_CLK_ENABLE();
+  __HAL_RCC_GPIOD_CLK_ENABLE();
   
-  /* 初始化SD底层驱动 */
-  BSP_SD_MspInit(&uSdHandle, NULL);
+  /* 配置GPIO复用推挽、上拉、高速模式 */
+  gpio_init_structure.Mode      = GPIO_MODE_AF_PP;
+  gpio_init_structure.Pull      = GPIO_PULLUP;
+  gpio_init_structure.Speed     = GPIO_SPEED_HIGH;
+  gpio_init_structure.Alternate = GPIO_AF12_SDMMC1;
+  
+  /* GPIOC 配置 */
+  gpio_init_structure.Pin = GPIO_PIN_8 | GPIO_PIN_9 | GPIO_PIN_10 | GPIO_PIN_11 | GPIO_PIN_12;
+  HAL_GPIO_Init(GPIOC, &gpio_init_structure);
+
+  /* GPIOD 配置 */
+  gpio_init_structure.Pin = GPIO_PIN_2;
+  HAL_GPIO_Init(GPIOD, &gpio_init_structure);
+
+//  /* SDIO 中断配置 */
+  HAL_NVIC_SetPriority(SDMMC1_IRQn, 5, 0);
+  HAL_NVIC_EnableIRQ(SDMMC1_IRQn);
+  
+	/*分配锁资源并对其进行初始化*/
+  uSdHandle.Lock = HAL_UNLOCKED;
+	HAL_SD_MspInit(&uSdHandle);
+	
+  SD_InitTypeDef tmpinit;
+  tmpinit.ClockEdge           = SDMMC_CLOCK_EDGE_RISING;
+  tmpinit.ClockBypass         = SDMMC_CLOCK_BYPASS_DISABLE;
+  tmpinit.ClockPowerSave      = SDMMC_CLOCK_POWER_SAVE_ENABLE;
+  tmpinit.BusWide             = SDMMC_BUS_WIDE_1B;
+  tmpinit.HardwareFlowControl = SDMMC_HARDWARE_FLOW_CONTROL_DISABLE;
+  tmpinit.ClockDiv            = SDMMC_INIT_CLK_DIV;
+
+	SDMMC_Init(uSdHandle.Instance, tmpinit);
+	
+	SD_PowerON(&uSdHandle); 
+	 //SDMMC1->POWER |= SDMMC_POWER_PWRCTRL;
 
   /* HAL SD 初始化 */
-  if(HAL_SD_Init(&uSdHandle, &uSdCardInfo) != SD_OK)
-  {
-    sd_state = MSD_ERROR;
-  }
-  //这里不需要配置4BIT
-//  /* 配置SD总线位宽 */
-//  if(sd_state == MSD_OK)
+//  if(HAL_SDIO_WIFI_Init(&uSdHandle) != SD_OK)
 //  {
-//    /* 配置为4bit模式 */
-//    if(HAL_SD_WideBusOperation_Config(&uSdHandle, SDMMC_BUS_WIDE_4B) != SD_OK)
-//    {
-//      sd_state = MSD_ERROR;
-//    }
-//    else
-//    {
-//      sd_state = MSD_OK;
-//    }
+//    sd_state = MSD_ERROR;
 //  }
-//  
+ 
   return  sd_state;
 }
 

@@ -769,6 +769,61 @@ void host_platform_bus_buffer_freed( wwd_buffer_dir_t direction )
  *             IRQ Handler Definitions
  ******************************************************/
 //WWD_RTOS_DEFINE_ISR( sdio_irq )
+//void sdmmc_irq()
+//{
+//    uint32_t intstatus = SDMMC1->STA;//寄存器数值不对
+
+//    WWD_BUS_STATS_INCREMENT_VARIABLE( sdio_intrs );
+
+//    if ( ( intstatus & ( SDMMC_STA_CCRCFAIL | SDMMC_STA_DCRCFAIL | SDMMC_STA_TXUNDERR | SDMMC_STA_RXOVERR ) ) != 0 )
+//    {
+//        WWD_BUS_STATS_INCREMENT_VARIABLE( error_intrs );
+//        wiced_assert("sdio error flagged",0);
+//        sdio_transfer_failed = WICED_TRUE;
+//        SDMMC1->ICR = (uint32_t) 0xffffffff;
+//        host_rtos_set_semaphore( &sdio_transfer_finished_semaphore, WICED_TRUE );
+//    }
+//    else
+//    {
+//        if ((intstatus & (SDMMC_STA_CMDREND | SDMMC_STA_CMDSENT)) != 0)
+//        {
+//            if ( ( SDMMC1->RESP1 & 0x800 ) != 0 )
+//            {
+//                sdio_transfer_failed = WICED_TRUE;
+//                host_rtos_set_semaphore( &sdio_transfer_finished_semaphore, WICED_TRUE );
+//            }
+
+//            /* Clear all command/response interrupts */
+//            SDMMC1->ICR = (SDMMC_STA_CMDREND | SDMMC_STA_CMDSENT);
+//        }
+
+//        if (intstatus & SDMMC_STA_DATAEND)
+//        {
+//            wwd_result_t result;
+//            SDMMC1->ICR      = SDMMC_STA_DATAEND;
+//            SDMMC1->DLEN     = 0;
+//            SDMMC1->DCTRL    = SDMMC_DCTRL_SDIOEN;
+//            //SDMMC1->IDMACTRL = SDMMC_DISABLE_IDMA;
+//            SDMMC1->CMD      = 0;
+//            result = host_rtos_set_semaphore( &sdio_transfer_finished_semaphore, WICED_TRUE );
+//            wiced_assert( "failed to set dma semaphore", result == WWD_SUCCESS );
+//        }
+
+//        /* Check whether the external interrupt was triggered */
+//        if (intstatus & SDMMC_STA_SDIOIT)
+//        {
+//            /* Clear the interrupt */
+//            SDMMC1->ICR   = SDMMC_STA_SDIOIT;
+//            /* Mask interrupt, to be unmasked later by WICED WWD thread */
+//					
+//            SDMMC1->MASK &= ~(SDMMC_MASK_SDIOITIE);
+//															
+//            /* Inform WICED WWD thread */
+//            wwd_thread_notify_irq( );
+//        }
+//    }
+//}
+
 void sdmmc_irq()
 {
     uint32_t intstatus = SDMMC1->STA;//寄存器数值不对
@@ -785,40 +840,57 @@ void sdmmc_irq()
     }
     else
     {
-        if ((intstatus & (SDMMC_STA_CMDREND | SDMMC_STA_CMDSENT)) != 0)
+        if ( ( intstatus & ( SDMMC_STA_CMDREND | SDMMC_STA_CMDSENT ) ) != 0)
         {
             if ( ( SDMMC1->RESP1 & 0x800 ) != 0 )
             {
                 sdio_transfer_failed = WICED_TRUE;
                 host_rtos_set_semaphore( &sdio_transfer_finished_semaphore, WICED_TRUE );
             }
+            else if ( current_command == SDIO_CMD_53 )
+            {
+                if ( current_transfer_direction == BUS_WRITE )//写
+                {
+                    DMA2_Stream3->CR = 
+																			DMA_MEMORY_TO_PERIPH |	 	//内存->外设 方向
+																			DMA_PINC_DISABLE | 				//DMA外设递增模式
+																			DMA_MINC_ENABLE |				 	//DMA内存递增模式
+																			DMA_PDATAALIGN_WORD | 		//外围数据对齐：Word
+																			DMA_MDATAALIGN_WORD |			//内存数据对齐：Word
+																			DMA_PFCTRL | 							//模式（外围流量控制方式）
+																			DMA_PRIORITY_VERY_HIGH |	//优先级：非常高
+																			DMA_FIFOMODE_ENABLE|
+																			DMA_FIFO_THRESHOLD_FULL|
+																			DMA_MBURST_INC4|
+                                      DMA_PBURST_INC4;       
+                }
+                else//读
+                {
+                    DMA2_Stream3->CR = DMA_PERIPH_TO_MEMORY |    //外设->内存 方向
+																			DMA_PINC_DISABLE |         //DMA外设递增模式
+																			DMA_MINC_ENABLE |          //DMA内存递增模式
+																			DMA_PDATAALIGN_WORD |      //外围数据对齐：Word
+																			DMA_MDATAALIGN_WORD |      //内存数据对齐：Word
+																			DMA_PFCTRL |               //模式（外围流量控制方式）
+																			DMA_PRIORITY_VERY_HIGH |   //优先级：非常高
+																			DMA_FIFOMODE_ENABLE|
+																			DMA_FIFO_THRESHOLD_FULL|
+																			DMA_MBURST_INC4|
+                                      DMA_PBURST_INC4;       
+                }
+            }
 
             /* Clear all command/response interrupts */
-            SDMMC1->ICR = (SDMMC_STA_CMDREND | SDMMC_STA_CMDSENT);
-        }
-
-        if (intstatus & SDMMC_STA_DATAEND)
-        {
-            wwd_result_t result;
-            SDMMC1->ICR      = SDMMC_STA_DATAEND;
-            SDMMC1->DLEN     = 0;
-            SDMMC1->DCTRL    = SDMMC_DCTRL_SDIOEN;
-            //SDMMC1->IDMACTRL = SDMMC_DISABLE_IDMA;
-            SDMMC1->CMD      = 0;
-            result = host_rtos_set_semaphore( &sdio_transfer_finished_semaphore, WICED_TRUE );
-            wiced_assert( "failed to set dma semaphore", result == WWD_SUCCESS );
+            SDMMC1->ICR = ( SDMMC_STA_CMDREND | SDMMC_STA_CMDSENT );
         }
 
         /* Check whether the external interrupt was triggered */
-        if (intstatus & SDMMC_STA_SDIOIT)
+        if ( ( intstatus & SDMMC_STA_SDIOIT ) != 0 )
         {
-            /* Clear the interrupt */
-            SDMMC1->ICR   = SDMMC_STA_SDIOIT;
+            /* Clear the interrupt and then inform WICED thread */
+            SDMMC1->ICR = SDMMC_ICR_SDIOITC;
             /* Mask interrupt, to be unmasked later by WICED WWD thread */
-					
-            SDMMC1->MASK &= ~(SDMMC_MASK_SDIOITIE);
-															
-            /* Inform WICED WWD thread */
+            SDMMC1->MASK &= ~( SDMMC_MASK_SDIOITIE );
             wwd_thread_notify_irq( );
         }
     }

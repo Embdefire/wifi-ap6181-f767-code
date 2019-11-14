@@ -169,3 +169,7 @@
 ..\..\output\main.o: ..\..\..\WiFi_SDk\WICED\security\BESL\include\besl_structures.h
 ..\..\output\main.o: ..\..\..\WiFi_SDk\WICED\platform\include\platform_constants.h
 ..\..\output\main.o: ..\..\..\WiFi_SDk\include\wiced_bluetooth_result.h
+..\..\output\main.o: ..\..\User\cm_backtrace\cm_backtrace.h
+..\..\output\main.o: ..\..\User\cm_backtrace\cmb_def.h
+..\..\output\main.o: ..\..\User\cm_backtrace\cmb_cfg.h
+..\..\output\main.o: E:\Keil_v5\ARM\ARMCC\Bin\..\include\stdlib.h

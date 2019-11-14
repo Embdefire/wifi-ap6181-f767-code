@@ -175,8 +175,8 @@ void BSP_SD_MspInit(SD_HandleTypeDef *hsd, void *Params)
   /* 使能 SDMMC 时钟 */
   __HAL_RCC_SDMMC1_CLK_ENABLE();
   
-  /* 使能 DMA2 时钟 */
-  __DMA2_CLK_ENABLE();
+//  /* 使能 DMA2 时钟 */
+//  __DMA2_CLK_ENABLE();
 
   /* 使能 GPIOs 时钟 */
   __HAL_RCC_GPIOC_CLK_ENABLE();
@@ -196,67 +196,67 @@ void BSP_SD_MspInit(SD_HandleTypeDef *hsd, void *Params)
   gpio_init_structure.Pin = GPIO_PIN_2;
   HAL_GPIO_Init(GPIOD, &gpio_init_structure);
 
-  /* SDIO 中断配置 */
+//  /* SDIO 中断配置 */
   HAL_NVIC_SetPriority(SDMMC1_IRQn, 5, 0);
   HAL_NVIC_EnableIRQ(SDMMC1_IRQn);
     
-  /* 配置 DMA 接收参数 */
-  dma_rx_handle.Init.Channel             = DMA_CHANNEL_4;
-  dma_rx_handle.Init.Direction           = DMA_PERIPH_TO_MEMORY;
-  dma_rx_handle.Init.PeriphInc           = DMA_PINC_DISABLE;
-  dma_rx_handle.Init.MemInc              = DMA_MINC_ENABLE;
-  dma_rx_handle.Init.PeriphDataAlignment = DMA_PDATAALIGN_WORD;
-  dma_rx_handle.Init.MemDataAlignment    = DMA_MDATAALIGN_WORD;
-  dma_rx_handle.Init.Mode                = DMA_PFCTRL;
-  dma_rx_handle.Init.Priority            = DMA_PRIORITY_VERY_HIGH;
-  dma_rx_handle.Init.FIFOMode            = DMA_FIFOMODE_ENABLE;
-  dma_rx_handle.Init.FIFOThreshold       = DMA_FIFO_THRESHOLD_FULL;
-  dma_rx_handle.Init.MemBurst            = DMA_MBURST_INC4;
-  dma_rx_handle.Init.PeriphBurst         = DMA_PBURST_INC4;
-  
-  dma_rx_handle.Instance = DMA2_Stream3;
-  
-  /* 关联DMA句柄 */
-  __HAL_LINKDMA(hsd, hdmarx, dma_rx_handle);
-  
-  /* 初始化传输数据流为默认值 */
-  HAL_DMA_DeInit(&dma_rx_handle);
-  
-  /* 配置 DMA 数据流 */
-  HAL_DMA_Init(&dma_rx_handle);
-  
-  /* 配置 DMA 发送参数 */
-  dma_tx_handle.Init.Channel             = DMA_CHANNEL_4;
-  dma_tx_handle.Init.Direction           = DMA_MEMORY_TO_PERIPH;
-  dma_tx_handle.Init.PeriphInc           = DMA_PINC_DISABLE;
-  dma_tx_handle.Init.MemInc              = DMA_MINC_ENABLE;
-  dma_tx_handle.Init.PeriphDataAlignment = DMA_PDATAALIGN_WORD;
-  dma_tx_handle.Init.MemDataAlignment    = DMA_MDATAALIGN_WORD;
-  dma_tx_handle.Init.Mode                = DMA_PFCTRL;
-  dma_tx_handle.Init.Priority            = DMA_PRIORITY_VERY_HIGH;
-  dma_tx_handle.Init.FIFOMode            = DMA_FIFOMODE_ENABLE;
-  dma_tx_handle.Init.FIFOThreshold       = DMA_FIFO_THRESHOLD_FULL;
-  dma_tx_handle.Init.MemBurst            = DMA_MBURST_INC4;
-  dma_tx_handle.Init.PeriphBurst         = DMA_PBURST_INC4;
-  
-  dma_tx_handle.Instance = DMA2_Stream6;
-  
-  /* 关联 DMA 句柄 */
-  __HAL_LINKDMA(hsd, hdmatx, dma_tx_handle);
-  
-  /* 初始化传输数据流为默认值 */
-  HAL_DMA_DeInit(&dma_tx_handle);
-  
-  /* 配置 DMA 数据流 */
-  HAL_DMA_Init(&dma_tx_handle); 
-  
-  /* 配置DMA接收传输完成中断 */
-  HAL_NVIC_SetPriority(DMA2_Stream3_IRQn, 6, 0);
-  HAL_NVIC_EnableIRQ(DMA2_Stream3_IRQn);
-  
-  /* 配置DMA发送传输完成中断 */
-  HAL_NVIC_SetPriority(DMA2_Stream6_IRQn, 6, 0);
-  HAL_NVIC_EnableIRQ(DMA2_Stream6_IRQn);
+	///* 配置 DMA 接收参数 */
+	//dma_rx_handle.Init.Channel             = DMA_CHANNEL_4;
+	//dma_rx_handle.Init.Direction           = DMA_PERIPH_TO_MEMORY;
+	//dma_rx_handle.Init.PeriphInc           = DMA_PINC_DISABLE;
+	//dma_rx_handle.Init.MemInc              = DMA_MINC_ENABLE;
+	//dma_rx_handle.Init.PeriphDataAlignment = DMA_PDATAALIGN_WORD;
+	//dma_rx_handle.Init.MemDataAlignment    = DMA_MDATAALIGN_WORD;
+	//dma_rx_handle.Init.Mode                = DMA_PFCTRL;
+	//dma_rx_handle.Init.Priority            = DMA_PRIORITY_VERY_HIGH;
+	//dma_rx_handle.Init.FIFOMode            = DMA_FIFOMODE_ENABLE;
+	//dma_rx_handle.Init.FIFOThreshold       = DMA_FIFO_THRESHOLD_FULL;
+	//dma_rx_handle.Init.MemBurst            = DMA_MBURST_INC4;
+	//dma_rx_handle.Init.PeriphBurst         = DMA_PBURST_INC4;
+
+	//dma_rx_handle.Instance = DMA2_Stream3;
+
+	///* 关联DMA句柄 */
+	//__HAL_LINKDMA(hsd, hdmarx, dma_rx_handle);
+
+	///* 初始化传输数据流为默认值 */
+	//HAL_DMA_DeInit(&dma_rx_handle);
+
+	///* 配置 DMA 数据流 */
+	//HAL_DMA_Init(&dma_rx_handle);
+
+	///* 配置 DMA 发送参数 */
+	//dma_tx_handle.Init.Channel             = DMA_CHANNEL_4;
+	//dma_tx_handle.Init.Direction           = DMA_MEMORY_TO_PERIPH;
+	//dma_tx_handle.Init.PeriphInc           = DMA_PINC_DISABLE;
+	//dma_tx_handle.Init.MemInc              = DMA_MINC_ENABLE;
+	//dma_tx_handle.Init.PeriphDataAlignment = DMA_PDATAALIGN_WORD;
+	//dma_tx_handle.Init.MemDataAlignment    = DMA_MDATAALIGN_WORD;
+	//dma_tx_handle.Init.Mode                = DMA_PFCTRL;
+	//dma_tx_handle.Init.Priority            = DMA_PRIORITY_VERY_HIGH;
+	//dma_tx_handle.Init.FIFOMode            = DMA_FIFOMODE_ENABLE;
+	//dma_tx_handle.Init.FIFOThreshold       = DMA_FIFO_THRESHOLD_FULL;
+	//dma_tx_handle.Init.MemBurst            = DMA_MBURST_INC4;
+	//dma_tx_handle.Init.PeriphBurst         = DMA_PBURST_INC4;
+
+	//dma_tx_handle.Instance = DMA2_Stream6;
+
+	///* 关联 DMA 句柄 */
+	//__HAL_LINKDMA(hsd, hdmatx, dma_tx_handle);
+
+	///* 初始化传输数据流为默认值 */
+	//HAL_DMA_DeInit(&dma_tx_handle);
+
+	///* 配置 DMA 数据流 */
+	//HAL_DMA_Init(&dma_tx_handle); 
+
+	///* 配置DMA接收传输完成中断 */
+	//HAL_NVIC_SetPriority(DMA2_Stream3_IRQn, 6, 0);
+	//HAL_NVIC_EnableIRQ(DMA2_Stream3_IRQn);
+
+	///* 配置DMA发送传输完成中断 */
+	//HAL_NVIC_SetPriority(DMA2_Stream6_IRQn, 6, 0);
+	//HAL_NVIC_EnableIRQ(DMA2_Stream6_IRQn);
 }
 
 
@@ -286,21 +286,21 @@ uint8_t BSP_SD_Init(void)
   {
     sd_state = MSD_ERROR;
   }
-  
-  /* 配置SD总线位宽 */
-  if(sd_state == MSD_OK)
-  {
-    /* 配置为4bit模式 */
-    if(HAL_SD_WideBusOperation_Config(&uSdHandle, SDMMC_BUS_WIDE_4B) != SD_OK)
-    {
-      sd_state = MSD_ERROR;
-    }
-    else
-    {
-      sd_state = MSD_OK;
-    }
-  }
-  
+  //这里不需要配置4BIT
+//  /* 配置SD总线位宽 */
+//  if(sd_state == MSD_OK)
+//  {
+//    /* 配置为4bit模式 */
+//    if(HAL_SD_WideBusOperation_Config(&uSdHandle, SDMMC_BUS_WIDE_4B) != SD_OK)
+//    {
+//      sd_state = MSD_ERROR;
+//    }
+//    else
+//    {
+//      sd_state = MSD_OK;
+//    }
+//  }
+//  
   return  sd_state;
 }
 
@@ -535,7 +535,9 @@ wwd_result_t host_platform_sdio_transfer( wwd_bus_transfer_direction_t direction
 
                 goto restart;
             }
-        } while ( ( SDMMC1->STA & ( SDMMC_STA_RXACT | SDMMC_STA_TXACT ) ) != 0 );//已修改
+//        } while ( ( SDMMC1->STA & ( SDMMC_STA_RXACT | SDMMC_STA_TXACT ) ) != 0 );//已修改	SDMMC_FLAG_CMDACT
+
+        } while ( ( SDMMC1->STA & ( SDMMC_FLAG_CMDACT ) ) != 0 );//已修改	SDMMC_FLAG_CMDACT				
 
         if ( direction == BUS_READ )
         {

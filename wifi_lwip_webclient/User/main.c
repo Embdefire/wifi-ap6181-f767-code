@@ -19,6 +19,12 @@
 
 #include "platform_init.h"
 
+
+#include <cm_backtrace.h>
+#define HARDWARE_VERSION               "V1.0.0"
+#define SOFTWARE_VERSION               "V0.1.0"
+
+
 /** @endcond */
 
 /*****************************************************
@@ -126,17 +132,18 @@ static void SystemClock_Config(void);
 static void BSP_Init(void)
 {
 
-	
-  /* 系统时钟初始化成400MHz */
 	SystemClock_Config();
   
-		platform_init_mcu_infrastructure();  
+	platform_init_mcu_infrastructure();  
 	
   /* 初始化SysTick */
   HAL_SYSTICK_Config( HAL_RCC_GetSysClockFreq() / configTICK_RATE_HZ );	
 
 	/* usart 端口初始化 */
   DEBUG_USART_Config();
+	
+			  /* CmBacktrace initialize */
+  cm_backtrace_init("F767", HARDWARE_VERSION, SOFTWARE_VERSION);
 
 
   

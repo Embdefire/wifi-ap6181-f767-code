@@ -178,10 +178,6 @@ void rcc_apb2_clock_enable(uint32_t rcc_apb2_peripheral, FunctionalState new_sta
     }
 }
 
-static void MPU_Config(void)
-{
-
-}
 
 
 void SD_LowLevel_Init(void)
@@ -246,34 +242,12 @@ void SD_LowLevel_Init(void)
 		
 
 }
-/*
-DMA初始化
-*/
-void DMA_Lowlevel_Init()
-{
-
-
-}
-
-
 
 void platform_init_mcu_infrastructure( void )
 {
     uint8_t i;
 
-#ifdef INTERRUPT_VECTORS_IN_RAM
-    SCB->VTOR = 0x24000000; /* Change the vector table to point to start of SRAM */
-#endif /* ifdef INTERRUPT_VECTORS_IN_RAM */
-
     __HAL_RCC_SYSCFG_CLK_ENABLE();
-
-    MPU_Config();
-
-    /* Enable I-Cache */
-//  SCB_EnableICache();
-
-    /* Enable D-Cache */
-//    SCB_EnableDCache();
 
     /* 初始化中断优先级*/
     for ( i = 0; i < 100; i++ )
@@ -285,17 +259,8 @@ void platform_init_mcu_infrastructure( void )
     platform_init_peripheral_irq_priorities();
 
     /*初始化GPIO IRQ管理器 */
-//    platform_gpio_irq_manager_init();
+    platform_gpio_irq_manager_init();
 
-
-#ifndef WICED_DISABLE_MCU_POWERSAVE
-    /* Initialize MCU powersave */
-//    platform_mcu_powersave_init( );
-//    platform_mcu_powersave_disable( );
-
-    /* Initialize RTC */
-//    platform_rtc_init( );
-#endif /* ifndef WICED_DISABLE_MCU_POWERSAVE */
 }
 
 void platform_mcu_reset( void )

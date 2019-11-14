@@ -316,6 +316,31 @@ uint8_t BSP_SD_Init(void)
 	SDMMC_Init(uSdHandle.Instance, tmpinit);
 	
 	SD_PowerON(&uSdHandle); 
+	
+	
+	    //启用WIFI模块
+		int i=0;
+    GPIO_InitTypeDef GPIO_InitStruct;		
+    /*使能引脚时钟*/	
+    __HAL_RCC_GPIOB_CLK_ENABLE();
+    /*选择要控制的GPIO引脚*/															   
+    GPIO_InitStruct.Pin = GPIO_PIN_13;	
+    /*设置引脚的输出类型为推挽输出*/
+    GPIO_InitStruct.Mode  = GPIO_MODE_OUTPUT_PP;      
+    /*设置引脚为上拉模式*/
+    GPIO_InitStruct.Pull  = GPIO_PULLUP;
+    /*设置引脚速率为高速 */   
+    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH; 
+    /*调用库函数，使用上面配置的GPIO_InitStructure初始化GPIO*/
+    HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);	
+//    /*禁用WiFi模块*/
+    HAL_GPIO_WritePin(GPIOB,GPIO_PIN_13,GPIO_PIN_RESET);  
+		for(i=0;i<0xffff;i++)
+		{
+			__nop();
+		}
+		HAL_GPIO_WritePin(GPIOB,GPIO_PIN_13,GPIO_PIN_SET);  
+	
 	 //SDMMC1->POWER |= SDMMC_POWER_PWRCTRL;
 
   /* HAL SD 初始化 */

@@ -264,14 +264,14 @@ wwd_result_t wwd_bus_init( void )
         if ( loop_count >= (uint32_t) F0_WORKING_TIMEOUT_MS )
         {
 					printf("byte_data->%d\r\n",byte_data);
+					printf("WWD_TIMEOUT->%d\r\n",WWD_TIMEOUT);
 					while(1){}
             return WWD_TIMEOUT;
         }
     } while (byte_data != (uint8_t) SDIO_FUNC_ENABLE_1);
 
-		//vTaskDelay(300);
 		printf("byte_data->%d\r\n",byte_data);
-		while(1){}
+		//while(1){}
 		
 #ifndef SDIO_1_BIT
     /* Read the bus width and set to 4 bits */
@@ -308,7 +308,7 @@ wwd_result_t wwd_bus_init( void )
     /* Enable/Disable Client interrupts */
     VERIFY_RESULT( wwd_bus_write_register_value( BUS_FUNCTION, SDIOD_CCCR_INTEN,       (uint8_t) 1, INTR_CTL_MASTER_EN | INTR_CTL_FUNC1_EN | INTR_CTL_FUNC2_EN ) );
 
-
+		
 #ifdef HIGH_SPEED_SDIO_CLOCK
     /* This code is required if we want more than 25 MHz clock */
     VERIFY_RESULT( wwd_bus_read_register_value( BUS_FUNCTION, SDIOD_CCCR_SPEED_CONTROL, 1, &byte_data ) );
@@ -388,11 +388,13 @@ wwd_result_t wwd_bus_init( void )
 
 
     elapsed_time = host_rtos_get_time( );
+
     result = wwd_bus_sdio_download_firmware( );
+	while(1){}
     elapsed_time = host_rtos_get_time( ) - elapsed_time;
 		
 //SAMPLE_PRT("while(1);");
-//while(1);
+while(1){}
 		
     host_platform_resource_size( WWD_RESOURCE_WLAN_FIRMWARE, &wifi_firmware_image_size );
     WPRINT_WICED_TEST( ("WLAN FW download size: %lu bytes\n", wifi_firmware_image_size) );
@@ -403,7 +405,7 @@ wwd_result_t wwd_bus_init( void )
         /*  either an error or user abort */
         return result;
     }
-
+		while(1){}
 
     /* Wait for F2 to be ready */
     loop_count = 0;
@@ -426,6 +428,8 @@ wwd_result_t wwd_bus_init( void )
         return WWD_TIMEOUT;
         /*@+unreachable@*/
     }
+
+
 
     wwd_chip_specific_init();
     VERIFY_RESULT( wwd_ensure_wlan_bus_is_up( ) );

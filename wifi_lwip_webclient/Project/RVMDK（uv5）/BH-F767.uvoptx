@@ -156,66 +156,18 @@
         <Bp>
           <Number>0</Number>
           <Type>0</Type>
-          <LineNumber>412</LineNumber>
+          <LineNumber>767</LineNumber>
           <EnabledFlag>1</EnabledFlag>
-          <Address>0</Address>
-          <ByteObject>0</ByteObject>
-          <HtxType>0</HtxType>
-          <ManyObjects>0</ManyObjects>
-          <SizeOfObject>0</SizeOfObject>
-          <BreakByAccess>0</BreakByAccess>
-          <BreakIfRCount>0</BreakIfRCount>
-          <Filename>..\..\Libraries\STM32F7xx_HAL_Driver\Src\stm32f7xx_hal_sd.c</Filename>
-          <ExecCommand></ExecCommand>
-          <Expression></Expression>
-        </Bp>
-        <Bp>
-          <Number>1</Number>
-          <Type>0</Type>
-          <LineNumber>172</LineNumber>
-          <EnabledFlag>1</EnabledFlag>
-          <Address>134284780</Address>
+          <Address>134226250</Address>
           <ByteObject>0</ByteObject>
           <HtxType>0</HtxType>
           <ManyObjects>0</ManyObjects>
           <SizeOfObject>0</SizeOfObject>
           <BreakByAccess>0</BreakByAccess>
           <BreakIfRCount>1</BreakIfRCount>
-          <Filename>E:\閲庣伀鐢靛瓙\WIFI\WIFI__AP6181\base_code_f767\wifi_lwip_webclient\WiFi_SDK\WICED\WWD\internal\wwd_management.c</Filename>
+          <Filename>E:\閲庣伀鐢靛瓙\WIFI\WIFI__AP6181\base_code_f767\wifi_lwip_webclient\WiFi_SDK\WICED\platform\MCU\STM32F7xx\WWD\wwd_SDIO.c</Filename>
           <ExecCommand></ExecCommand>
-          <Expression>\\F767\../../../WiFi_SDK/WICED/WWD/internal/wwd_management.c\172</Expression>
-        </Bp>
-        <Bp>
-          <Number>2</Number>
-          <Type>0</Type>
-          <LineNumber>155</LineNumber>
-          <EnabledFlag>1</EnabledFlag>
-          <Address>134284764</Address>
-          <ByteObject>0</ByteObject>
-          <HtxType>0</HtxType>
-          <ManyObjects>0</ManyObjects>
-          <SizeOfObject>0</SizeOfObject>
-          <BreakByAccess>0</BreakByAccess>
-          <BreakIfRCount>1</BreakIfRCount>
-          <Filename>E:\閲庣伀鐢靛瓙\WIFI\WIFI__AP6181\base_code_f767\wifi_lwip_webclient\WiFi_SDK\WICED\WWD\internal\wwd_management.c</Filename>
-          <ExecCommand></ExecCommand>
-          <Expression>\\F767\../../../WiFi_SDK/WICED/WWD/internal/wwd_management.c\155</Expression>
-        </Bp>
-        <Bp>
-          <Number>3</Number>
-          <Type>0</Type>
-          <LineNumber>278</LineNumber>
-          <EnabledFlag>1</EnabledFlag>
-          <Address>134280248</Address>
-          <ByteObject>0</ByteObject>
-          <HtxType>0</HtxType>
-          <ManyObjects>0</ManyObjects>
-          <SizeOfObject>0</SizeOfObject>
-          <BreakByAccess>0</BreakByAccess>
-          <BreakIfRCount>1</BreakIfRCount>
-          <Filename>E:\閲庣伀鐢靛瓙\WIFI\WIFI__AP6181\base_code_f767\wifi_lwip_webclient\WiFi_SDK\WICED\WWD\internal\bus_protocols\SDIO\wwd_bus_protocol.c</Filename>
-          <ExecCommand></ExecCommand>
-          <Expression>\\F767\../../../WiFi_SDK/WICED/WWD/internal/bus_protocols/SDIO/wwd_bus_protocol.c\278</Expression>
+          <Expression>\\F767\../../../WiFi_SDK/WICED/platform/MCU/STM32F7xx/WWD/wwd_SDIO.c\767</Expression>
         </Bp>
       </Breakpoint>
       <WatchWindow1>

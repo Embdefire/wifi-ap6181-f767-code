@@ -526,7 +526,8 @@ wwd_result_t host_platform_sdio_transfer( wwd_bus_transfer_direction_t direction
     current_command = command;
     if ( command == SDIO_CMD_53 )
     {
-        sdio_enable_bus_irq( );
+			printf("命令编号：%d\r\n",command);
+        sdio_enable_bus_irq();
 
         /* Dodgy STM32 hack to set the CMD53 byte mode size to be the same as the block size */
         if ( mode == SDIO_BYTE_MODE )
@@ -548,7 +549,8 @@ wwd_result_t host_platform_sdio_transfer( wwd_bus_transfer_direction_t direction
 
         /* Send the command */
         SDMMC1->ARG = argument;
-        SDMMC1->CMD = (uint32_t) ( command | SDMMC_RESPONSE_SHORT | SDMMC_WAIT_NO | SDMMC_CPSM_ENABLE | SD_CMD_SD_ERASE_GRP_START );
+        SDMMC1->CMD = (uint32_t) ( command | SDMMC_RESPONSE_SHORT | SDMMC_WAIT_NO | SDMMC_CPSM_ENABLE );//| SD_CMD_SD_ERASE_GRP_START 
+				printf("                        SDIO->STA->%d\r\n",SDMMC1->STA);
 				//修改过
         /* Wait for the whole transfer to complete */
         result = host_rtos_get_semaphore( &sdio_transfer_finished_semaphore, (uint32_t) 50, WICED_TRUE );
@@ -583,9 +585,9 @@ wwd_result_t host_platform_sdio_transfer( wwd_bus_transfer_direction_t direction
 
                 goto restart;
             }
-//        } while ( ( SDMMC1->STA & ( SDMMC_STA_RXACT | SDMMC_STA_TXACT ) ) != 0 );//已修改	SDMMC_FLAG_CMDACT
+        } while ( ( SDMMC1->STA & ( SDMMC_STA_RXACT | SDMMC_STA_TXACT ) ) != 0 );//已修改	SDMMC_FLAG_CMDACT
 
-        } while ( ( SDMMC1->STA & ( SDMMC_FLAG_CMDACT ) ) != 0 );//已修改	SDMMC_FLAG_CMDACT				
+//        } while ( ( SDMMC1->STA & ( SDMMC_FLAG_CMDACT ) ) != 0 );//已修改	SDMMC_FLAG_CMDACT				
 
         if ( direction == BUS_READ )
         {
@@ -612,7 +614,7 @@ wwd_result_t host_platform_sdio_transfer( wwd_bus_transfer_direction_t direction
             {
                 goto restart;
             }
-				} while ( ( temp_sta & ( SDMMC_FLAG_CMDACT ) ) != 0 );//已修改
+				} while ( ( temp_sta & ( SDMMC_FLAG_CMDACT ) ) != 0 );
     }
 				printf("                        SDIO->STA->%d\r\n",SDMMC1->STA);
     if ( response != NULL )
@@ -646,11 +648,18 @@ static void sdio_prepare_data_transfer( wwd_bus_transfer_direction_t direction, 
     SDMMC1->DLEN      = dma_transfer_size;
     SDMMC1->DCTRL     = (uint32_t) sdio_get_blocksize_dctrl( block_size ) | bus_direction_mapping[ (int) direction ] | SDMMC_TRANSFER_MODE_BLOCK | SDMMC_DPSM_DISABLE | SDMMC_DCTRL_SDIOEN;
 
-//    SDMMC1->IDMACTRL  = SDMMC_ENABLE_IDMA_SINGLE_BUFF;
-//    SDMMC1->IDMABASE0 = (uint32_t) dma_data_source;
-		
-//		SDMMC1->IDMACTRL  = SDMMC_ENABLE_IDMA_SINGLE_BUFF;
-    SDMMC1->FIFO = (uint32_t) dma_data_source;
+////    SDMMC1->IDMACTRL  = SDMMC_ENABLE_IDMA_SINGLE_BUFF;
+////    SDMMC1->IDMABASE0 = (uint32_t) dma_data_source;
+//		
+////		SDMMC1->IDMACTRL  = SDMMC_ENABLE_IDMA_SINGLE_BUFF;
+//    SDMMC1->FIFO = (uint32_t) dma_data_source;
+		    /* DMA2 Stream3 */
+    DMA2_Stream3->CR   = 0;
+    DMA2->LIFCR        = (uint32_t) ( 0x3F << 22 );
+    DMA2_Stream3->FCR  = (uint32_t) ( (0x00000021) | (1<<2) | (3<<0) );
+    DMA2_Stream3->PAR  = (uint32_t) &SDMMC1->FIFO;
+    DMA2_Stream3->M0AR = (uint32_t) dma_data_source;
+    DMA2_Stream3->NDTR = dma_transfer_size/4;
 		
 }
 
@@ -760,7 +769,7 @@ void host_platform_bus_buffer_freed( wwd_buffer_dir_t direction )
  *             IRQ Handler Definitions
  ******************************************************/
 //WWD_RTOS_DEFINE_ISR( sdio_irq )
-void SDMMC1_IRQHandler()
+void sdmmc_irq()
 {
     uint32_t intstatus = SDMMC1->STA;//寄存器数值不对
 
@@ -813,5 +822,40 @@ void SDMMC1_IRQHandler()
             wwd_thread_notify_irq( );
         }
     }
+}
+
+void sdmmc_dma_irq()
+{
+    wwd_result_t result;
+		uint32_t ulReturn;
+
+
+    /* Clear interrupt */
+    DMA2->LIFCR = (uint32_t) (0x3F << 22);
+
+	//在DMA中断内释放信号量
+    result = host_rtos_set_semaphore( &sdio_transfer_finished_semaphore, WICED_TRUE );
+
+    /* check result if in debug mode */
+    wiced_assert( "failed to set dma semaphore", result == WWD_SUCCESS );
+
+    /*@-noeffect@*/
+    (void) result; /* ignore result if in release mode */
+    /*@+noeffect@*/
+
+}
+
+//ulCurrentInterrupt = 41 
+void SDIO_IRQHandler(void)
+{
+  /* Process All SDIO Interrupt Sources */
+	printf("SDIO_IRQHandler\r\n");
+  sdmmc_irq();
+}
+//ulCurrentInterrupt = 4b 
+void DMA2_Stream3_IRQHandler(void)
+{
+	printf("DMA2_Stream3_IRQHandler\r\n");
+  sdmmc_dma_irq();
 }
 

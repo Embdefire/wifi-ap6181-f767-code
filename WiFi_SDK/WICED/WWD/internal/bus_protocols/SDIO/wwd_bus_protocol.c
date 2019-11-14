@@ -271,7 +271,7 @@ wwd_result_t wwd_bus_init( void )
 
 		//vTaskDelay(300);
 		printf("byte_data->%d\r\n",byte_data);
-//		while(1){}
+		while(1){}
 		
 #ifndef SDIO_1_BIT
     /* Read the bus width and set to 4 bits */

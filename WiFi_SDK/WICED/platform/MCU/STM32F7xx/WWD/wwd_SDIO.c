@@ -602,7 +602,7 @@ wwd_result_t host_platform_sdio_transfer( wwd_bus_transfer_direction_t direction
         /* Send the command */
         SDMMC1->ARG = argument;
         SDMMC1->CMD = (uint32_t) ( command | SDMMC_RESPONSE_SHORT | SDMMC_WAIT_NO | SDMMC_CPSM_ENABLE );
-				vTaskDelay(1);
+				//vTaskDelay(1);
         loop_count = (uint32_t) COMMAND_FINISHED_CMD52_TIMEOUT_LOOPS;
         do
         {
@@ -612,7 +612,7 @@ wwd_result_t host_platform_sdio_transfer( wwd_bus_transfer_direction_t direction
             {
                 goto restart;
             }
-        } while ( ( temp_sta & ( SDMMC_STA_RXACT | SDMMC_STA_TXACT ) ) != 0 );//已修改
+				} while ( ( temp_sta & ( SDMMC_FLAG_CMDACT ) ) != 0 );//已修改
     }
 				printf("                        SDIO->STA->%d\r\n",SDMMC1->STA);
     if ( response != NULL )

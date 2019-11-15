@@ -125,8 +125,7 @@ static void sdio_oob_irq_handler( void* arg )
 
 static void sdio_enable_bus_irq( void )
 {
-//    SDMMC1->MASK |= SDMMC_IT_DCRCFAIL | SDMMC_IT_DTIMEOUT | SDMMC_IT_RXOVERR | SDMMC_IT_TXUNDERR | SDMMC_IT_DATAEND;
-	    SDMMC1->MASK = SDMMC_MASK_SDIOITIE | SDMMC_MASK_CMDRENDIE | SDMMC_MASK_CMDSENTIE;
+    SDMMC1->MASK = SDMMC_MASK_SDIOITIE | SDMMC_MASK_CMDRENDIE | SDMMC_MASK_CMDSENTIE;
 }
 
 static void sdio_disable_bus_irq( void )
@@ -135,17 +134,9 @@ static void sdio_disable_bus_irq( void )
 }
 
 
-
-
 #ifndef WICED_DISABLE_MCU_POWERSAVE
 wwd_result_t host_enable_oob_interrupt( void )
 {
-    /* Set GPIO_B[1:0] to input. One of them will be re-purposed as OOB interrupt */
-		/*初始化引脚*/
-//    platform_gpio_init( &wifi_sdio_pins[ WWD_PIN_SDIO_OOB_IRQ ], INPUT_HIGH_IMPEDANCE );
-		/*使能引脚中断*/
-    platform_gpio_irq_enable( &wifi_sdio_pins[ WWD_PIN_SDIO_OOB_IRQ ], sdio_oob_irq_handler, 0 );
-
     return WWD_SUCCESS;
 }
 
@@ -163,48 +154,6 @@ extern void SD_LowLevel_Init(void);
 #define MSD_ERROR                     ((uint8_t)0x01)
 static SD_HandleTypeDef uSdHandle;
 static SD_CardInfo      uSdCardInfo;
-
-/**
-  * @brief  初始化SD外设
-  * @param  hsd: SD 句柄
-  * @param  Params
-  * @retval None
-  */
-void BSP_SD_MspInit(SD_HandleTypeDef *hsd, void *Params)
-{
-  static DMA_HandleTypeDef dma_rx_handle;
-  static DMA_HandleTypeDef dma_tx_handle;
-  GPIO_InitTypeDef gpio_init_structure;
-
-  /* 使能 SDMMC 时钟 */
-  __HAL_RCC_SDMMC1_CLK_ENABLE();
-
-
-  /* 使能 GPIOs 时钟 */
-  __HAL_RCC_GPIOC_CLK_ENABLE();
-  __HAL_RCC_GPIOD_CLK_ENABLE();
-  
-  /* 配置GPIO复用推挽、上拉、高速模式 */
-  gpio_init_structure.Mode      = GPIO_MODE_AF_PP;
-  gpio_init_structure.Pull      = GPIO_PULLUP;
-  gpio_init_structure.Speed     = GPIO_SPEED_HIGH;
-  gpio_init_structure.Alternate = GPIO_AF12_SDMMC1;
-  
-  /* GPIOC 配置 */
-  gpio_init_structure.Pin = GPIO_PIN_8 | GPIO_PIN_9 | GPIO_PIN_10 | GPIO_PIN_11 | GPIO_PIN_12;
-  HAL_GPIO_Init(GPIOC, &gpio_init_structure);
-
-  /* GPIOD 配置 */
-  gpio_init_structure.Pin = GPIO_PIN_2;
-  HAL_GPIO_Init(GPIOD, &gpio_init_structure);
-
-//  /* SDIO 中断配置 */
-  HAL_NVIC_SetPriority(SDMMC1_IRQn, 5, 0);
-  HAL_NVIC_EnableIRQ(SDMMC1_IRQn);
-    
-
-}
-
 
 /**
   * @brief  初始化SD卡设备
@@ -407,7 +356,7 @@ wwd_result_t host_platform_sdio_transfer( wwd_bus_transfer_direction_t direction
     current_command = command;
     if ( command == SDIO_CMD_53 )
     {
-			printf("命令编号：%d\r\n",command);
+//			printf("命令编号：%d\r\n",command);
         sdio_enable_bus_irq();
 
         /* Dodgy STM32 hack to set the CMD53 byte mode size to be the same as the block size */
@@ -430,13 +379,9 @@ wwd_result_t host_platform_sdio_transfer( wwd_bus_transfer_direction_t direction
 
         /* Send the command */
         SDMMC1->ARG = argument;
-        SDMMC1->CMD = (uint32_t) ( command | SDMMC_RESPONSE_SHORT | SDMMC_WAIT_NO | SDMMC_CPSM_ENABLE );//| SD_CMD_SD_ERASE_GRP_START 
-
-//printf("line = %d\r\n",__LINE__);
-//while(1){}
+        SDMMC1->CMD = (uint32_t) ( command | SDMMC_RESPONSE_SHORT | SDMMC_WAIT_NO | SDMMC_CPSM_ENABLE );// 
 	
-				printf("                        SDIO->STA->%d\r\n",SDMMC1->STA);
-				//修改过
+//				printf("                        SDIO->STA->%d\r\n",SDMMC1->STA);
         /* Wait for the whole transfer to complete */
         result = host_rtos_get_semaphore( &sdio_transfer_finished_semaphore, (uint32_t) 50, WICED_TRUE );
         if ( result != WWD_SUCCESS )
@@ -470,9 +415,7 @@ wwd_result_t host_platform_sdio_transfer( wwd_bus_transfer_direction_t direction
 
                 goto restart;
             }
-        } while ( ( SDMMC1->STA & ( SDMMC_STA_RXACT | SDMMC_STA_TXACT ) ) != 0 );//已修改	SDMMC_FLAG_CMDACT
-
-//        } while ( ( SDMMC1->STA & ( SDMMC_FLAG_CMDACT ) ) != 0 );//已修改	SDMMC_FLAG_CMDACT				
+        } while ( ( SDMMC1->STA & ( SDMMC_STA_RXACT | SDMMC_STA_TXACT ) ) != 0 );			
 
         if ( direction == BUS_READ )
         {
@@ -483,13 +426,12 @@ wwd_result_t host_platform_sdio_transfer( wwd_bus_transfer_direction_t direction
     /* ALl SDIO CMD other than CMD53 */
     else
     {
-				printf("命令编号：%d\r\n",command);
+//				printf("命令编号：%d\r\n",command);
         uint32_t temp_sta;
 
         /* Send the command */
         SDMMC1->ARG = argument;
         SDMMC1->CMD = (uint32_t) ( command | SDMMC_RESPONSE_SHORT | SDMMC_WAIT_NO | SDMMC_CPSM_ENABLE );
-				//vTaskDelay(1);
         loop_count = (uint32_t) COMMAND_FINISHED_CMD52_TIMEOUT_LOOPS;
         do
         {
@@ -501,13 +443,12 @@ wwd_result_t host_platform_sdio_transfer( wwd_bus_transfer_direction_t direction
             }
 				} while ( ( temp_sta & ( SDMMC_FLAG_CMDACT ) ) != 0 );
     }
-				printf("                        SDIO->STA->%d\r\n",SDMMC1->STA);
+//				printf("                        SDIO->STA->%d\r\n",SDMMC1->STA);
     if ( response != NULL )
     {
         *response = SDMMC1->RESP1;
     }
     result = WWD_SUCCESS;
-    //SDMMC1->CMD = 0;
 
     exit: platform_mcu_powersave_enable( );
 		SDMMC1->MASK = SDMMC_MASK_SDIOITIE;
@@ -656,7 +597,7 @@ void host_platform_bus_buffer_freed( wwd_buffer_dir_t direction )
  ******************************************************/
 void sdmmc_irq()
 {
-    uint32_t intstatus = SDMMC1->STA;//寄存器数值不对
+    uint32_t intstatus = SDMMC1->STA;
 
     WWD_BUS_STATS_INCREMENT_VARIABLE( sdio_intrs );
 
@@ -680,7 +621,7 @@ void sdmmc_irq()
             else if ( current_command == SDIO_CMD_53 )
             {
                 if ( current_transfer_direction == BUS_WRITE )//写
-                {/*DMA2——3配置有问题*/
+                {
                     DMA2_Stream3->CR = 
 																			DMA_MEMORY_TO_PERIPH |	 	//内存->外设 方向
 																			DMA_CHANNEL_4|						//DMA通道
@@ -696,7 +637,6 @@ void sdmmc_irq()
 									                    DMA_SxCR_EN 								| //
 									                    DMA_SxCR_TCIE;								//
 									
-									printf("current_transfer_direction->%d\r\n",current_transfer_direction);
                 }
                 else//读
                 {
@@ -714,7 +654,6 @@ void sdmmc_irq()
 									                      DMA_SxCR_EN 								| //
 									                      DMA_SxCR_TCIE;								//
 									
-									printf("current_transfer_direction->%d\r\n",current_transfer_direction);
                 }
             }
 
@@ -739,7 +678,6 @@ void sdmmc_dma_irq()
     wwd_result_t result;
 		uint32_t ulReturn;
 
-
     /* Clear interrupt */
     DMA2->LIFCR = (uint32_t) (0x3F << 22);
 
@@ -755,17 +693,13 @@ void sdmmc_dma_irq()
 
 }
 
-//ulCurrentInterrupt = 41 
 void SDIO_IRQHandler(void)
 {
-  /* Process All SDIO Interrupt Sources */
 	//printf("SDIO_IRQHandler\r\n");
   sdmmc_irq();
 }
-//ulCurrentInterrupt = 4b 
 void DMA2_Stream3_IRQHandler(void)
 {
-//printf("DMA2_Stream3_IRQHandler\r\n");
   sdmmc_dma_irq();
 }
 

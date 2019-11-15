@@ -399,8 +399,7 @@ wwd_result_t wwd_bus_init( void )
     WPRINT_WICED_TEST( ("WLAN FW download size: %lu bytes\n", wifi_firmware_image_size) );
     WPRINT_WICED_TEST( ("WLAN FW download time: %lu ms\n", elapsed_time) );
 		
-//printf("line = %d\r\n",__LINE__);
-//while(1){}
+
 	
     if ( result != WWD_SUCCESS )
     {

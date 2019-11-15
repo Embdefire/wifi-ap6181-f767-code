@@ -156,9 +156,9 @@
         <Bp>
           <Number>0</Number>
           <Type>0</Type>
-          <LineNumber>767</LineNumber>
+          <LineNumber>555</LineNumber>
           <EnabledFlag>1</EnabledFlag>
-          <Address>134226250</Address>
+          <Address>134244178</Address>
           <ByteObject>0</ByteObject>
           <HtxType>0</HtxType>
           <ManyObjects>0</ManyObjects>
@@ -167,7 +167,39 @@
           <BreakIfRCount>1</BreakIfRCount>
           <Filename>E:\閲庣伀鐢靛瓙\WIFI\WIFI__AP6181\base_code_f767\wifi_lwip_webclient\WiFi_SDK\WICED\platform\MCU\STM32F7xx\WWD\wwd_SDIO.c</Filename>
           <ExecCommand></ExecCommand>
-          <Expression>\\F767\../../../WiFi_SDK/WICED/platform/MCU/STM32F7xx/WWD/wwd_SDIO.c\767</Expression>
+          <Expression>\\F767\../../../WiFi_SDK/WICED/platform/MCU/STM32F7xx/WWD/wwd_SDIO.c\555</Expression>
+        </Bp>
+        <Bp>
+          <Number>1</Number>
+          <Type>0</Type>
+          <LineNumber>1244</LineNumber>
+          <EnabledFlag>1</EnabledFlag>
+          <Address>134291730</Address>
+          <ByteObject>0</ByteObject>
+          <HtxType>0</HtxType>
+          <ManyObjects>0</ManyObjects>
+          <SizeOfObject>0</SizeOfObject>
+          <BreakByAccess>0</BreakByAccess>
+          <BreakIfRCount>1</BreakIfRCount>
+          <Filename>E:\閲庣伀鐢靛瓙\WIFI\WIFI__AP6181\base_code_f767\wifi_lwip_webclient\WiFi_SDK\WICED\RTOS\FreeRTOS\ver9.0.0\Source\queue.c</Filename>
+          <ExecCommand></ExecCommand>
+          <Expression>\\F767\../../../WiFi_SDK/WICED/RTOS/FreeRTOS/ver9.0.0/Source/queue.c\1244</Expression>
+        </Bp>
+        <Bp>
+          <Number>2</Number>
+          <Type>0</Type>
+          <LineNumber>1244</LineNumber>
+          <EnabledFlag>1</EnabledFlag>
+          <Address>134291730</Address>
+          <ByteObject>0</ByteObject>
+          <HtxType>0</HtxType>
+          <ManyObjects>0</ManyObjects>
+          <SizeOfObject>0</SizeOfObject>
+          <BreakByAccess>0</BreakByAccess>
+          <BreakIfRCount>1</BreakIfRCount>
+          <Filename>E:\閲庣伀鐢靛瓙\WIFI\WIFI__AP6181\base_code_f767\wifi_lwip_webclient\WiFi_SDK\WICED\RTOS\FreeRTOS\ver9.0.0\Source\queue.c</Filename>
+          <ExecCommand></ExecCommand>
+          <Expression>\\F767\../../../WiFi_SDK/WICED/RTOS/FreeRTOS/ver9.0.0/Source/queue.c\1244</Expression>
         </Bp>
       </Breakpoint>
       <WatchWindow1>
@@ -175,6 +207,11 @@
           <count>0</count>
           <WinNumber>1</WinNumber>
           <ItemText>SDMMC1,0x0A</ItemText>
+        </Ww>
+        <Ww>
+          <count>1</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>pxQueue,0x10</ItemText>
         </Ww>
       </WatchWindow1>
       <Tracepoint>

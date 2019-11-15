@@ -275,6 +275,7 @@ uint8_t BSP_SD_Init(void)
   /* 定义SDMMC句柄 */
   uSdHandle.Instance = SDMMC1;
   GPIO_InitTypeDef gpio_init_structure;
+  wwd_result_t result;	
 	
 //  /* 初始化SD底层驱动 */
   /* 使能 SDMMC 时钟 */
@@ -282,7 +283,13 @@ uint8_t BSP_SD_Init(void)
   /* 使能 GPIOs 时钟 */
   __HAL_RCC_GPIOC_CLK_ENABLE();
   __HAL_RCC_GPIOD_CLK_ENABLE();
-  
+	/*	初始化信号量 */
+	result = host_rtos_init_semaphore( &sdio_transfer_finished_semaphore );
+	if ( result != WWD_SUCCESS )
+	{
+			return (uint8_t)result;
+	}	
+
   /* 配置GPIO复用推挽、上拉、高速模式 */
   gpio_init_structure.Mode      = GPIO_MODE_AF_PP;
   gpio_init_structure.Pull      = GPIO_PULLUP;
@@ -298,8 +305,8 @@ uint8_t BSP_SD_Init(void)
   HAL_GPIO_Init(GPIOD, &gpio_init_structure);
 
 //  /* SDIO 中断配置 */
-  HAL_NVIC_SetPriority(SDMMC1_IRQn, 5, 0);
-  HAL_NVIC_EnableIRQ(SDMMC1_IRQn);
+//  HAL_NVIC_SetPriority(SDMMC1_IRQn, 5, 0);
+//  HAL_NVIC_EnableIRQ(SDMMC1_IRQn);
   
 	/*分配锁资源并对其进行初始化*/
   uSdHandle.Lock = HAL_UNLOCKED;
@@ -316,7 +323,6 @@ uint8_t BSP_SD_Init(void)
 	SDMMC_Init(uSdHandle.Instance, tmpinit);
 	
 	SD_PowerON(&uSdHandle); 
-	
 	
 	    //启用WIFI模块
 		int i=0;
@@ -622,7 +628,7 @@ wwd_result_t host_platform_sdio_transfer( wwd_bus_transfer_direction_t direction
         *response = SDMMC1->RESP1;
     }
     result = WWD_SUCCESS;
-    SDMMC1->CMD = 0;
+    //SDMMC1->CMD = 0;
 
     exit: platform_mcu_powersave_enable( );
     return result;

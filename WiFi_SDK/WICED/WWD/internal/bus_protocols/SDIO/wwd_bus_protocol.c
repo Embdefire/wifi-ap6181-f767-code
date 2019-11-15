@@ -271,7 +271,7 @@ wwd_result_t wwd_bus_init( void )
     } while (byte_data != (uint8_t) SDIO_FUNC_ENABLE_1);
 
 		printf("byte_data->%d\r\n",byte_data);
-		//while(1){}
+
 		
 #ifndef SDIO_1_BIT
     /* Read the bus width and set to 4 bits */
@@ -390,22 +390,24 @@ wwd_result_t wwd_bus_init( void )
     elapsed_time = host_rtos_get_time( );
 
     result = wwd_bus_sdio_download_firmware( );
-	while(1){}
+
     elapsed_time = host_rtos_get_time( ) - elapsed_time;
 		
-//SAMPLE_PRT("while(1);");
-while(1){}
+
 		
     host_platform_resource_size( WWD_RESOURCE_WLAN_FIRMWARE, &wifi_firmware_image_size );
     WPRINT_WICED_TEST( ("WLAN FW download size: %lu bytes\n", wifi_firmware_image_size) );
     WPRINT_WICED_TEST( ("WLAN FW download time: %lu ms\n", elapsed_time) );
-
+		
+//printf("line = %d\r\n",__LINE__);
+//while(1){}
+	
     if ( result != WWD_SUCCESS )
     {
         /*  either an error or user abort */
         return result;
     }
-		while(1){}
+
 
     /* Wait for F2 to be ready */
     loop_count = 0;

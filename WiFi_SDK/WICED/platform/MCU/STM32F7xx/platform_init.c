@@ -247,7 +247,7 @@ void platform_init_mcu_infrastructure( void )
 {
     uint8_t i;
 
-    __HAL_RCC_SYSCFG_CLK_ENABLE();
+//    __HAL_RCC_SYSCFG_CLK_ENABLE();
 
     /* 初始化中断优先级*/
     for ( i = 0; i < 100; i++ )

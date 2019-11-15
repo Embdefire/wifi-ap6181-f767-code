@@ -108,27 +108,8 @@ const platform_gpio_t wifi_sdio_pins[] =
 
 void platform_init_peripheral_irq_priorities( void )
 {
-
-
-	NVIC_SetPriority( SDMMC1_IRQn        ,  6 ); /* WLAN SDIO           */
-//	NVIC_SetPriority( DMA2_Stream3_IRQn,  6 ); /* WLAN SDIO DMA       */
-
-//	NVIC_SetPriority( SDIO_IRQn        ,  5 ); /* WLAN SDIO           */
-	NVIC_SetPriority( DMA2_Stream3_IRQn,  6 ); /* WLAN SDIO DMA       */
-
-	
-//	NVIC_SetPriority( DMA2_Stream6_IRQn,  3 ); /* WLAN SPI DMA        */ //WLAN用的是SPI接口驱动方式
-//	NVIC_SetPriority( USART1_IRQn      ,  6 ); /* MICO_UART_1         */
-//	NVIC_SetPriority( DMA2_Stream7_IRQn,  7 ); /* MICO_UART_1 TX DMA  */
-//	NVIC_SetPriority( DMA2_Stream2_IRQn,  7 ); /* MICO_UART_1 RX DMA  */
-//	NVIC_SetPriority( EXTI0_IRQn       , 14 ); /* GPIO                */
-//	NVIC_SetPriority( EXTI1_IRQn       , 14 ); /* GPIO                */
-//	NVIC_SetPriority( EXTI2_IRQn       , 14 ); /* GPIO                */
-//	NVIC_SetPriority( EXTI3_IRQn       , 14 ); /* GPIO                */
-//	NVIC_SetPriority( EXTI4_IRQn       , 14 ); /* GPIO                */
-//	NVIC_SetPriority( EXTI9_5_IRQn     , 14 ); /* GPIO                */
-//	NVIC_SetPriority( EXTI15_10_IRQn   , 14 ); /* GPIO                */
-	
+	NVIC_SetPriority( SDMMC1_IRQn        		,  5 ); /* WLAN SDIO           */
+	NVIC_SetPriority( DMA2_Stream3_IRQn	  	,  6 ); /* WLAN SDIO DMA       */	
 }
 
 

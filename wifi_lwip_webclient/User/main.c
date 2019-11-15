@@ -134,11 +134,10 @@ static void BSP_Init(void)
 
 	SystemClock_Config();
   
+	HAL_SYSTICK_Config( HAL_RCC_GetSysClockFreq() / configTICK_RATE_HZ );	
+	
 	platform_init_mcu_infrastructure();  
 	
-  /* 初始化SysTick */
-  HAL_SYSTICK_Config( HAL_RCC_GetSysClockFreq() / configTICK_RATE_HZ );	
-
 	/* usart 端口初始化 */
   DEBUG_USART_Config();
 	

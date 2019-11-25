@@ -35,13 +35,14 @@ void app_main( void )
 		err = camera_queue_init();
 		cambuf = cbWrite(&cam_circular_buff);
 	
-//printf("line=%d\r\n",__LINE__);
-//while(1)
-//{
 
-//}
 
-		err = open_camera((uint32_t *)cambuf->head, CAMERA_QUEUE_DATA_LEN);
+//		err = open_camera((uint32_t *)cambuf->head, CAMERA_QUEUE_DATA_LEN);
+	
+printf("current	line=%d\r\n",__LINE__);
+while(1)
+{
+}
 		SDRAM_Init();//初始化外部sdram
 	
 		host_rtos_create_thread( &wwd_thread, (void *)tcp_server_thread, "TCP_server", NULL,4096, 1);

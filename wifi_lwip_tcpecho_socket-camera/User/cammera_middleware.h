@@ -32,6 +32,7 @@ extern void stop_capture_img()                                                  
 extern void DCMI_Start(void)	                                                      ;
 extern void DCMI_Stop(void)                                                        ;
 extern void DCMI_Cmd(FunctionalState NewState);
+extern void DCMI_IRQHandler_Funtion(void);
 
 #endif 
 

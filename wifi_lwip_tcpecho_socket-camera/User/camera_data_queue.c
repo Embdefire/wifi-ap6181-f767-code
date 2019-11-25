@@ -181,7 +181,9 @@ int32_t camera_queue_init(void)
         /*初始化队列缓冲指针，指向实际的内存*/
         cam_circular_buff.elems[i] = &cam_data[i];
         
-        camera_data_queue_log("cam_data[i].head=0x%x,cam_circular_buff.elems[i] =0x%x", (uint32_t)cam_data[i].head,(uint32_t)cam_circular_buff.elems[i]->head);
+//        camera_data_queue_log("cam_data[i].head=0x%x,cam_circular_buff.elems[i] =0x%x", (uint32_t)cam_data[i].head,(uint32_t)cam_circular_buff.elems[i]->head);
+				printf("cam_data[i].head=0x%x,  cam_circular_buff.elems[i] =0x%x  \r\n", (uint32_t)cam_data[i].head,(uint32_t)cam_circular_buff.elems[i]->head);
+
 
         memset(cam_data[i].head, 0, CAMERA_QUEUE_DATA_LEN);
     }

@@ -45,11 +45,14 @@ void BSP_Init();
 /**
  * 主函数
  */
-
+extern void camera_test();
 int main( void )
 {
 		BSP_Init();
-	//camera_test();
+	
+		camera_test();
+	
+	
     /*创建一个初始线程 */									
 		BaseType_t xReturn = pdPASS;
 		xReturn = xTaskCreate((TaskFunction_t )startup_thread,  /* 任务入口函数 */

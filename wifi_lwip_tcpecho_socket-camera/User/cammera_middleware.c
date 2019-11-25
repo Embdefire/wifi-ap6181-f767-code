@@ -650,54 +650,54 @@ void DMA_ITConfig(DMA_Stream_TypeDef* DMAy_Streamx, uint32_t DMA_IT, FunctionalS
 
 #define DMA_FLAG_TCIF1                    ((uint32_t)0x10000800)
 #define HAL_DMA_STATE_READY_MEM0         0x11
-void DMA2_Stream1_IRQHandler(void)
-{
-      /* Transfer Complete Interrupt management ***********************************/
-  if (DMA_GetFlagStatus(DMA2_Stream1,DMA_FLAG_TCIF1)==SET)
-  {
-//    if(DMA_GetFlagStatus(DMA2_Stream1, DMA_IT_TC) != RESET)
-    {
-      if(((DMA2_Stream1->CR) & (uint32_t)(DMA_SxCR_DBM)) != 0)
-      {
+//void DMA2_Stream1_IRQHandler(void)
+//{
+//      /* Transfer Complete Interrupt management ***********************************/
+//  if (DMA_GetFlagStatus(DMA2_Stream1,DMA_FLAG_TCIF1)==SET)
+//  {
+////    if(DMA_GetFlagStatus(DMA2_Stream1, DMA_IT_TC) != RESET)
+//    {
+//      if(((DMA2_Stream1->CR) & (uint32_t)(DMA_SxCR_DBM)) != 0)
+//      {
 
-        /* Clear the transfer complete flag */
-        DMA_ClearFlag(DMA2_Stream1,DMA_FLAG_TCIF1);
+//        /* Clear the transfer complete flag */
+//        DMA_ClearFlag(DMA2_Stream1,DMA_FLAG_TCIF1);
 
-        /* Current memory buffer used is Memory 1 */
-        if((DMA2_Stream1->CR & DMA_SxCR_CT) == 0)
-        {
-          /* Transfer complete Callback for memory0 */
-            DCMI_DMAConvCplt();
-        }
-        /* Current memory buffer used is Memory 0 */
-        else if((DMA2_Stream1->CR & DMA_SxCR_CT) != 0) 
-        {		
+//        /* Current memory buffer used is Memory 1 */
+//        if((DMA2_Stream1->CR & DMA_SxCR_CT) == 0)
+//        {
+//          /* Transfer complete Callback for memory0 */
+//            DCMI_DMAConvCplt();
+//        }
+//        /* Current memory buffer used is Memory 0 */
+//        else if((DMA2_Stream1->CR & DMA_SxCR_CT) != 0) 
+//        {		
 
-          /* Transfer complete Callback for memory0 */
-            DCMI_DMAConvCplt();
-        }
-      }
-      /* Disable the transfer complete interrupt if the DMA mode is not CIRCULAR */
-      else
-      {
-        if(((DMA2_Stream1->CR) & (uint32_t)(DMA_SxCR_DBM)) == 0)
-        {
-          /* Disable the transfer complete interrupt */
-          DMA_ITConfig(DMA2_Stream1, DMA_IT_TC,DISABLE);
-        }
-        /* Clear the transfer complete flag */
-        DMA_ClearFlag(DMA2_Stream1,DMA_FLAG_TCIF1);
-        /* Update error code */
+//          /* Transfer complete Callback for memory0 */
+//            DCMI_DMAConvCplt();
+//        }
+//      }
+//      /* Disable the transfer complete interrupt if the DMA mode is not CIRCULAR */
+//      else
+//      {
+//        if(((DMA2_Stream1->CR) & (uint32_t)(DMA_SxCR_DBM)) == 0)
+//        {
+//          /* Disable the transfer complete interrupt */
+//          DMA_ITConfig(DMA2_Stream1, DMA_IT_TC,DISABLE);
+//        }
+//        /* Clear the transfer complete flag */
+//        DMA_ClearFlag(DMA2_Stream1,DMA_FLAG_TCIF1);
+//        /* Update error code */
 
-        /* Change the DMA state */
-        DMA2_Stream1_State = HAL_DMA_STATE_READY_MEM0;
- 
-        /* Transfer complete callback */
-        DCMI_DMAConvCplt();
-      }
-    }
-  }
-}
+//        /* Change the DMA state */
+//        DMA2_Stream1_State = HAL_DMA_STATE_READY_MEM0;
+// 
+//        /* Transfer complete callback */
+//        DCMI_DMAConvCplt();
+//      }
+//    }
+//  }
+//}
 /**
   * @brief  Clears the DCMI's interrupt pending bits.
   * @param  DCMI_IT: specifies the DCMI interrupt pending bit to clear.
@@ -717,35 +717,48 @@ void DCMI_ClearITPendingBit(uint16_t DCMI_IT)
   DCMI->ICR = DCMI_IT;
 }
 
-void DCMI_IRQHandler(void)
+void DCMI_IRQHandler_Funtion(void)
 {
-	if(DCMI_GetITStatus(DCMI_IT_FRAME) == SET )
-	{
-			DCMI_ClearITPendingBit(DCMI_IT_FRAME);
-			frame_counter ++;
-			//1.停止DCMI传输
-			DCMI_Stop();
-			//2.根据缓冲区使用情况决定是否开启dma
-			DCMI_Start();
-			dma_complete_counter=0;
-	}
 
-    if(DCMI_GetITStatus(DCMI_IT_LINE) == SET )
-	{
-        DCMI_ClearITPendingBit(DCMI_IT_LINE);
-        line_counter ++;
-	}
-
-    if(DCMI_GetITStatus(DCMI_IT_VSYNC) == SET )
-	{
-        DCMI_ClearITPendingBit(DCMI_IT_VSYNC);
-        vs_counter ++;
-	}
-
-    if(DCMI_GetITStatus(DCMI_IT_ERR) == SET )
-	{
-        err_counter ++;
-	}
+	//DCMI_ClearITPendingBit(DCMI_IT_FRAME);
+	frame_counter ++;
+	//1.停止DCMI传输
+	DCMI_Stop();
+	//2.根据缓冲区使用情况决定是否开启dma
+	DCMI_Start();
+	dma_complete_counter=0;
 
 }
+
+//void DCMI_IRQHandler(void)
+//{
+//	if(DCMI_GetITStatus(DCMI_IT_FRAME) == SET )
+//	{
+//			DCMI_ClearITPendingBit(DCMI_IT_FRAME);
+//			frame_counter ++;
+//			//1.停止DCMI传输
+//			DCMI_Stop();
+//			//2.根据缓冲区使用情况决定是否开启dma
+//			DCMI_Start();
+//			dma_complete_counter=0;
+//	}
+
+//    if(DCMI_GetITStatus(DCMI_IT_LINE) == SET )
+//	{
+//        DCMI_ClearITPendingBit(DCMI_IT_LINE);
+//        line_counter ++;
+//	}
+
+//    if(DCMI_GetITStatus(DCMI_IT_VSYNC) == SET )
+//	{
+//        DCMI_ClearITPendingBit(DCMI_IT_VSYNC);
+//        vs_counter ++;
+//	}
+
+//    if(DCMI_GetITStatus(DCMI_IT_ERR) == SET )
+//	{
+//        err_counter ++;
+//	}
+
+//}
 

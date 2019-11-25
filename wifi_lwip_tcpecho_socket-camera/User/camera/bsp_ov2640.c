@@ -1123,14 +1123,14 @@ void OV2640_ReadID(OV2640_IDTypeDef *OV2640ID)
   OV2640ID->PIDL = OV2640_ReadReg(OV2640_SENSOR_PIDL);
 }
 
-
+uint8_t pbuffer_ary[1024*1024*1];
 
 /**
   * @brief  配置 DCMI/DMA 以捕获摄像头数据
   * @param  None
   * @retval None
   */
-void OV2640_Init(uint32_t *BufferSRC, uint32_t BufferSize) 
+void OV2640_Init(void) 
 {
 	/*** 配置DCMI接口 ***/
 	/* 使能DCMI时钟 */
@@ -1152,8 +1152,7 @@ void OV2640_Init(uint32_t *BufferSRC, uint32_t BufferSize)
 	HAL_NVIC_EnableIRQ(DCMI_IRQn); 	
 
 	//开始传输，数据大小以32位数据为单位(即像素个数/4，LCD_GetXSize()*LCD_GetYSize()*2/4) 
-	//OV2640_DMA_Config(LCD_FB_START_ADDRESS,LCD_GetXSize()*LCD_GetYSize()/2);
-	OV2640_DMA_Config((uint32_t)BufferSRC, BufferSize);
+	OV2640_DMA_Config(LCD_FB_START_ADDRESS,LCD_GetXSize()*LCD_GetYSize()/2);
 }
 
 /**
@@ -1695,10 +1694,12 @@ void OV2640_ContrastConfig(uint8_t value1, uint8_t value2)
   * @param  None
   * @retval None
   */
+
 void HAL_DCMI_VsyncEventCallback(DCMI_HandleTypeDef *hdcmi)
 {
     fps++; //帧率计数
     OV2640_DMA_Config(LCD_FB_START_ADDRESS,LCD_GetXSize()*LCD_GetYSize()/2); 
+		//DCMI_IRQHandler_Funtion();
 }
 uint8_t fps=0;
 uint8_t dispBuf[100];
@@ -1707,57 +1708,20 @@ uint32_t Task_Delay[3]={0};
 
 void camera_test()
 {
-//		OV2640_IDTypeDef OV2640_Camera_ID;	
+		OV2640_IDTypeDef OV2640_Camera_ID;	
 
-////    /* LCD 端口初始化 */ 
-////    LCD_Init();
-////    /* LCD 第一层初始化 */ 
-////    LCD_LayerInit(0, LCD_FB_START_ADDRESS,RGB565);
-////	/* LCD 第二层初始化 */ 
-////    LCD_LayerInit(1, LCD_FB_START_ADDRESS+(LCD_GetXSize()*LCD_GetYSize()*4),ARGB8888);
-////    /* 使能LCD，包括开背光 */ 
-////    LCD_DisplayOn(); 
+    /* LCD 端口初始化 */ 
+    LCD_Init();
+    /* LCD 第一层初始化 */ 
+    LCD_LayerInit(0, LCD_FB_START_ADDRESS,RGB565);
+	/* LCD 第二层初始化 */ 
+    LCD_LayerInit(1, LCD_FB_START_ADDRESS+(LCD_GetXSize()*LCD_GetYSize()*4),ARGB8888);
+    /* 使能LCD，包括开背光 */ 
+    LCD_DisplayOn(); 
 
-////    /* 选择LCD第一层 */
-////    LCD_SelectLayer(0);
-//		
-//	//初始化 I2C
-//	I2CMaster_Init(); 
-//	OV2640_HW_Init();
-//	/* 读取摄像头芯片ID，确定摄像头正常连接 */
-//	OV2640_ReadID(&OV2640_Camera_ID);
-
-//	if(OV2640_Camera_ID.PIDH  == 0x26)
-//	{
-//		CAMERA_DEBUG("%x%x",OV2640_Camera_ID.PIDH ,OV2640_Camera_ID.PIDL);
-//	}
-//	else
-//	{
-//		CAMERA_DEBUG("没有检测到OV2640摄像头，请重新检查连接。");
-//		while(1);  
-//	}
-//    /* 配置摄像头输出像素格式 */
-//	OV2640_UXGAConfig();
-//    /* 初始化摄像头，捕获并显示图像 */
-////	OV2640_Init((uint32_t)BufferSRC, BufferSize);
-//	//重置
-//	
-//	while(1)
-//	{
-//		
-//	}
-
-
-}
-
-/**
-* @brief  初始化摄像头，初始化mcu的dcmi接口，以及摄像头，但是这里还没开始捕获图像
-* @param
-* @param
-*/
-int32_t open_camera(uint32_t *BufferSRC, uint32_t BufferSize)
-{
-	OV2640_IDTypeDef OV2640_Camera_ID;			
+    /* 选择LCD第一层 */
+    LCD_SelectLayer(0);
+		
 	//初始化 I2C
 	I2CMaster_Init(); 
 	OV2640_HW_Init();
@@ -1773,18 +1737,17 @@ int32_t open_camera(uint32_t *BufferSRC, uint32_t BufferSize)
 		CAMERA_DEBUG("没有检测到OV2640摄像头，请重新检查连接。");
 		while(1);  
 	}
-	OV2640_JPEGConfig(JPEG_IMAGE_FORMAT);
-//    /* 配置摄像头输出像素格式 */
-//	OV2640_UXGAConfig();
+    /* 配置摄像头输出像素格式 */
+	OV2640_UXGAConfig();
     /* 初始化摄像头，捕获并显示图像 */
-	OV2640_Init(BufferSRC, BufferSize);
+	OV2640_Init();
+	//重置
 	
+	while(1)
+	{
+		
+	}
 
-	DCMI_JPEGCmd(ENABLE); //for ov2640
-
-	start_capture_img();
-
-	DCMI_Cmd(ENABLE); //数据开关
-
-	return kNoErr;
+	
 }
+

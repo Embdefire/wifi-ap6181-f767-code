@@ -252,8 +252,8 @@ void DCMI_Start(void)
 		dma_start_counter++;
 		
 		/*配置DMA传输*/
-		//HAL_DCMI_Start_DMA((uint32_t )data_p->head, CAMERA_QUEUE_DATA_LEN);
-		HAL_DCMI_Start_DMA(&DCMI_Handle, DCMI_MODE_CONTINUOUS, (uint32_t )data_p->head, CAMERA_QUEUE_DATA_LEN);
+		OV2640_DMA_Config((uint32_t )data_p->head, CAMERA_QUEUE_DATA_LEN);
+		//HAL_DCMI_Start_DMA(&DCMI_Handle, DCMI_MODE_CONTINUOUS, (uint32_t )data_p->head, CAMERA_QUEUE_DATA_LEN);
 
 		DMA_Cmd(DMA2_Stream1, ENABLE);			//重新传输	
 	}

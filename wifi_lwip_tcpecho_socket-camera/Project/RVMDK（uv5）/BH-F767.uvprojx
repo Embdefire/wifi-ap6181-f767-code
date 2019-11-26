@@ -763,16 +763,6 @@
               <FilePath>..\..\User\camera\bsp_ov2640.c</FilePath>
             </File>
             <File>
-              <FileName>bsp_lcd.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\User\lcd\bsp_lcd.c</FilePath>
-            </File>
-            <File>
-              <FileName>camera_data_queue.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\User\camera_data_queue.c</FilePath>
-            </File>
-            <File>
               <FileName>tcp_server.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\User\tcp_server.c</FilePath>
@@ -781,6 +771,11 @@
               <FileName>cammera_middleware.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\User\cammera_middleware.c</FilePath>
+            </File>
+            <File>
+              <FileName>camera_data_queue.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\User\camera_data_queue.c</FilePath>
             </File>
             <File>
               <FileName>core_delay.c</FileName>

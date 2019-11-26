@@ -44,7 +44,6 @@
 /* FreeRTOS头文件 */
 #include "FreeRTOS.h"
 #include "task.h"
-#include "./camera/bsp_ov2640.h"
 
 /** @addtogroup STM32F7xx_HAL_Examples
   * @{
@@ -197,27 +196,5 @@ void SysTick_Handler(void)
 /**
   * @}
   */
-
-extern DMA_HandleTypeDef DMA_Handle_dcmi;
-
-/**
-  * @brief  DMA中断服务函数
-  * @param  None
-  * @retval None
-  */
-void DMA2_Stream1_IRQHandler(void)
-{
-  HAL_DMA_IRQHandler(&DMA_Handle_dcmi);
-}
-
-/**
-  * @brief  DCMI中断服务函数
-  * @param  None
-  * @retval None
-  */
-void DCMI_IRQHandler(void)
-{
-  HAL_DCMI_IRQHandler(&DCMI_Handle);
-}
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

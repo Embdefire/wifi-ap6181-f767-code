@@ -32,19 +32,19 @@ void app_main( void )
 		/*配置wifi lwip信息*/
 		Config_WIFI_LwIP_Info();
 
-		err = camera_queue_init();
-		cambuf = cbWrite(&cam_circular_buff);
-	
+//		err = camera_queue_init();
+//		cambuf = cbWrite(&cam_circular_buff);
+//	
 
 
 //		err = open_camera((uint32_t *)cambuf->head, CAMERA_QUEUE_DATA_LEN);
 	
-printf("current	line=%d\r\n",__LINE__);
-while(1)
-{
-}
+//printf("current	line=%d\r\n",__LINE__);
+//while(1)
+//{
+//}
 		SDRAM_Init();//初始化外部sdram
-	
+		printf("初始化 TCP_server\r\n");
 		host_rtos_create_thread( &wwd_thread, (void *)tcp_server_thread, "TCP_server", NULL,4096, 1);
 
 

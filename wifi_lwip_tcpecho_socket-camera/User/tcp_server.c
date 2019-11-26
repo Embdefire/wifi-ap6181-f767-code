@@ -165,16 +165,13 @@ void tcp_server_thread( void *arg )
 		if (bind(sock, (struct sockaddr *)&server_addr, sizeof(struct sockaddr)) == -1)
 		{
 				PRINTF("Unable to bind\n");
-				//goto __exit;
 		}
 
 
 		if (listen(sock, 5) == -1)
 		{
 				PRINTF("Listen error\n");
-//				goto __exit;
 		}
-    //require_noerr( err, exit );
 		int ret_len=0;
 
     while(1)
@@ -209,18 +206,18 @@ void tcp_server_thread( void *arg )
 										cbReadFinish(&cam_circular_buff);                  		
 								
 										vTaskDelay(1);
-										printf("更新读指针\r\n");
+//										printf("更新读指针\r\n");
 										continue;
                 }
 
-                tcp_server_log("jpeg_tcp_send->[%d]%d KB", packet_index, camera_data_len/1024);
+                printf("jpeg_tcp_send->[%d]%d KB\r\n", packet_index, camera_data_len/1024);
 												
                 //3.发送数据
                 if((err = jpeg_tcp_send(client_fd, (const uint8_t *)in_camera_data, camera_data_len)) != kNoErr)
 								{
 										//更新读指针		
 										cbReadFinish(&cam_circular_buff);
-										tcp_server_log("error-->[%d]%d KB", packet_index, camera_data_len/1024);
+										printf("error-->[%d]%d KB\r\n", packet_index, camera_data_len/1024);
 										break;
                 }
 								
@@ -231,7 +228,7 @@ void tcp_server_thread( void *arg )
                     {
                                             //更新读指针		
                         cbReadFinish(&cam_circular_buff);
-                        tcp_server_log("error-->[%d]", packet_index);
+                        printf("error-->[%d]\r\n", packet_index);
                         break;
                     }
                 }
@@ -250,7 +247,7 @@ void tcp_server_thread( void *arg )
  exit:
     if( err != kNoErr )
     {
-        tcp_server_log( "Server listerner thread exit with err: %d", err );
+        printf( "Server listerner thread exit with err: %d\r\n", err );
     }
 
     jpeg_socket_close( &sock );	

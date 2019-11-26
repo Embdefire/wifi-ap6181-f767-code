@@ -238,10 +238,15 @@ void stop_capture_img()
 }
 
 
+extern DCMI_HandleTypeDef DCMI_Handle;
+extern DMA_HandleTypeDef DMA_Handle_dcmi;
 
 
 void DCMI_Start(void)
 {
+	__HAL_DMA_ENABLE(&DMA_Handle_dcmi); //使能DMA
+	DCMI->CR|=DCMI_CR_CAPTURE;          //DCMI捕获使能
+	
 	camera_data *data_p;
 	
 	/*获取写缓冲区指针，准备写入新数据*/
@@ -268,10 +273,14 @@ void DCMI_Stop(void)
 	camera_data *data_p;
 	
 	/*关闭dma*/
-    DMA_Cmd(DMA2_Stream1,DISABLE);
+	DMA_Cmd(DMA2_Stream1,DISABLE);
 	while(DMA_GetCmdStatus(DMA2_Stream1) != DISABLE){}
 
-//    DCMI_CaptureCmd(DISABLE);	
+	//    DCMI_CaptureCmd(DISABLE);	
+		
+//	DCMI->CR&=~(DCMI_CR_CAPTURE);       //关闭捕获
+//	while(DCMI->CR&0X01);               //等待传输完成
+//	__HAL_DMA_DISABLE(&DMA_Handle_dcmi);//关闭DMA
 		
 
 	/*获取正在操作的写指针*/	
@@ -717,6 +726,7 @@ void DCMI_ClearITPendingBit(uint16_t DCMI_IT)
   DCMI->ICR = DCMI_IT;
 }
 
+/*帧中断实现*/
 void DCMI_IRQHandler_Funtion(void)
 {
 
@@ -728,48 +738,5 @@ void DCMI_IRQHandler_Funtion(void)
 	DCMI_Start();
 	dma_complete_counter=0;
 	
-//	if(DCMI_GetITStatus(DCMI_IT_FRAME) == SET )//	帧中断
-//	{
-//			DCMI_ClearITPendingBit(DCMI_IT_FRAME);
-//			frame_counter ++;
-//			//1.停止DCMI传输
-//			DCMI_Stop();
-//			//2.根据缓冲区使用情况决定是否开启dma
-//			DCMI_Start();
-//			dma_complete_counter=0;
-//	}
-
 }
-
-//void DCMI_IRQHandler(void)
-//{
-//	if(DCMI_GetITStatus(DCMI_IT_FRAME) == SET )//	帧中断
-//	{
-//			DCMI_ClearITPendingBit(DCMI_IT_FRAME);
-//			frame_counter ++;
-//			//1.停止DCMI传输
-//			DCMI_Stop();
-//			//2.根据缓冲区使用情况决定是否开启dma
-//			DCMI_Start();
-//			dma_complete_counter=0;
-//	}
-
-//    if(DCMI_GetITStatus(DCMI_IT_LINE) == SET )//	行中断
-//	{
-//        DCMI_ClearITPendingBit(DCMI_IT_LINE);
-//        line_counter ++;
-//	}
-
-//    if(DCMI_GetITStatus(DCMI_IT_VSYNC) == SET )//	场中断
-//	{
-//        DCMI_ClearITPendingBit(DCMI_IT_VSYNC);
-//        vs_counter ++;
-//	}
-
-//    if(DCMI_GetITStatus(DCMI_IT_ERR) == SET )
-//	{
-//        err_counter ++;
-//	}
-
-//}
 

@@ -1240,7 +1240,6 @@ void OV2640_ReadID(OV2640_IDTypeDef *OV2640ID)
   OV2640ID->PIDL = OV2640_ReadReg(OV2640_SENSOR_PIDL);
 }
 
-uint8_t pbuffer_ary[1024*1024*1];
 
 /**
   * @brief  配置 DCMI/DMA 以捕获摄像头数据
@@ -1278,33 +1277,48 @@ void OV2640_Init(void)
   */
 void OV2640_DMA_Config(uint32_t DMA_Memory0BaseAddr,uint32_t DMA_BufferSize)
 {
-  /* 配置DMA从DCMI中获取数据*/
-  /* 使能DMA*/
-  __HAL_RCC_DMA2_CLK_ENABLE(); 
-  DMA_Handle_dcmi.Instance = DMA2_Stream1;
-  DMA_Handle_dcmi.Init.Channel = DMA_CHANNEL_1;  
-  DMA_Handle_dcmi.Init.Direction = DMA_PERIPH_TO_MEMORY;
-  DMA_Handle_dcmi.Init.PeriphInc = DMA_PINC_DISABLE;
-  DMA_Handle_dcmi.Init.MemInc = DMA_MINC_ENABLE;			//寄存器地址自增
-  DMA_Handle_dcmi.Init.PeriphDataAlignment = DMA_PDATAALIGN_WORD;
-  DMA_Handle_dcmi.Init.MemDataAlignment = DMA_MDATAALIGN_HALFWORD;
-  DMA_Handle_dcmi.Init.Mode = DMA_CIRCULAR;								//循环模式
-  DMA_Handle_dcmi.Init.Priority = DMA_PRIORITY_HIGH;
-  DMA_Handle_dcmi.Init.FIFOMode = DMA_FIFOMODE_DISABLE;
-  DMA_Handle_dcmi.Init.FIFOThreshold = DMA_FIFO_THRESHOLD_FULL;
-  DMA_Handle_dcmi.Init.MemBurst = DMA_MBURST_SINGLE;
-  DMA_Handle_dcmi.Init.PeriphBurst = DMA_PBURST_SINGLE;
 
-  /*DMA中断配置 */
-  __HAL_LINKDMA(&DCMI_Handle, DMA_Handle, DMA_Handle_dcmi);
-  
-  HAL_NVIC_SetPriority(DMA2_Stream1_IRQn, 5, 0);
+	__HAL_RCC_DMA2_CLK_ENABLE();                                    //使能DMA2时钟
+	__HAL_LINKDMA(&DCMI_Handle,DMA_Handle,DMA_Handle_dcmi);        //将DMA与DCMI联系起来
+	DMA_Handle_dcmi.Instance=									    DMA2_Stream1;                          //DMA2数据流1                     
+	DMA_Handle_dcmi.Init.Channel=							    DMA_CHANNEL_1;                     //通道1
+	DMA_Handle_dcmi.Init.Direction=						    DMA_PERIPH_TO_MEMORY;            //外设到存储器
+	DMA_Handle_dcmi.Init.PeriphInc=						    DMA_PINC_DISABLE;                //外设非增量模式
+	DMA_Handle_dcmi.Init.MemInc=							    DMA_MINC_ENABLE;                             //存储器增量模式
+	DMA_Handle_dcmi.Init.PeriphDataAlignment=	    DMA_PDATAALIGN_WORD;   //外设数据长度:32位
+	DMA_Handle_dcmi.Init.MemDataAlignment=		    DMA_MDATAALIGN_WORD;                  //存储器数据长度:8/16/32位
+	DMA_Handle_dcmi.Init.Mode=								    DMA_CIRCULAR;                         //使用循环模式 
+	DMA_Handle_dcmi.Init.Priority=						    DMA_PRIORITY_HIGH;                //高优先级
+	DMA_Handle_dcmi.Init.FIFOMode=						    DMA_FIFOMODE_ENABLE;              //使能FIFO
+	DMA_Handle_dcmi.Init.FIFOThreshold=				    DMA_FIFO_THRESHOLD_HALFFULL; //使用1/2的FIFO 
+	DMA_Handle_dcmi.Init.MemBurst=						    DMA_MBURST_SINGLE;                //存储器突发传输
+	DMA_Handle_dcmi.Init.PeriphBurst=					    DMA_PBURST_SINGLE;             //外设突发单次传输 
+		
+	HAL_DMA_DeInit(&DMA_Handle_dcmi);                               //先清除以前的设置
+	HAL_DMA_Init(&DMA_Handle_dcmi);	                                //初始化DMA
+	
+	__HAL_UNLOCK(&DMA_Handle_dcmi);
+	
+	/*无双缓冲*/
+	HAL_DMA_Start(&DMA_Handle_dcmi,(u32)&DCMI->DR,DMA_Memory0BaseAddr,DMA_BufferSize);
+
+/*开启双缓冲*/
+//	if(mem1addr==0)    //开启DMA，不使用双缓冲
+//	{
+//			HAL_DMA_Start(&DMA_Handle_dcmi,(u32)&DCMI->DR,DMA_Memory0BaseAddr,DMA_BufferSize);
+//	}
+//	else                //使用双缓冲
+//	{
+//			HAL_DMAEx_MultiBufferStart(&DMA_Handle_dcmi,(u32)&DCMI->DR,mem0addr,mem1addr,DMA_BufferSize);//开启双缓冲
+//			__HAL_DMA_ENABLE_IT(&DMA_Handle_dcmi,DMA_IT_TC);    //开启传输完成中断
+//			HAL_NVIC_SetPriority(DMA2_Stream1_IRQn,0,0);        //DMA中断优先级
+//			HAL_NVIC_EnableIRQ(DMA2_Stream1_IRQn);
+//	}
+	
+
+  HAL_NVIC_SetPriority(DMA2_Stream1_IRQn, 0, 0);
   HAL_NVIC_EnableIRQ(DMA2_Stream1_IRQn);
   
-  HAL_DMA_Init(&DMA_Handle_dcmi);
-  
-  //使能DCMI采集数据
-  HAL_DCMI_Start_DMA(&DCMI_Handle, DCMI_MODE_CONTINUOUS, (uint32_t)DMA_Memory0BaseAddr,DMA_BufferSize);
 }
 
 /**
@@ -1847,12 +1861,9 @@ void HAL_DCMI_VsyncEventCallback(DCMI_HandleTypeDef *hdcmi)
 //hdcmi:DCMI句柄
 void HAL_DCMI_FrameEventCallback(DCMI_HandleTypeDef *hdcmi)
 {
-//	jpeg_data_process();//jpeg数据处理
-//	LED1_Toggle;
-//	ov_frame++; 
-    //重新使能帧中断,因为HAL_DCMI_IRQHandler()函数会关闭帧中断
 	DCMI_IRQHandler_Funtion();
-    //__HAL_DCMI_ENABLE_IT(&hdcmi,DCMI_IT_FRAME);
+   //重新使能帧中断
+  __HAL_DCMI_ENABLE_IT(&DCMI_Handle,DCMI_IT_FRAME);
 }
 
 uint8_t fps=0;
@@ -1866,18 +1877,6 @@ int32_t open_camera(uint32_t *BufferSRC, uint32_t BufferSize)
 {
 		OV2640_IDTypeDef OV2640_Camera_ID;	
 		camera_data *data_p;
-
-//    /* LCD 端口初始化 */ 
-//    LCD_Init();
-//    /* LCD 第一层初始化 */ 
-//    LCD_LayerInit(0, LCD_FB_START_ADDRESS,RGB565);
-//	/* LCD 第二层初始化 */ 
-//    LCD_LayerInit(1, LCD_FB_START_ADDRESS+(LCD_GetXSize()*LCD_GetYSize()*4),ARGB8888);
-//    /* 使能LCD，包括开背光 */ 
-//    LCD_DisplayOn(); 
-
-//    /* 选择LCD第一层 */
-//    LCD_SelectLayer(0);
 		
 	//初始化 I2C
 	I2CMaster_Init(); 

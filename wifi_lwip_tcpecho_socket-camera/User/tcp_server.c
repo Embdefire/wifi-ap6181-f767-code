@@ -88,10 +88,6 @@ int32_t jpeg_tcp_send( int fd, const uint8_t *inBuf, size_t inBufLen )
 
 		count =  inBufLen / TCP_MAX_SEND_SIZE;//计算需要发送的包数
 	
-//		printf("send buffer count is %d\r\n",count);
-						
-
-	
     for(i = 0; i < count; i ++)//整包数
     {
          err = jpeg_send(fd, inBuf + index, TCP_MAX_SEND_SIZE);

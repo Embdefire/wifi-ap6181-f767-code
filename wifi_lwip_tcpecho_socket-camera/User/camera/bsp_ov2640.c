@@ -1463,33 +1463,7 @@ u8 OV2640_ImageWin_Set(u16 offx,u16 offy,u16 width,u16 height)
   */
 void OV2640_UXGAConfig(void)
 {
-//  uint32_t i;
-//	
-//	/*摄像头复位*/
-//  OV2640_Reset();
 
-//	/*进行三次寄存器写入，确保配置写入正常
-//	(在使用摄像头长排线时，IIC数据线干扰较大，必须多次写入来保证正常)*/
-//  /* 写入寄存器配置 */
-//	for(i=0; i<(sizeof(OV2640_UXGA)/2); i++)
-//	{
-//		OV2640_WriteReg(OV2640_UXGA[i][0], OV2640_UXGA[i][1]);
-
-//	}
-//	/* Initialize OV2640 */
-//	for(i=0; i<(sizeof(OV2640_UXGA)/2); i++)
-//	{
-//		OV2640_WriteReg(OV2640_UXGA[i][0], OV2640_UXGA[i][1]);
-
-//	}
-//	  /* Initialize OV2640 */
-//	for(i=0; i<(sizeof(OV2640_UXGA)/2); i++)
-//	{
-//		OV2640_WriteReg(OV2640_UXGA[i][0], OV2640_UXGA[i][1]);
-
-//	}	
-//	/*设置输出的图像大小*/
-//	OV2640_OutSize_Set(img_width,img_height);   
 }
 /**
 * @brief  Configures the OV2640 camera in JPEG mode.
@@ -1849,12 +1823,12 @@ void OV2640_ContrastConfig(uint8_t value1, uint8_t value2)
   */
 
 extern DMA_HandleTypeDef DMA_Handle_dcmi;
-void HAL_DCMI_VsyncEventCallback(DCMI_HandleTypeDef *hdcmi)
-{
-    fps++; //帧率计数
-    //OV2640_DMA_Config(LCD_FB_START_ADDRESS,LCD_GetXSize()*LCD_GetYSize()/2); 
-		DCMI_IRQHandler_Funtion();
-}
+//void HAL_DCMI_VsyncEventCallback(DCMI_HandleTypeDef *hdcmi)
+//{
+//    fps++; //帧率计数
+//    //OV2640_DMA_Config(LCD_FB_START_ADDRESS,LCD_GetXSize()*LCD_GetYSize()/2); 
+//		DCMI_IRQHandler_Funtion();
+//}
 
 
 //捕获到一帧图像处理函数

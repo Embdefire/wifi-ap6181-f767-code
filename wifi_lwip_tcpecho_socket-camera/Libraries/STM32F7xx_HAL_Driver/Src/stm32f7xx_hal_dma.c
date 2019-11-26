@@ -756,12 +756,12 @@ void HAL_DMA_IRQHandler(DMA_HandleTypeDef *hdma)
   __IO uint32_t count = 0;
   uint32_t timeout = SystemCoreClock / 9600;
 
-  /* calculate DMA base and stream number */
+  /* 计算DMA基本和流编号 */
   DMA_Base_Registers *regs = (DMA_Base_Registers *)hdma->StreamBaseAddress;
 
   tmpisr = regs->ISR;
 
-  /* Transfer Error Interrupt management ***************************************/
+  /* 传输错误中断管理 ***************************************/
   if ((tmpisr & (DMA_FLAG_TEIF0_4 << hdma->StreamIndex)) != RESET)
   {
     if(__HAL_DMA_GET_IT_SOURCE(hdma, DMA_IT_TE) != RESET)
@@ -776,7 +776,7 @@ void HAL_DMA_IRQHandler(DMA_HandleTypeDef *hdma)
       hdma->ErrorCode |= HAL_DMA_ERROR_TE;
     }
   }
-  /* FIFO Error Interrupt management ******************************************/
+  /* FIFO错误中断管理 ******************************************/
   if ((tmpisr & (DMA_FLAG_FEIF0_4 << hdma->StreamIndex)) != RESET)
   {
     if(__HAL_DMA_GET_IT_SOURCE(hdma, DMA_IT_FE) != RESET)
@@ -788,7 +788,7 @@ void HAL_DMA_IRQHandler(DMA_HandleTypeDef *hdma)
       hdma->ErrorCode |= HAL_DMA_ERROR_FE;
     }
   }
-  /* Direct Mode Error Interrupt management ***********************************/
+  /*直接模式错误中断管理 ***********************************/
   if ((tmpisr & (DMA_FLAG_DMEIF0_4 << hdma->StreamIndex)) != RESET)
   {
     if(__HAL_DMA_GET_IT_SOURCE(hdma, DMA_IT_DME) != RESET)
@@ -800,64 +800,64 @@ void HAL_DMA_IRQHandler(DMA_HandleTypeDef *hdma)
       hdma->ErrorCode |= HAL_DMA_ERROR_DME;
     }
   }
-  /* Half Transfer Complete Interrupt management ******************************/
+  /*半传输完成中断管理 ******************************/
   if ((tmpisr & (DMA_FLAG_HTIF0_4 << hdma->StreamIndex)) != RESET)
   {
     if(__HAL_DMA_GET_IT_SOURCE(hdma, DMA_IT_HT) != RESET)
     {
-      /* Clear the half transfer complete flag */
+      /*清除半传输完成标志 */
       regs->IFCR = DMA_FLAG_HTIF0_4 << hdma->StreamIndex;
       
-      /* Multi_Buffering mode enabled */
+      /* 启用多缓冲模式*/
       if(((hdma->Instance->CR) & (uint32_t)(DMA_SxCR_DBM)) != RESET)
       {
-        /* Current memory buffer used is Memory 0 */
+        /* 当前使用的内存缓冲区是Memory 0 */
         if((hdma->Instance->CR & DMA_SxCR_CT) == RESET)
         {
           if(hdma->XferHalfCpltCallback != NULL)
           {
-            /* Half transfer callback */
+            /* 半转移回调 */
             hdma->XferHalfCpltCallback(hdma);
           }
         }
-        /* Current memory buffer used is Memory 1 */
+        /* 当前使用的内存缓冲区是“ Memory 1” */
         else
         {
           if(hdma->XferM1HalfCpltCallback != NULL)
           {
-            /* Half transfer callback */
+            /*半转移回调 */
             hdma->XferM1HalfCpltCallback(hdma);
           }
         }
       }
       else
       {
-        /* Disable the half transfer interrupt if the DMA mode is not CIRCULAR */
+        /* 如果DMA模式不是CIRCULAR，则禁用半传输中断 */
         if((hdma->Instance->CR & DMA_SxCR_CIRC) == RESET)
         {
-          /* Disable the half transfer interrupt */
+          /* 禁用半传输中断 */
           hdma->Instance->CR  &= ~(DMA_IT_HT);
         }
         
         if(hdma->XferHalfCpltCallback != NULL)
         {
-          /* Half transfer callback */
+          /* 半转移回调 */
           hdma->XferHalfCpltCallback(hdma);
         }
       }
     }
   }
-  /* Transfer Complete Interrupt management ***********************************/
+  /* 传输完成中断管理 ***********************************/
   if ((tmpisr & (DMA_FLAG_TCIF0_4 << hdma->StreamIndex)) != RESET)
   {
     if(__HAL_DMA_GET_IT_SOURCE(hdma, DMA_IT_TC) != RESET)
     {
-      /* Clear the transfer complete flag */
+      /* 清除传输完成标志 */
       regs->IFCR = DMA_FLAG_TCIF0_4 << hdma->StreamIndex;
       
       if(HAL_DMA_STATE_ABORT == hdma->State)
       {
-        /* Disable all the transfer interrupts */
+        /* 禁用所有传输中断 */
         hdma->Instance->CR  &= ~(DMA_IT_TC | DMA_IT_TE | DMA_IT_DME);
         hdma->Instance->FCR &= ~(DMA_IT_FE);
         
@@ -866,13 +866,13 @@ void HAL_DMA_IRQHandler(DMA_HandleTypeDef *hdma)
           hdma->Instance->CR  &= ~(DMA_IT_HT);
         }
 
-        /* Clear all interrupt flags at correct offset within the register */
+        /*清除寄存器中所有偏移量正确的中断标志 */
         regs->IFCR = 0x3FU << hdma->StreamIndex;
 
-        /* Process Unlocked */
+        /* 流程已解锁 */
         __HAL_UNLOCK(hdma);
          
-        /* Change the DMA state */
+        /* 更改DMA状态 */
         hdma->State = HAL_DMA_STATE_READY;
 	
         if(hdma->XferAbortCallback != NULL)
@@ -884,50 +884,50 @@ void HAL_DMA_IRQHandler(DMA_HandleTypeDef *hdma)
       
       if(((hdma->Instance->CR) & (uint32_t)(DMA_SxCR_DBM)) != RESET)
       {
-        /* Current memory buffer used is Memory 0 */
+        /* 当前使用的内存缓冲区是Memory 0 */
         if((hdma->Instance->CR & DMA_SxCR_CT) == RESET)
         {
           if(hdma->XferM1CpltCallback != NULL)
           {
-            /* Transfer complete Callback for memory1 */
+            /* 传输完整的内存回调1 */
             hdma->XferM1CpltCallback(hdma);
           }
         }
-        /* Current memory buffer used is Memory 1 */
+        /* 当前使用的内存缓冲区是“ Memory 1” */
         else
         {
           if(hdma->XferCpltCallback != NULL)
           {
-            /* Transfer complete Callback for memory0 */
+            /* 传输完整的内存回调0 */
             hdma->XferCpltCallback(hdma);
           }
         }
       }
-      /* Disable the transfer complete interrupt if the DMA mode is not CIRCULAR */
+      /* 如果DMA模式不是CIRCULAR，则禁用传输完成中断 */
       else
       {
         if((hdma->Instance->CR & DMA_SxCR_CIRC) == RESET)
         {
-          /* Disable the transfer complete interrupt */
+          /* 禁用传输完成中断 */
           hdma->Instance->CR  &= ~(DMA_IT_TC);
 
-          /* Process Unlocked */
+          /* 流程已解锁 */
           __HAL_UNLOCK(hdma);
           
-          /* Change the DMA state */
+          /*更改DMA状态 */
           hdma->State = HAL_DMA_STATE_READY;
         }
         
         if(hdma->XferCpltCallback != NULL)
         {
-          /* Transfer complete callback */
+          /* 转移完成回调 */
           hdma->XferCpltCallback(hdma);
         }
       }
     }
   }
   
-  /* manage error case */
+  /* 处理错误案例*/
   if(hdma->ErrorCode != HAL_DMA_ERROR_NONE)
   {
     if((hdma->ErrorCode & HAL_DMA_ERROR_TE) != RESET)

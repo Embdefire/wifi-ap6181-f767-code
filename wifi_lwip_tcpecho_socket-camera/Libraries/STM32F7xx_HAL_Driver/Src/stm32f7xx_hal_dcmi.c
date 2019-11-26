@@ -512,7 +512,7 @@ void HAL_DCMI_IRQHandler(DCMI_HandleTypeDef *hdcmi)
 {  
   uint32_t isr_value = READ_REG(hdcmi->Instance->MISR);
   
-  /* Synchronization error interrupt management *******************************/
+  /* 同步错误中断管理 *******************************/
   if((isr_value & DCMI_FLAG_ERRRI) == DCMI_FLAG_ERRRI)
   {
     /* Clear the Synchronization error flag */
@@ -530,7 +530,7 @@ void HAL_DCMI_IRQHandler(DCMI_HandleTypeDef *hdcmi)
     /* Abort the DMA Transfer */
     HAL_DMA_Abort_IT(hdcmi->DMA_Handle); 
   }
-  /* Overflow interrupt management ********************************************/
+  /* 溢出中断管理 ********************************************/
   if((isr_value & DCMI_FLAG_OVRRI) == DCMI_FLAG_OVRRI)
   {
     /* Clear the Overflow flag */
@@ -548,25 +548,25 @@ void HAL_DCMI_IRQHandler(DCMI_HandleTypeDef *hdcmi)
     /* Abort the DMA Transfer */
     HAL_DMA_Abort_IT(hdcmi->DMA_Handle);
   }
-  /* Line Interrupt management ************************************************/
+  /* 行中断管理************************************************/
   if((isr_value & DCMI_FLAG_LINERI) == DCMI_FLAG_LINERI)
   {
-    /* Clear the Line interrupt flag */  
+    /*清除行中断标志 */  
     __HAL_DCMI_CLEAR_FLAG(hdcmi, DCMI_FLAG_LINERI);
     
-    /* Line interrupt Callback */
+    /* Line 中断回调 */
     HAL_DCMI_LineEventCallback(hdcmi);
   }
-  /* VSYNC interrupt management ***********************************************/
+  /* VSYNC中断管理 ***********************************************/
   if((isr_value & DCMI_FLAG_VSYNCRI) == DCMI_FLAG_VSYNCRI)
   {
-    /* Clear the VSYNC flag */
+    /* 清除VSYNC标志 */
     __HAL_DCMI_CLEAR_FLAG(hdcmi, DCMI_FLAG_VSYNCRI);
     
-    /* VSYNC Callback */
+    /* VSYNC 回调 */
     HAL_DCMI_VsyncEventCallback(hdcmi);
   }
-  /* FRAME interrupt management ***********************************************/
+  /* 帧中断管理 ***********************************************/
   if((isr_value & DCMI_FLAG_FRAMERI) == DCMI_FLAG_FRAMERI)   
   {
     /* When snapshot mode, disable Vsync, Error and Overrun interrupts */
@@ -576,13 +576,13 @@ void HAL_DCMI_IRQHandler(DCMI_HandleTypeDef *hdcmi)
       __HAL_DCMI_DISABLE_IT(hdcmi, DCMI_IT_LINE | DCMI_IT_VSYNC | DCMI_IT_ERR | DCMI_IT_OVR);
     }
     
-    /* Disable the Frame interrupt */
+    /* 失能 帧中断*/
     __HAL_DCMI_DISABLE_IT(hdcmi, DCMI_IT_FRAME);
     
-    /* Clear the End of Frame flag */
+    /* 清除帧标志*/
     __HAL_DCMI_CLEAR_FLAG(hdcmi, DCMI_FLAG_FRAMERI);
     
-    /* Frame Callback */
+    /* 帧回调函数*/
     HAL_DCMI_FrameEventCallback(hdcmi);
   }
 }

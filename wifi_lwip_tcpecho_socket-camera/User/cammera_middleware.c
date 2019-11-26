@@ -727,12 +727,8 @@ void DCMI_IRQHandler_Funtion(void)
 	//2.根据缓冲区使用情况决定是否开启dma
 	DCMI_Start();
 	dma_complete_counter=0;
-
-}
-
-//void DCMI_IRQHandler(void)
-//{
-//	if(DCMI_GetITStatus(DCMI_IT_FRAME) == SET )
+	
+//	if(DCMI_GetITStatus(DCMI_IT_FRAME) == SET )//	帧中断
 //	{
 //			DCMI_ClearITPendingBit(DCMI_IT_FRAME);
 //			frame_counter ++;
@@ -743,13 +739,28 @@ void DCMI_IRQHandler_Funtion(void)
 //			dma_complete_counter=0;
 //	}
 
-//    if(DCMI_GetITStatus(DCMI_IT_LINE) == SET )
+}
+
+//void DCMI_IRQHandler(void)
+//{
+//	if(DCMI_GetITStatus(DCMI_IT_FRAME) == SET )//	帧中断
+//	{
+//			DCMI_ClearITPendingBit(DCMI_IT_FRAME);
+//			frame_counter ++;
+//			//1.停止DCMI传输
+//			DCMI_Stop();
+//			//2.根据缓冲区使用情况决定是否开启dma
+//			DCMI_Start();
+//			dma_complete_counter=0;
+//	}
+
+//    if(DCMI_GetITStatus(DCMI_IT_LINE) == SET )//	行中断
 //	{
 //        DCMI_ClearITPendingBit(DCMI_IT_LINE);
 //        line_counter ++;
 //	}
 
-//    if(DCMI_GetITStatus(DCMI_IT_VSYNC) == SET )
+//    if(DCMI_GetITStatus(DCMI_IT_VSYNC) == SET )//	场中断
 //	{
 //        DCMI_ClearITPendingBit(DCMI_IT_VSYNC);
 //        vs_counter ++;

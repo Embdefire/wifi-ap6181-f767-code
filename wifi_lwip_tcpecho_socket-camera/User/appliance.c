@@ -32,12 +32,12 @@ void app_main( void )
 		/*ÅäÖÃwifi lwipÐÅÏ¢*/
 		Config_WIFI_LwIP_Info();
 
-//		err = camera_queue_init();
-//		cambuf = cbWrite(&cam_circular_buff);
-//	
+		err = camera_queue_init();
+		cambuf = cbWrite(&cam_circular_buff);
+	
 
 
-//		err = open_camera((uint32_t *)cambuf->head, CAMERA_QUEUE_DATA_LEN);
+		err = open_camera((uint32_t *)cambuf->head, CAMERA_QUEUE_DATA_LEN);
 	
 //printf("current	line=%d\r\n",__LINE__);
 //while(1)

@@ -1206,6 +1206,9 @@ void OV2640_HW_Init(void)
     HAL_GPIO_Init(DCMI_PWDN_GPIO_PORT, &GPIO_InitStructure);
     /*PWDN引脚，高电平关闭电源，低电平供电*/
     HAL_GPIO_WritePin(DCMI_PWDN_GPIO_PORT,DCMI_PWDN_GPIO_PIN,GPIO_PIN_RESET);
+		
+		HAL_NVIC_SetPriority(DCMI_IRQn,0,0);        //抢占优先级1，子优先级2
+    HAL_NVIC_EnableIRQ(DCMI_IRQn);              //使能DCMI中断
     
 }
 /**
@@ -1260,10 +1263,11 @@ void OV2640_Init(void)
 	DCMI_Handle.Init.CaptureRate      = DCMI_CR_ALL_FRAME;
 	DCMI_Handle.Init.ExtendedDataMode = DCMI_EXTEND_DATA_8B;
 	HAL_DCMI_Init(&DCMI_Handle); 	
-
-	/* 配置中断 */
-	HAL_NVIC_SetPriority(DCMI_IRQn, 5, 0);
-	HAL_NVIC_EnableIRQ(DCMI_IRQn); 	
+	
+	     //关闭行中断、VSYNC中断、同步错误中断和溢出中断
+   __HAL_DCMI_DISABLE_IT(&DCMI_Handle,DCMI_IT_LINE|DCMI_IT_VSYNC|DCMI_IT_ERR|DCMI_IT_OVR);
+   __HAL_DCMI_ENABLE_IT(&DCMI_Handle,DCMI_IT_FRAME);      //使能帧中断
+   __HAL_DCMI_ENABLE(&DCMI_Handle);                       //使能DCMI
 
 }
 
@@ -1830,12 +1834,27 @@ void OV2640_ContrastConfig(uint8_t value1, uint8_t value2)
   * @retval None
   */
 
+extern DMA_HandleTypeDef DMA_Handle_dcmi;
 void HAL_DCMI_VsyncEventCallback(DCMI_HandleTypeDef *hdcmi)
 {
     fps++; //帧率计数
     //OV2640_DMA_Config(LCD_FB_START_ADDRESS,LCD_GetXSize()*LCD_GetYSize()/2); 
 		DCMI_IRQHandler_Funtion();
 }
+
+
+//捕获到一帧图像处理函数
+//hdcmi:DCMI句柄
+void HAL_DCMI_FrameEventCallback(DCMI_HandleTypeDef *hdcmi)
+{
+//	jpeg_data_process();//jpeg数据处理
+//	LED1_Toggle;
+//	ov_frame++; 
+    //重新使能帧中断,因为HAL_DCMI_IRQHandler()函数会关闭帧中断
+	DCMI_IRQHandler_Funtion();
+    //__HAL_DCMI_ENABLE_IT(&hdcmi,DCMI_IT_FRAME);
+}
+
 uint8_t fps=0;
 uint8_t dispBuf[100];
 /*简单任务管理*/

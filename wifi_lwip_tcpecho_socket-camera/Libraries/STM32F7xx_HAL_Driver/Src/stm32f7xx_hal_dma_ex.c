@@ -109,7 +109,7 @@ static void DMA_MultiBufferSetConfig(DMA_HandleTypeDef *hdma, uint32_t SrcAddres
 
 
 /**
-  * @brief  Starts the multi_buffer DMA Transfer.
+  * @brief Æô¶¯multi_buffer DMA´«Êä¡£
   * @param  hdma      : pointer to a DMA_HandleTypeDef structure that contains
   *                     the configuration information for the specified DMA Stream.  
   * @param  SrcAddress: The source memory Buffer address

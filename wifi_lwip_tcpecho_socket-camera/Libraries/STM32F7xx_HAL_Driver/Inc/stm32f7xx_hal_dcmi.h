@@ -177,10 +177,8 @@ typedef struct
 /** @defgroup DCMI_Capture_Mode DCMI Capture Mode
   * @{
   */ 
-#define DCMI_MODE_CONTINUOUS           ((uint32_t)0x00000000U)  /*!< The received data are transferred continuously 
-                                                                    into the destination memory through the DMA             */
-#define DCMI_MODE_SNAPSHOT             ((uint32_t)DCMI_CR_CM)  /*!< Once activated, the interface waits for the start of 
-                                                                    frame and then transfers a single frame through the DMA */
+#define DCMI_MODE_CONTINUOUS           ((uint32_t)0x00000000U)  /*!< 接收到的数据通过DMA连续传输到目标存储器中             */
+#define DCMI_MODE_SNAPSHOT             ((uint32_t)DCMI_CR_CM)  /*!< 激活后，接口将等待帧的开始，然后通过DMA传输单个帧 */
 /**
   * @}
   */

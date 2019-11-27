@@ -60,7 +60,7 @@ int32_t jpeg_send( int fd, const uint8_t *inBuf, size_t inBufLen )
 
 				selectResult = select( fd + 1, NULL, &writeSet, NULL,&t );
 			
-        require( selectResult >= 1, exit );//log显示这个出问题
+        require( selectResult >= 1, exit );
 
         if(FD_ISSET( selectResult, &writeSet ))
         {

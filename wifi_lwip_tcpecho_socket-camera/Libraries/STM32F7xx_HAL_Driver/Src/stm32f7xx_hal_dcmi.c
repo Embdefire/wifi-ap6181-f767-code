@@ -292,88 +292,88 @@ __weak void HAL_DCMI_MspDeInit(DCMI_HandleTypeDef* hdcmi)
   */
 
 /**
-  * @brief  Enables DCMI DMA request and enables DCMI capture  
+  * @brief  启用DCMI DMA请求并启用DCMI捕获
   * @param  hdcmi:     pointer to a DCMI_HandleTypeDef structure that contains
   *                    the configuration information for DCMI.
-  * @param  DCMI_Mode: DCMI capture mode snapshot or continuous grab.
-  * @param  pData:     The destination memory Buffer address (LCD Frame buffer).
-  * @param  Length:    The length of capture to be transferred.
+  * @param  DCMI_Mode: DCMI捕获模式快照或连续抓取。
+  * @param  pData:     目标存储器的缓冲区地址（LCD帧缓冲区）。
+  * @param  Length:    要传输的捕获长度。
   * @retval HAL status
   */
 HAL_StatusTypeDef HAL_DCMI_Start_DMA(DCMI_HandleTypeDef* hdcmi, uint32_t DCMI_Mode, uint32_t pData, uint32_t Length)
 {  
-  /* Initialize the second memory address */
+  /* 初始化第二个内存地址 */
   uint32_t SecondMemAddress = 0;
 
-  /* Check function parameters */
+  /* 参数校检 */
   assert_param(IS_DCMI_CAPTURE_MODE(DCMI_Mode));
 
-  /* Process Locked */
+  /* 上锁*/
   __HAL_LOCK(hdcmi);
   
-  /* Lock the DCMI peripheral state */
+  /* 锁定DCMI外围设备状态 */
   hdcmi->State = HAL_DCMI_STATE_BUSY;
 
-  /* Enable DCMI by setting DCMIEN bit */
+  /* 通过将DCMIEN位置1来启用DCMI*/
   __HAL_DCMI_ENABLE(hdcmi);
   
-  /* Configure the DCMI Mode */
+  /* 配置DCMI模式 */
   hdcmi->Instance->CR &= ~(DCMI_CR_CM);
   hdcmi->Instance->CR |=  (uint32_t)(DCMI_Mode);
 
-  /* Set the DMA memory0 conversion complete callback */
+  /*设置DMA内存0转换完成回调 */
   hdcmi->DMA_Handle->XferCpltCallback = DCMI_DMAXferCplt;
 
-  /* Set the DMA error callback */
+  /* 设置DMA错误回调 */
   hdcmi->DMA_Handle->XferErrorCallback = DCMI_DMAError;
 
-  /* Set the dma abort callback */
+  /*设置dma中止回调 */
   hdcmi->DMA_Handle->XferAbortCallback = NULL;
 
-  /* Reset transfer counters value */ 
+  /* 重置传输计数器值 */ 
   hdcmi->XferCount = 0;
   hdcmi->XferTransferNumber = 0;
   
   if(Length <= 0xFFFF)
   {
-    /* Enable the DMA Stream */
+    /* 启用DMA流*/
     HAL_DMA_Start_IT(hdcmi->DMA_Handle, (uint32_t)&hdcmi->Instance->DR, (uint32_t)pData, Length);
   }
   else /* DCMI_DOUBLE_BUFFER Mode */
   {
-    /* Set the DMA memory1 conversion complete callback */
+    /* 设置DMA memory1转换完成回调*/
     hdcmi->DMA_Handle->XferM1CpltCallback = DCMI_DMAXferCplt; 
 
-    /* Initialize transfer parameters */
+    /* 初始化传输参数 */
     hdcmi->XferCount = 1;
     hdcmi->XferSize = Length;
     hdcmi->pBuffPtr = pData;
       
-    /* Get the number of buffer */
+    /* 获取缓冲区数 */
     while(hdcmi->XferSize > 0xFFFF)
     {
       hdcmi->XferSize = (hdcmi->XferSize/2);
       hdcmi->XferCount = hdcmi->XferCount*2;
     }
 
-    /* Update DCMI counter  and transfer number*/
+    /* 更新DCMI计数器和传输号*/
     hdcmi->XferCount = (hdcmi->XferCount - 2);
     hdcmi->XferTransferNumber = hdcmi->XferCount;
 
-    /* Update second memory address */
+    /* 更新第二个内存地址 */
     SecondMemAddress = (uint32_t)(pData + (4*hdcmi->XferSize));
 
-    /* Start DMA multi buffer transfer */
+    /*开始DMA多缓冲区传输 */
     HAL_DMAEx_MultiBufferStart_IT(hdcmi->DMA_Handle, (uint32_t)&hdcmi->Instance->DR, (uint32_t)pData, SecondMemAddress, hdcmi->XferSize);
   }
   
-  /* Enable Capture */
+  /* 启用捕获 */
   hdcmi->Instance->CR |= DCMI_CR_CAPTURE;
 
-  /* Release Lock */
+  /*释放锁 */
   __HAL_UNLOCK(hdcmi);
 
-  /* Return function status */
+  /* 返回功能状态*/
   return HAL_OK;
 }
 
@@ -807,7 +807,7 @@ uint32_t HAL_DCMI_GetError(DCMI_HandleTypeDef *hdcmi)
   * @{
   */
   /**
-  * @brief  DMA conversion complete callback. 
+  * @brief  DMA转换完成回调。
   * @param  hdma: pointer to a DMA_HandleTypeDef structure that contains
   *                the configuration information for the specified DMA module.
   * @retval None
@@ -820,7 +820,7 @@ static void DCMI_DMAXferCplt(DMA_HandleTypeDef *hdma)
 
   if(hdcmi->XferCount != 0)
   {
-    /* Update memory 0 address location */
+    /* 更新内存0地址位置*/
     tmp = ((hdcmi->DMA_Handle->Instance->CR) & DMA_SxCR_CT);
     if(((hdcmi->XferCount % 2) == 0) && (tmp != 0))
     {
@@ -828,7 +828,7 @@ static void DCMI_DMAXferCplt(DMA_HandleTypeDef *hdma)
       HAL_DMAEx_ChangeMemory(hdcmi->DMA_Handle, (tmp + (8*hdcmi->XferSize)), MEMORY0);
       hdcmi->XferCount--;
     }
-    /* Update memory 1 address location */
+    /*更新内存1地址位置 */
     else if((hdcmi->DMA_Handle->Instance->CR & DMA_SxCR_CT) == 0)
     {
       tmp = hdcmi->DMA_Handle->Instance->M1AR;
@@ -836,12 +836,12 @@ static void DCMI_DMAXferCplt(DMA_HandleTypeDef *hdma)
       hdcmi->XferCount--;
     }
   }
-  /* Update memory 0 address location */
+  /* 更新内存0地址位置*/
   else if((hdcmi->DMA_Handle->Instance->CR & DMA_SxCR_CT) != 0)
   {
     hdcmi->DMA_Handle->Instance->M0AR = hdcmi->pBuffPtr;
   }
-  /* Update memory 1 address location */
+  /* 更新内存1地址位置 */
   else if((hdcmi->DMA_Handle->Instance->CR & DMA_SxCR_CT) == 0)
   {
     tmp = hdcmi->pBuffPtr;
@@ -849,13 +849,13 @@ static void DCMI_DMAXferCplt(DMA_HandleTypeDef *hdma)
     hdcmi->XferCount = hdcmi->XferTransferNumber;
   }
 
-  /* Check if the frame is transferred */
+  /* 检查帧是否已传输 */
   if(hdcmi->XferCount == hdcmi->XferTransferNumber)
   {
-    /* Enable the Frame interrupt */
+    /*启用帧中断 */
     __HAL_DCMI_ENABLE_IT(hdcmi, DCMI_IT_FRAME);
     
-    /* When snapshot mode, set dcmi state to ready */
+    /*在快照模式下，将dcmi状态设置为ready*/
     if((hdcmi->Instance->CR & DCMI_CR_CM) == DCMI_MODE_SNAPSHOT)
     {  
       hdcmi->State= HAL_DCMI_STATE_READY;

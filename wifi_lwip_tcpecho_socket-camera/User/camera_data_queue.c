@@ -212,8 +212,9 @@ int32_t pull_data_from_queue(uint8_t **data_p, int32_t *len_p)
 						return kGeneralErr;
 #if 1				
 			/*²éÕÒÎÄ¼ş*/	
-				
-			*len_p = find_jpeg_tail(cam_data_pull->head,&jpeg_start_offset,cam_data_pull->img_dma_len*2/3);
+			//
+//			*len_p = find_jpeg_tail(cam_data_pull->head,&jpeg_start_offset,cam_data_pull->img_dma_len*2/3);
+				*len_p = find_jpeg_tail(cam_data_pull->head,&jpeg_start_offset,1024*4);
 
 //			*len_p = find_jpeg_tail(cam_data_pull->head,&jpeg_start_offset,0);
 

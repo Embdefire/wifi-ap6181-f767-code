@@ -70,7 +70,7 @@ typedef enum
 #define JPEG_IMAGE_FORMAT  JPEG_320x240
 //#define JPEG_IMAGE_FORMAT  JPEG_640x480
 //#define JPEG_IMAGE_FORMAT  JPEG_800x600
-//#define JPEG_IMAGE_FORMAT  JPEG_1024x768      
+//#define JPEG_IMAGE_FORMAT  JPEG_1024x768   
 
 /*ÉãÏñÍ·½Ó¿Ú */
 //IIC SCCB

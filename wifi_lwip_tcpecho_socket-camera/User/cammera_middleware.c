@@ -288,6 +288,8 @@ void DCMI_Stop(void)
 		
 		if(CAMERA_QUEUE_DATA_LEN>65536*4)	//双dma buff
 		{
+			XferSize = DCMI_Handle.XferSize;
+			
 			data_p->img_dma_len = (XferSize - DMA_GetCurrDataCounter(DMA2_Stream1))*4; //最后一个包
 			
 			if(dma_complete_counter>=2)

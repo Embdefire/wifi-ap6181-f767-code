@@ -346,8 +346,8 @@ HAL_StatusTypeDef HAL_DCMI_Start_DMA(DCMI_HandleTypeDef* hdcmi, uint32_t DCMI_Mo
 
     /* 初始化传输参数 */
     hdcmi->XferCount = 1;
-    hdcmi->XferSize = Length;
-    hdcmi->pBuffPtr = pData;
+    hdcmi->XferSize = Length/4;//
+    hdcmi->pBuffPtr = pData;//
       
     /* 获取缓冲区数 */
     while(hdcmi->XferSize > 0xFFFF)

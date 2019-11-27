@@ -49,21 +49,6 @@ extern void camera_test();
 int main( void )
 {
 		BSP_Init();
-		printf("BSP_Init OK！！\r\n");
-	
-//		camera_data * cambuf;
-//		int32_t err = kNoErr;
-//		err = camera_queue_init();
-//		cambuf = cbWrite(&cam_circular_buff);
-//	
-//		//open_camera((uint32_t)0xD0000000,LCD_GetXSize()*LCD_GetYSize()/2);
-//		open_camera((uint32_t *)cambuf->head, CAMERA_QUEUE_DATA_LEN);
-//	
-//		while(1)
-//		{
-//		
-//		}
-
     /*创建一个初始线程 */									
 		BaseType_t xReturn = pdPASS;
 		xReturn = xTaskCreate((TaskFunction_t )startup_thread,  /* 任务入口函数 */

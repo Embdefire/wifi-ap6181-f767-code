@@ -1272,33 +1272,6 @@ void OV2640_DCMI_Init(void)
   */
 void OV2640_DMA_Config(uint32_t DMA_Memory0BaseAddr,uint32_t DMA_BufferSize)
 {
-
-//		__HAL_RCC_DMA2_CLK_ENABLE();                                    			 //使能DMA2时钟
-//		__HAL_LINKDMA(&DCMI_Handle,DMA_Handle,DMA_Handle_dcmi);        				 //将DMA与DCMI联系起来
-//		DMA_Handle_dcmi.Instance=									DMA2_Stream1;                //DMA2数据流1                     
-//		DMA_Handle_dcmi.Init.Channel=							DMA_CHANNEL_1;               //通道1
-//		DMA_Handle_dcmi.Init.Direction=						DMA_PERIPH_TO_MEMORY;        //外设到存储器
-//		DMA_Handle_dcmi.Init.PeriphInc=						DMA_PINC_DISABLE;            //外设非增量模式
-//		DMA_Handle_dcmi.Init.MemInc=							DMA_MINC_ENABLE;             //存储器增量模式
-//		DMA_Handle_dcmi.Init.PeriphDataAlignment=	DMA_PDATAALIGN_WORD;   			 //外设数据长度:32位
-//		DMA_Handle_dcmi.Init.MemDataAlignment=		DMA_MDATAALIGN_WORD;         //存储器数据长度:8/16/32位
-//		DMA_Handle_dcmi.Init.Mode=								DMA_CIRCULAR;                //使用循环模式 
-//		DMA_Handle_dcmi.Init.Priority=						DMA_PRIORITY_HIGH;           //高优先级
-//		DMA_Handle_dcmi.Init.FIFOMode=						DMA_FIFOMODE_ENABLE;         //使能FIFO
-//		DMA_Handle_dcmi.Init.FIFOThreshold=				DMA_FIFO_THRESHOLD_FULL; 		//使用FIFO 
-//		DMA_Handle_dcmi.Init.MemBurst=						DMA_MBURST_SINGLE;           //存储器突发传输
-//		DMA_Handle_dcmi.Init.PeriphBurst=					DMA_PBURST_SINGLE;           //外设突发单次传输 		
-	
-//		HAL_DMA_DeInit(&DMA_Handle_dcmi);              //先清除以前的设置
-//		HAL_DMA_Init(&DMA_Handle_dcmi);	               //初始化DMA
-//		__HAL_UNLOCK(&DMA_Handle_dcmi);
-//		__HAL_DMA_ENABLE_IT(&DMA_Handle_dcmi,DMA_IT_TE); 
-//		
-//		HAL_NVIC_SetPriority(DMA2_Stream1_IRQn,7,0);        //DMA中断优先级
-//		HAL_NVIC_EnableIRQ(DMA2_Stream1_IRQn);
-
-//		DMA_Cmd(DMA2_Stream1, ENABLE);
-
   /* 配置DMA从DCMI中获取数据*/
   /* 使能DMA*/
   __HAL_RCC_DMA2_CLK_ENABLE(); 

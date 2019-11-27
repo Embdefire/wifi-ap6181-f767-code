@@ -337,7 +337,7 @@ HAL_StatusTypeDef HAL_DCMI_Start_DMA(DCMI_HandleTypeDef* hdcmi, uint32_t DCMI_Mo
   if(Length <= 0xFFFF)
   {
     /* ÆôÓÃDMAÁ÷*/
-    HAL_DMA_Start_IT(hdcmi->DMA_Handle, (uint32_t)&hdcmi->Instance->DR, (uint32_t)pData, Length);
+    HAL_DMA_Start_IT(hdcmi->DMA_Handle, (uint32_t)&hdcmi->Instance->DR, (uint32_t)pData, Length/4);
   }
   else /* DCMI_DOUBLE_BUFFER Mode */
   {

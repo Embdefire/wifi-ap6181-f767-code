@@ -206,7 +206,7 @@ void tcp_server_thread( void *arg )
 										continue;
                 }
 
-                printf("jpeg_tcp_send->[%d]%d KB\r\n", packet_index, camera_data_len/1024);
+                //printf("jpeg_tcp_send->[%d]%d KB\r\n", packet_index, camera_data_len/1024);
 												
                 //3.·¢ËÍÊý¾Ý
                 if((err = jpeg_tcp_send(client_fd, (const uint8_t *)in_camera_data, camera_data_len)) != kNoErr)
@@ -216,6 +216,7 @@ void tcp_server_thread( void *arg )
 										printf("error-->[%d]%d KB\r\n", packet_index, camera_data_len/1024);
 										break;
                 }
+								printf("jpeg_tcp_send->[%d]%d KB\r\n", packet_index, camera_data_len/1024);
 								
                 for(i = 0; i < 1; i ++)
                 {

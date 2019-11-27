@@ -244,8 +244,8 @@ extern DMA_HandleTypeDef DMA_Handle_dcmi;
 
 void DCMI_Start(void)
 {
-	__HAL_DMA_ENABLE(&DMA_Handle_dcmi); //使能DMA
-	DCMI->CR|=DCMI_CR_CAPTURE;          //DCMI捕获使能
+//	__HAL_DMA_ENABLE(&DMA_Handle_dcmi); //使能DMA
+//	DCMI->CR|=DCMI_CR_CAPTURE;          //DCMI捕获使能
 	
 	camera_data *data_p;
 	
@@ -257,8 +257,8 @@ void DCMI_Start(void)
 		dma_start_counter++;
 		
 		/*配置DMA传输*/
-		OV2640_DMA_Config((uint32_t )data_p->head, CAMERA_QUEUE_DATA_LEN);
-		//HAL_DCMI_Start_DMA(&DCMI_Handle, DCMI_MODE_CONTINUOUS, (uint32_t )data_p->head, CAMERA_QUEUE_DATA_LEN);
+		//OV2640_DMA_Config((uint32_t )data_p->head, CAMERA_QUEUE_DATA_LEN);
+		HAL_DCMI_Start_DMA(&DCMI_Handle, DCMI_MODE_CONTINUOUS, (uint32_t )data_p->head, CAMERA_QUEUE_DATA_LEN);
 
 		DMA_Cmd(DMA2_Stream1, ENABLE);			//重新传输	
 	}
@@ -277,11 +277,6 @@ void DCMI_Stop(void)
 	while(DMA_GetCmdStatus(DMA2_Stream1) != DISABLE){}
 
 	//    DCMI_CaptureCmd(DISABLE);	
-		
-//	DCMI->CR&=~(DCMI_CR_CAPTURE);       //关闭捕获
-//	while(DCMI->CR&0X01);               //等待传输完成
-//	__HAL_DMA_DISABLE(&DMA_Handle_dcmi);//关闭DMA
-		
 
 	/*获取正在操作的写指针*/	
 	data_p = cbWriteUsing(&cam_circular_buff);
@@ -304,38 +299,6 @@ void DCMI_Stop(void)
 	
 	/*写入缓冲区完毕*/
 	cbWriteFinish(&cam_circular_buff);
-}
-
-/**
-  * @brief  Checks whether the DCMI interrupt has occurred or not.
-  * @param  DCMI_IT: specifies the DCMI interrupt source to check.
-  *          This parameter can be one of the following values:
-  *            @arg DCMI_IT_FRAME: Frame capture complete interrupt mask
-  *            @arg DCMI_IT_OVF: Overflow interrupt mask
-  *            @arg DCMI_IT_ERR: Synchronization error interrupt mask
-  *            @arg DCMI_IT_VSYNC: VSYNC interrupt mask
-  *            @arg DCMI_IT_LINE: Line interrupt mask
-  * @retval The new state of DCMI_IT (SET or RESET).
-  */
-ITStatus DCMI_GetITStatus(uint16_t DCMI_IT)
-{
-  ITStatus bitstatus = RESET;
-  uint32_t itstatus = 0;
-  
-  /* Check the parameters */
-  assert_param(IS_DCMI_GET_IT(DCMI_IT));
-  
-  itstatus = DCMI->MISR & DCMI_IT; /* Only masked interrupts are checked */
-  
-  if ((itstatus != (uint16_t)RESET))
-  {
-    bitstatus = SET;
-  }
-  else
-  {
-    bitstatus = RESET;
-  }
-  return bitstatus;
 }
 
 
@@ -659,54 +622,7 @@ void DMA_ITConfig(DMA_Stream_TypeDef* DMAy_Streamx, uint32_t DMA_IT, FunctionalS
 
 #define DMA_FLAG_TCIF1                    ((uint32_t)0x10000800)
 #define HAL_DMA_STATE_READY_MEM0         0x11
-//void DMA2_Stream1_IRQHandler(void)
-//{
-//      /* Transfer Complete Interrupt management ***********************************/
-//  if (DMA_GetFlagStatus(DMA2_Stream1,DMA_FLAG_TCIF1)==SET)
-//  {
-////    if(DMA_GetFlagStatus(DMA2_Stream1, DMA_IT_TC) != RESET)
-//    {
-//      if(((DMA2_Stream1->CR) & (uint32_t)(DMA_SxCR_DBM)) != 0)
-//      {
 
-//        /* Clear the transfer complete flag */
-//        DMA_ClearFlag(DMA2_Stream1,DMA_FLAG_TCIF1);
-
-//        /* Current memory buffer used is Memory 1 */
-//        if((DMA2_Stream1->CR & DMA_SxCR_CT) == 0)
-//        {
-//          /* Transfer complete Callback for memory0 */
-//            DCMI_DMAConvCplt();
-//        }
-//        /* Current memory buffer used is Memory 0 */
-//        else if((DMA2_Stream1->CR & DMA_SxCR_CT) != 0) 
-//        {		
-
-//          /* Transfer complete Callback for memory0 */
-//            DCMI_DMAConvCplt();
-//        }
-//      }
-//      /* Disable the transfer complete interrupt if the DMA mode is not CIRCULAR */
-//      else
-//      {
-//        if(((DMA2_Stream1->CR) & (uint32_t)(DMA_SxCR_DBM)) == 0)
-//        {
-//          /* Disable the transfer complete interrupt */
-//          DMA_ITConfig(DMA2_Stream1, DMA_IT_TC,DISABLE);
-//        }
-//        /* Clear the transfer complete flag */
-//        DMA_ClearFlag(DMA2_Stream1,DMA_FLAG_TCIF1);
-//        /* Update error code */
-
-//        /* Change the DMA state */
-//        DMA2_Stream1_State = HAL_DMA_STATE_READY_MEM0;
-// 
-//        /* Transfer complete callback */
-//        DCMI_DMAConvCplt();
-//      }
-//    }
-//  }
-//}
 /**
   * @brief  Clears the DCMI's interrupt pending bits.
   * @param  DCMI_IT: specifies the DCMI interrupt pending bit to clear.

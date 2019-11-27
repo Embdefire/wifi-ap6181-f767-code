@@ -1298,26 +1298,33 @@ void OV2640_DMA_Config(uint32_t DMA_Memory0BaseAddr,uint32_t DMA_BufferSize)
 	HAL_DMA_Init(&DMA_Handle_dcmi);	                                //初始化DMA
 	
 	__HAL_UNLOCK(&DMA_Handle_dcmi);
-	
-	/*无双缓冲*/
-	HAL_DMA_Start(&DMA_Handle_dcmi,(u32)&DCMI->DR,DMA_Memory0BaseAddr,DMA_BufferSize);
 
-/*开启双缓冲*/
-//	if(mem1addr==0)    //开启DMA，不使用双缓冲
-//	{
-//			HAL_DMA_Start(&DMA_Handle_dcmi,(u32)&DCMI->DR,DMA_Memory0BaseAddr,DMA_BufferSize);
-//	}
-//	else                //使用双缓冲
-//	{
-//			HAL_DMAEx_MultiBufferStart(&DMA_Handle_dcmi,(u32)&DCMI->DR,mem0addr,mem1addr,DMA_BufferSize);//开启双缓冲
-//			__HAL_DMA_ENABLE_IT(&DMA_Handle_dcmi,DMA_IT_TC);    //开启传输完成中断
-//			HAL_NVIC_SetPriority(DMA2_Stream1_IRQn,0,0);        //DMA中断优先级
-//			HAL_NVIC_EnableIRQ(DMA2_Stream1_IRQn);
-//	}
-	
 
-  HAL_NVIC_SetPriority(DMA2_Stream1_IRQn, 0, 0);
-  HAL_NVIC_EnableIRQ(DMA2_Stream1_IRQn);
+
+//    if(mem1addr==0)    //开启DMA，不使用双缓冲
+//    {
+//        HAL_DMA_Start(&DMA_Handle_dcmi,(u32)&DCMI->DR,DMA_Memory0BaseAddr,DMA_BufferSize);
+//    }
+//    else                //使用双缓冲
+//    {
+//        HAL_DMAEx_MultiBufferStart(&DMA_Handle_dcmi,(u32)&DCMI->DR,DMA_Memory0BaseAddr,mem1addr,DMA_BufferSize);//开启双缓冲
+//        __HAL_DMA_ENABLE_IT(&DMA_Handle_dcmi,DMA_IT_TC);    //开启传输完成中断
+//        HAL_NVIC_SetPriority(DMA2_Stream1_IRQn,0,0);        //DMA中断优先级
+//        HAL_NVIC_EnableIRQ(DMA2_Stream1_IRQn);
+//    }  
+
+    //开启DMA，不使用双缓冲
+ 
+        HAL_DMA_Start(&DMA_Handle_dcmi,(u32)&DCMI->DR,DMA_Memory0BaseAddr,DMA_BufferSize);
+
+
+
+      //  HAL_DMAEx_MultiBufferStart(&DMA_Handle_dcmi,(u32)&DCMI->DR,DMA_Memory0BaseAddr,mem1addr,DMA_BufferSize);//开启双缓冲
+        __HAL_DMA_ENABLE_IT(&DMA_Handle_dcmi,DMA_IT_TC);    //开启传输完成中断
+        HAL_NVIC_SetPriority(DMA2_Stream1_IRQn,0,0);        //DMA中断优先级
+        HAL_NVIC_EnableIRQ(DMA2_Stream1_IRQn);
+
+
   
 }
 
@@ -1823,13 +1830,6 @@ void OV2640_ContrastConfig(uint8_t value1, uint8_t value2)
   */
 
 extern DMA_HandleTypeDef DMA_Handle_dcmi;
-//void HAL_DCMI_VsyncEventCallback(DCMI_HandleTypeDef *hdcmi)
-//{
-//    fps++; //帧率计数
-//    //OV2640_DMA_Config(LCD_FB_START_ADDRESS,LCD_GetXSize()*LCD_GetYSize()/2); 
-//		DCMI_IRQHandler_Funtion();
-//}
-
 
 //捕获到一帧图像处理函数
 //hdcmi:DCMI句柄

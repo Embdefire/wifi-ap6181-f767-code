@@ -112,20 +112,20 @@ static void DMA_MultiBufferSetConfig(DMA_HandleTypeDef *hdma, uint32_t SrcAddres
   * @brief 启动multi_buffer DMA传输。
   * @param  hdma      : pointer to a DMA_HandleTypeDef structure that contains
   *                     the configuration information for the specified DMA Stream.  
-  * @param  SrcAddress: The source memory Buffer address
-  * @param  DstAddress: The destination memory Buffer address
-  * @param  SecondMemAddress: The second memory Buffer address in case of multi buffer Transfer  
-  * @param  DataLength: The length of data to be transferred from source to destination
+  * @param  SrcAddress: 			源内存缓冲区地址
+  * @param  DstAddress: 			目标内存缓冲区地址
+  * @param  SecondMemAddress: 多缓冲区传输时的第二个内存缓冲区地址
+  * @param  DataLength: 			从源传输到目标的数据长度
   * @retval HAL status
   */
 HAL_StatusTypeDef HAL_DMAEx_MultiBufferStart(DMA_HandleTypeDef *hdma, uint32_t SrcAddress, uint32_t DstAddress, uint32_t SecondMemAddress, uint32_t DataLength)
 {
   HAL_StatusTypeDef status = HAL_OK;
   
-  /* Check the parameters */
+  /*检查参数 */
   assert_param(IS_DMA_BUFFER_SIZE(DataLength));
   
-  /* Memory-to-memory transfer not supported in double buffering mode */
+  /*在双缓冲模式下不支持内存到内存的传输 */
   if (hdma->Init.Direction == DMA_MEMORY_TO_MEMORY)
   {
     hdma->ErrorCode = HAL_DMA_ERROR_NOT_SUPPORTED;
@@ -133,29 +133,29 @@ HAL_StatusTypeDef HAL_DMAEx_MultiBufferStart(DMA_HandleTypeDef *hdma, uint32_t S
   }
   else
   {
-    /* Process Locked */
+    /* 进程已锁定*/
     __HAL_LOCK(hdma);
     
     if(HAL_DMA_STATE_READY == hdma->State)
     {
-      /* Change DMA peripheral state */
+      /*更改DMA外设状态 */
       hdma->State = HAL_DMA_STATE_BUSY; 
       
-      /* Enable the double buffer mode */
+      /*启用双缓冲模式 */
       hdma->Instance->CR |= (uint32_t)DMA_SxCR_DBM;
       
-      /* Configure DMA Stream destination address */
+      /* 配置DMA流目标地址*/
       hdma->Instance->M1AR = SecondMemAddress;
       
-      /* Configure the source, destination address and the data length */
+      /* 配置源，目标地址和数据长度 */
       DMA_MultiBufferSetConfig(hdma, SrcAddress, DstAddress, DataLength);
       
-      /* Enable the peripheral */
+      /* 启用外围设备 */
       __HAL_DMA_ENABLE(hdma);
     }
     else
     {
-      /* Return error status */
+      /* 返回错误状态 */
       status = HAL_BUSY;
     }
   }

@@ -1714,16 +1714,12 @@ void OV2640_ContrastConfig(uint8_t value1, uint8_t value2)
   * @param  None
   * @retval None
   */
-
 extern DMA_HandleTypeDef DMA_Handle_dcmi;
 
-//捕获到一帧图像处理函数
-//hdcmi:DCMI句柄
-__IO int data_fps=0;
 void HAL_DCMI_FrameEventCallback(DCMI_HandleTypeDef *hdcmi)
 {
 	DCMI_IRQHandler_Funtion();
-	data_fps++;
+
    //重新使能帧中断
   __HAL_DCMI_ENABLE_IT(&DCMI_Handle,DCMI_IT_FRAME);
 }
@@ -1778,4 +1774,6 @@ int32_t open_camera(uint32_t *BufferSRC, uint32_t BufferSize)
 		DCMI_Cmd(ENABLE); //数据开关
 		
 }
+
+
 

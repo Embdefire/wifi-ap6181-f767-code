@@ -337,7 +337,7 @@ HAL_StatusTypeDef HAL_DCMI_Start_DMA(DCMI_HandleTypeDef* hdcmi, uint32_t DCMI_Mo
   if(Length <= 0xFFFF)
   {
     /* 启用DMA流*/
-    HAL_DMA_Start_IT(hdcmi->DMA_Handle, (uint32_t)&hdcmi->Instance->DR, (uint32_t)pData, Length/4);
+    HAL_DMA_Start_IT(hdcmi->DMA_Handle, (uint32_t)&hdcmi->Instance->DR, (uint32_t)pData, Length);
   }
   else /* DCMI_DOUBLE_BUFFER Mode */
   {
@@ -346,8 +346,8 @@ HAL_StatusTypeDef HAL_DCMI_Start_DMA(DCMI_HandleTypeDef* hdcmi, uint32_t DCMI_Mo
 
     /* 初始化传输参数 */
     hdcmi->XferCount = 1;
-    hdcmi->XferSize = Length/4;//
-    hdcmi->pBuffPtr = pData;//
+    hdcmi->XferSize = Length;
+    hdcmi->pBuffPtr = pData;
       
     /* 获取缓冲区数 */
     while(hdcmi->XferSize > 0xFFFF)

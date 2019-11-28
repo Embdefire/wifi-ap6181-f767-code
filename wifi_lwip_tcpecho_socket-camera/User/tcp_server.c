@@ -205,8 +205,6 @@ void tcp_server_thread( void *arg )
 //										printf("更新读指针\r\n");
 										continue;
                 }
-
-                //printf("jpeg_tcp_send->[%d]%d KB\r\n", packet_index, camera_data_len/1024);
 												
                 //3.发送数据
                 if((err = jpeg_tcp_send(client_fd, (const uint8_t *)in_camera_data, camera_data_len)) != kNoErr)

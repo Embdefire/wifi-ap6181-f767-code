@@ -22,6 +22,7 @@
  */
 #define fire_demo_log(M, ...) custom_log("WIFI", M, ##__VA_ARGS__)
 
+extern uint32_t frame_counter;
 
 void app_main( void )
 {
@@ -33,26 +34,28 @@ void app_main( void )
 		Config_WIFI_LwIP_Info();
 
 		err = camera_queue_init();
+	
 		cambuf = cbWrite(&cam_circular_buff);
 	
-
-
 		err = open_camera((uint32_t *)cambuf->head, CAMERA_QUEUE_DATA_LEN);
 	
-//printf("current	line=%d\r\n",__LINE__);
-//while(1)
-//{
-//}
 		SDRAM_Init();//初始化外部sdram
 		printf("初始化 TCP_server\r\n");
 		host_rtos_create_thread( &wwd_thread, (void *)tcp_server_thread, "TCP_server", NULL,4096, 1);
 
-
+		frame_counter=0;//帧计数器清零
     while(1)
     {
+			/*延时*/
+			vTaskDelay(1000);
+			/*输出帧率*/
+			printf("--------------------------------->>>>>>>>frame_counter=%d fps/s \r\n",frame_counter);
+			frame_counter=0;			
 
     }
 
 }
+
+
 
 

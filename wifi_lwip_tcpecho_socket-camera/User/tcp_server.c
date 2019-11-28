@@ -199,16 +199,21 @@ void tcp_server_thread( void *arg )
                 //2.数据出队列 
 	
                 err = pull_data_from_queue(&in_camera_data, &camera_data_len);
+							
+
+							
                 if(err != kNoErr)
                 {
 										//更新读指针		
-										cbReadFinish(&cam_circular_buff);                  			
+										cbReadFinish(&cam_circular_buff);                  		
+								
 										vTaskDelay(1);
+//										printf("更新读指针\r\n");
 										continue;
                 }
 												
                 //3.发送数据
-								start_time = HAL_GetTick();
+//								start_time = HAL_GetTick();
                 if((err = jpeg_tcp_send(client_fd, (const uint8_t *)in_camera_data, camera_data_len)) != kNoErr)
 								{
 										//更新读指针		
@@ -216,23 +221,23 @@ void tcp_server_thread( void *arg )
 										printf("error-->[%d]%d KB\r\n", packet_index, camera_data_len/1024);
 										break;
                 }					
-								end_time = HAL_GetTick();	
-								use_time = end_time - start_time;
+//								end_time = HAL_GetTick();	
+//								use_time = end_time - start_time;
 //								printf("use_time--------------------> %d ms\r\n",use_time);
-								if(use_time>0)
-								{
-									while(1)
-									{
-									
-									}
-								}
-								end_time=0;
-								start_time=0;		
+//								if(use_time>0)
+//								{
+//									while(1)
+//									{
+//									
+//									}
+//								}
+//								end_time=0;
+//								start_time=0;		
 
 						
-								send_fream++;//计算发送帧率
-//								printf("jpeg_tcp_send->[%d]%d KB\r\n", packet_index, camera_data_len/1024);
 								
+//								printf("jpeg_tcp_send->[%d]%d KB\r\n", packet_index, camera_data_len/1024);
+								send_fream++;
 								for(i = 0; i < 1; i ++)
 								{
 										//4.发送间隔数据
@@ -244,15 +249,9 @@ void tcp_server_thread( void *arg )
 												break;
 										}
 								}
-                                    //更新读指针		
+                //更新读指针		
 								cbReadFinish(&cam_circular_buff);
 								
-								
-//								use_time = end_time - start_time;
-//								printf("use_time----------> %d ms\r\n",use_time);
-//								end_time=0;
-//								start_time=0;
-
             }
 
            // tcp_server_log("TCP Client disconnect %s:%d connected, fd: %d",client_ip_str, client_addr.s_port, client_fd);

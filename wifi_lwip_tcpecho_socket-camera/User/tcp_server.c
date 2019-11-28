@@ -119,7 +119,8 @@ void jpeg_socket_close(int* fd)
     close(tempFd);
 }
 extern __align(4) uint8_t queue_buff[CAMERA_QUEUE_NUM][CAMERA_QUEUE_DATA_LEN];
-int send_data=1;
+
+int send_fream=0;
 /* TCP server listener thread */
 void tcp_server_thread( void *arg )
 {
@@ -134,6 +135,7 @@ void tcp_server_thread( void *arg )
     uint8_t *in_camera_data = NULL;
     uint8_t packet_index = 0;
     uint8_t *no_used_buff = NULL;
+		int start_time=0, end_time=0, use_time=0;
 
 //    micoWlanGetIPStatus(&para, Station);
 //    tcp_server_log("TCP server ip:%s, port:%d", para.ip, SERVER_PORT);     //打印本地IP和端口
@@ -194,42 +196,62 @@ void tcp_server_thread( void *arg )
 
             while(1)
             {
-                //2.数据出队列
+                //2.数据出队列 
+	
                 err = pull_data_from_queue(&in_camera_data, &camera_data_len);
                 if(err != kNoErr)
                 {
 										//更新读指针		
-										cbReadFinish(&cam_circular_buff);                  		
-								
+										cbReadFinish(&cam_circular_buff);                  			
 										vTaskDelay(1);
-//										printf("更新读指针\r\n");
 										continue;
                 }
 												
                 //3.发送数据
+								start_time = HAL_GetTick();
                 if((err = jpeg_tcp_send(client_fd, (const uint8_t *)in_camera_data, camera_data_len)) != kNoErr)
 								{
 										//更新读指针		
 										cbReadFinish(&cam_circular_buff);
 										printf("error-->[%d]%d KB\r\n", packet_index, camera_data_len/1024);
 										break;
-                }
-								printf("jpeg_tcp_send->[%d]%d KB\r\n", packet_index, camera_data_len/1024);
-								
-                for(i = 0; i < 1; i ++)
-                {
-                    //4.发送间隔数据
-                    if((err = jpeg_send(client_fd, (const uint8_t *)no_used_buff, NO_USED_BUFF_LEN)) != kNoErr)
-                    {
-                                            //更新读指针		
-                        cbReadFinish(&cam_circular_buff);
-                        printf("error-->[%d]\r\n", packet_index);
-                        break;
-                    }
-                }
+                }					
+								end_time = HAL_GetTick();	
+								use_time = end_time - start_time;
+//								printf("use_time--------------------> %d ms\r\n",use_time);
+								if(use_time>0)
+								{
+									while(1)
+									{
+									
+									}
+								}
+								end_time=0;
+								start_time=0;		
 
+						
+								send_fream++;//计算发送帧率
+//								printf("jpeg_tcp_send->[%d]%d KB\r\n", packet_index, camera_data_len/1024);
+								
+								for(i = 0; i < 1; i ++)
+								{
+										//4.发送间隔数据
+										if((err = jpeg_send(client_fd, (const uint8_t *)no_used_buff, NO_USED_BUFF_LEN)) != kNoErr)
+										{
+																						//更新读指针		
+												cbReadFinish(&cam_circular_buff);
+												printf("error-->[%d]\r\n", packet_index);
+												break;
+										}
+								}
                                     //更新读指针		
 								cbReadFinish(&cam_circular_buff);
+								
+								
+//								use_time = end_time - start_time;
+//								printf("use_time----------> %d ms\r\n",use_time);
+//								end_time=0;
+//								start_time=0;
 
             }
 

@@ -1294,7 +1294,8 @@ void OV2640_DMA_Config(uint32_t DMA_Memory0BaseAddr,uint32_t DMA_BufferSize)
   __HAL_LINKDMA(&DCMI_Handle, DMA_Handle, DMA_Handle_dcmi);
   __HAL_DMA_ENABLE_IT(&DMA_Handle_dcmi,DMA_IT_TE); 
 	
-  HAL_NVIC_SetPriority(DMA2_Stream1_IRQn, 5, 0);
+  //HAL_NVIC_SetPriority(DMA2_Stream1_IRQn, 5, 0);
+	HAL_NVIC_SetPriority(DMA2_Stream1_IRQn, 10, 0);
   HAL_NVIC_EnableIRQ(DMA2_Stream1_IRQn);
   
   HAL_DMA_Init(&DMA_Handle_dcmi);
@@ -1774,6 +1775,4 @@ int32_t open_camera(uint32_t *BufferSRC, uint32_t BufferSize)
 		DCMI_Cmd(ENABLE); //数据开关
 		
 }
-
-
 

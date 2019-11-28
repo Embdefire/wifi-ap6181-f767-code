@@ -23,6 +23,7 @@
 #define fire_demo_log(M, ...) custom_log("WIFI", M, ##__VA_ARGS__)
 
 extern uint32_t frame_counter;
+extern int send_fream;
 
 void app_main( void )
 {
@@ -44,13 +45,15 @@ void app_main( void )
 		host_rtos_create_thread( &wwd_thread, (void *)tcp_server_thread, "TCP_server", NULL,4096, 1);
 
 		frame_counter=0;//帧计数器清零
+		send_fream=0;//帧计数器清零
     while(1)
     {
 			/*延时*/
 			vTaskDelay(1000);
 			/*输出帧率*/
-			printf("--------------------------------->>>>>>>>frame_counter=%d fps/s \r\n",frame_counter);
+			printf("--------------------------------->>>>>>>>frame_counter=%d fps/s ,send_fream ->%d fps/s  \r\n",frame_counter,send_fream);
 			frame_counter=0;			
+			send_fream=0;
 
     }
 

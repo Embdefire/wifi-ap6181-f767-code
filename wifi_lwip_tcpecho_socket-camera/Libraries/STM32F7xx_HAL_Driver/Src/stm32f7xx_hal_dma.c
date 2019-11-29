@@ -506,7 +506,7 @@ HAL_StatusTypeDef HAL_DMA_Start_IT(DMA_HandleTypeDef *hdma, uint32_t SrcAddress,
 }
 
 /**
-  * @brief  Aborts the DMA Transfer.
+  * @brief 中止DMA传输。
   * @param  hdma  : pointer to a DMA_HandleTypeDef structure that contains
   *                 the configuration information for the specified DMA Stream.
   *                   
@@ -579,7 +579,7 @@ HAL_StatusTypeDef HAL_DMA_Abort(DMA_HandleTypeDef *hdma)
 }
 
 /**
-  * @brief  Aborts the DMA Transfer in Interrupt mode.
+  * @brief 在中断模式下中止DMA传输。
   * @param  hdma  : pointer to a DMA_HandleTypeDef structure that contains
   *                 the configuration information for the specified DMA Stream.
   * @retval HAL status
@@ -1111,7 +1111,7 @@ HAL_StatusTypeDef HAL_DMA_UnRegisterCallback(DMA_HandleTypeDef *hdma, HAL_DMA_Ca
   */
 
 /**
-  * @brief  Returns the DMA state.
+  * @brief 返回DMA状态
   * @param  hdma: pointer to a DMA_HandleTypeDef structure that contains
   *               the configuration information for the specified DMA Stream.
   * @retval HAL state
@@ -1145,7 +1145,7 @@ uint32_t HAL_DMA_GetError(DMA_HandleTypeDef *hdma)
   */
 
 /**
-  * @brief  Sets the DMA Transfer parameter.
+  * @brief 设置DMA传输参数。
   * @param  hdma:       pointer to a DMA_HandleTypeDef structure that contains
   *                     the configuration information for the specified DMA Stream.
   * @param  SrcAddress: The source memory Buffer address
@@ -1182,7 +1182,7 @@ static void DMA_SetConfig(DMA_HandleTypeDef *hdma, uint32_t SrcAddress, uint32_t
 }
 
 /**
-  * @brief  Returns the DMA Stream base address depending on stream number
+  * @brief 根据流号返回DMA流基地址
   * @param  hdma:       pointer to a DMA_HandleTypeDef structure that contains
   *                     the configuration information for the specified DMA Stream. 
   * @retval Stream base address
@@ -1210,7 +1210,7 @@ static uint32_t DMA_CalcBaseAndBitshift(DMA_HandleTypeDef *hdma)
 }
 
 /**
-  * @brief  Check compatibility between FIFO threshold level and size of the memory burst
+  * @brief  检查FIFO阈值级别和内存突发大小之间的兼容性
   * @param  hdma:       pointer to a DMA_HandleTypeDef structure that contains
   *                     the configuration information for the specified DMA Stream. 
   * @retval HAL status

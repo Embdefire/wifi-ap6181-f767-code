@@ -9,7 +9,7 @@ extern uint32_t line_counter ;
 extern uint32_t vs_counter ;
 extern uint32_t err_counter;
  
-extern uint32_t dcmi_start_counter ;
+
 extern uint32_t dma_start_counter ;
 extern uint32_t dma_complete_counter ;
  

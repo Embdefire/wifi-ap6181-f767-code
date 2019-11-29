@@ -334,12 +334,12 @@ HAL_StatusTypeDef HAL_DCMI_Start_DMA(DCMI_HandleTypeDef* hdcmi, uint32_t DCMI_Mo
   hdcmi->XferCount = 0;
   hdcmi->XferTransferNumber = 0;
   
-  if(Length <= 0xFFFF)
+  if(Length <= 0xFFFF)//根据长度判断是否开启双缓冲
   {
     /* 启用DMA流*/
     HAL_DMA_Start_IT(hdcmi->DMA_Handle, (uint32_t)&hdcmi->Instance->DR, (uint32_t)pData, Length);
   }
-  else /* DCMI_DOUBLE_BUFFER Mode */
+  else /* 双缓冲模式 */
   {
     /* 设置DMA memory1转换完成回调*/
     hdcmi->DMA_Handle->XferM1CpltCallback = DCMI_DMAXferCplt; 
@@ -378,7 +378,7 @@ HAL_StatusTypeDef HAL_DCMI_Start_DMA(DCMI_HandleTypeDef* hdcmi, uint32_t DCMI_Mo
 }
 
 /**
-  * @brief  Disable DCMI DMA request and Disable DCMI capture  
+  * @brief 	禁用DCMI DMA请求并禁用DCMI捕获
   * @param  hdcmi: pointer to a DCMI_HandleTypeDef structure that contains
   *                the configuration information for DCMI. 
   * @retval HAL status     
@@ -388,21 +388,21 @@ HAL_StatusTypeDef HAL_DCMI_Stop(DCMI_HandleTypeDef* hdcmi)
   register uint32_t count = HAL_TIMEOUT_DCMI_STOP * (SystemCoreClock /8/1000);
   HAL_StatusTypeDef status = HAL_OK;
 
-  /* Process locked */
+  /* 进程已锁定 */
   __HAL_LOCK(hdcmi);
   
-  /* Lock the DCMI peripheral state */
+  /* 锁定DCMI外围设备状态*/
   hdcmi->State = HAL_DCMI_STATE_BUSY;
 
-  /* Disable Capture */
+  /* 禁用捕获 */
   hdcmi->Instance->CR &= ~(DCMI_CR_CAPTURE);
 
-  /* Check if the DCMI capture effectively disabled */
+  /*检查DCMI捕获是否有效禁用 */
   do
   {
     if (count-- == 0)
     {
-      /* Update error code */
+      /* 更新错误代码 */
       hdcmi->ErrorCode |= HAL_DCMI_ERROR_TIMEOUT;
       
       status = HAL_TIMEOUT;
@@ -411,27 +411,27 @@ HAL_StatusTypeDef HAL_DCMI_Stop(DCMI_HandleTypeDef* hdcmi)
   }
   while((hdcmi->Instance->CR & DCMI_CR_CAPTURE) != 0);
 
-  /* Disable the DCMI */
+  /* 禁用DCMI */
   __HAL_DCMI_DISABLE(hdcmi);
 
-  /* Disable the DMA */
+  /* 禁用DMA*/
   HAL_DMA_Abort(hdcmi->DMA_Handle);
 
-  /* Update error code */
+  /* 更新错误代码*/
   hdcmi->ErrorCode |= HAL_DCMI_ERROR_NONE;
 
-  /* Change DCMI state */
+  /*更改DCMI状态 */
   hdcmi->State = HAL_DCMI_STATE_READY;
 
-  /* Process Unlocked */
+  /* 流程已解锁*/
   __HAL_UNLOCK(hdcmi);
 
-  /* Return function status */
+  /*返回功能状态 */
   return status;
 }
 
 /**
-  * @brief  Suspend DCMI capture  
+  * @brief  挂起DCMI捕获
   * @param  hdcmi: pointer to a DCMI_HandleTypeDef structure that contains
   *                the configuration information for DCMI. 
   * @retval HAL status     
@@ -477,7 +477,7 @@ HAL_StatusTypeDef HAL_DCMI_Suspend(DCMI_HandleTypeDef* hdcmi)
 }
 
 /**
-  * @brief  Resume DCMI capture  
+  * @brief  恢复DCMI捕获  
   * @param  hdcmi: pointer to a DCMI_HandleTypeDef structure that contains
   *                the configuration information for DCMI. 
   * @retval HAL status     
@@ -503,7 +503,7 @@ HAL_StatusTypeDef HAL_DCMI_Resume(DCMI_HandleTypeDef* hdcmi)
 }
 
 /**
-  * @brief  Handles DCMI interrupt request.
+  * @brief 处理DCMI中断请求。
   * @param  hdcmi: pointer to a DCMI_HandleTypeDef structure that contains
   *                the configuration information for the DCMI.
   * @retval None
@@ -778,7 +778,7 @@ HAL_StatusTypeDef HAL_DCMI_EnableCrop(DCMI_HandleTypeDef *hdcmi)
   */ 
 
 /**
-  * @brief  Return the DCMI state
+  * @brief  返回DCMI状态
   * @param  hdcmi: pointer to a DCMI_HandleTypeDef structure that contains
   *                the configuration information for DCMI.
   * @retval HAL state

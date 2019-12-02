@@ -122,6 +122,7 @@ extern __align(4) uint8_t queue_buff[CAMERA_QUEUE_NUM][CAMERA_QUEUE_DATA_LEN];
 
 int send_fream=0;
 /* TCP server listener thread */
+int cbReadFinish_num=0;
 void tcp_server_thread( void *arg )
 {
 		static int  num=0;
@@ -172,6 +173,8 @@ void tcp_server_thread( void *arg )
 		}
 		int ret_len=0;
 
+		printf(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>\r\n");
+		cbPrint(&cam_circular_buff) ;//输出
     while(1)
     {
 				sockaddr_t_size = sizeof(struct sockaddr_in);
@@ -193,27 +196,30 @@ void tcp_server_thread( void *arg )
             tcp_server_log( "TCP Client %s:%d connected, fd: %d", inet_ntoa(client_addr.sin_addr), ntohs(client_addr.sin_port), client_fd );
 //            //1.打开摄像头
 //            DCMI_Cmd(ENABLE);
-
+						cbPrint(&cam_circular_buff) ;//输出
+						printf("-------------------------\r\n");
             while(1)
             {
                 //2.数据出队列 
 	
                 err = pull_data_from_queue(&in_camera_data, &camera_data_len);
-							
-
-							
+												
                 if(err != kNoErr)
                 {
 										//更新读指针		
-										cbReadFinish(&cam_circular_buff);                  		
+										cbReadFinish(&cam_circular_buff);  
+
+										cbReadFinish_num++;									
 								
 										vTaskDelay(1);
-//										printf("更新读指针\r\n");
 										continue;
                 }
+									cbPrint(&cam_circular_buff) ;//输出
+								printf("------->>>>>>> cbReadFinish_num = %d \r\n",cbReadFinish_num);
+								cbReadFinish_num=0;
 												
                 //3.发送数据
-//								start_time = HAL_GetTick();
+
                 if((err = jpeg_tcp_send(client_fd, (const uint8_t *)in_camera_data, camera_data_len)) != kNoErr)
 								{
 										//更新读指针		
@@ -221,22 +227,7 @@ void tcp_server_thread( void *arg )
 										printf("error-->[%d]%d KB\r\n", packet_index, camera_data_len/1024);
 										break;
                 }					
-//								end_time = HAL_GetTick();	
-//								use_time = end_time - start_time;
-//								printf("use_time--------------------> %d ms\r\n",use_time);
-//								if(use_time>0)
-//								{
-//									while(1)
-//									{
-//									
-//									}
-//								}
-//								end_time=0;
-//								start_time=0;		
-
-						
-								
-//								printf("jpeg_tcp_send->[%d]%d KB\r\n", packet_index, camera_data_len/1024);
+							
 								send_fream++;
 								for(i = 0; i < 1; i ++)
 								{
@@ -251,6 +242,9 @@ void tcp_server_thread( void *arg )
 								}
                 //更新读指针		
 								cbReadFinish(&cam_circular_buff);
+								
+								
+								
 								
             }
 

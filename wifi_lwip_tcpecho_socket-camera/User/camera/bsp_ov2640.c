@@ -1780,11 +1780,6 @@ int32_t open_camera(uint32_t *BufferSRC, uint32_t BufferSize)
 			/* 配置摄像头输出像素格式 */
 		OV2640_JPEGConfig(JPEG_IMAGE_FORMAT);
 
-		DCMI_JPEGCmd(ENABLE); //for ov2640
-
-		start_capture_img();
-
-		DCMI_Cmd(ENABLE); //数据开关
 		
 }
 

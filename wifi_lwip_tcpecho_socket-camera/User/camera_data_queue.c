@@ -13,7 +13,6 @@ __align(4) uint8_t queue_buff[CAMERA_QUEUE_NUM][CAMERA_QUEUE_DATA_LEN] __EXRAM;
 
 
 
-
 int32_t find_jpeg_tail(uint8_t *data,uint8_t *jpeg_start,int32_t search_point) ;
 void camera_queue_free(void);
 int32_t camera_queue_init(void);
@@ -35,10 +34,10 @@ void clear_array_flag(uint8_t index);
   */
 void cbInit(CircularBuffer *cb, int size) 
 {
-    cb->size  = size;	/* maximum number of elements           */
+    cb->size  = size;	/*	数组个数         */
     cb->start = 0; 		/* index of oldest element              */
-    cb->end   = 0; 	 	/* index at which to write new element  */
-//    cb->elems = (uint8_t *)calloc(cb->size, sizeof(uint8_t));  //elems 要额外初始化
+    cb->end   = 0; 	 	/*写入新元素的索引  */
+
 }
  
 /**
@@ -47,8 +46,10 @@ void cbInit(CircularBuffer *cb, int size)
   */
 void cbPrint(CircularBuffer *cb) 
 {
-    camera_data_queue_log("size=0x%x, start=%d, end=%d\n", cb->size, cb->start, cb->end);
-	  camera_data_queue_log("size=0x%x, start_using=%d, end_using=%d\n", cb->size, cb->start_using, cb->end_using);
+#if 0
+    printf("\r\n size=0x%x, start=%d, end=%d\r\n ", cb->size, cb->start, cb->end);
+	  printf("\r\n size=0x%x, start_using=%d, end_using=%d\r\n ", cb->size, cb->start_using, cb->end_using);
+#endif
 }
  
 /**
@@ -77,7 +78,7 @@ int cbIsEmpty(CircularBuffer *cb)
   */	
 int cbIncr(CircularBuffer *cb, int p) 
 {
-    return (p + 1)&(2*cb->size-1); /* start and end pointers incrementation is done modulo 2*size */
+    return (p + 1)&(2*cb->size-1); /* 起点和终点指针的递增以2 * size为模 */
 }
  
 /**
@@ -88,7 +89,7 @@ int cbIncr(CircularBuffer *cb, int p)
   */
 camera_data* cbWrite(CircularBuffer *cb) 
 {
-    if (cbIsFull(cb)) /* full, overwrite moves start pointer */
+    if (cbIsFull(cb)) /* 满，覆盖移动开始指针 */
     {
 			return NULL;
 		}		
@@ -181,9 +182,7 @@ int32_t camera_queue_init(void)
         /*初始化队列缓冲指针，指向实际的内存*/
         cam_circular_buff.elems[i] = &cam_data[i];
         
-//        camera_data_queue_log("cam_data[i].head=0x%x,cam_circular_buff.elems[i] =0x%x", (uint32_t)cam_data[i].head,(uint32_t)cam_circular_buff.elems[i]->head);
-				printf("cam_data[i].head=0x%x,  cam_circular_buff.elems[i] =0x%x  \r\n", (uint32_t)cam_data[i].head,(uint32_t)cam_circular_buff.elems[i]->head);
-
+        printf("cam_data[i].head=0x%x,cam_circular_buff.elems[i] =0x%x \r\n", (uint32_t)cam_data[i].head,(uint32_t)cam_circular_buff.elems[i]->head);
 
         memset(cam_data[i].head, 0, CAMERA_QUEUE_DATA_LEN);
     }
@@ -198,22 +197,86 @@ int32_t camera_queue_init(void)
 //从队列中取数据, data_p:起始地址, len_p:长度, array_index:下标
 int32_t pull_data_from_queue(uint8_t **data_p, int32_t *len_p)
 {
-	
+//		int32_t len_p_get = 0 ;		
 		uint8_t jpeg_start_offset = 0;	
 		camera_data *cam_data_pull;	
-
+		//uint32_t time_old,time_new;
+		
 		if(!cbIsEmpty(&cam_circular_buff))//缓冲队列非空
 		{
 				/*从缓冲区读取数据，进行处理，*/
 				cam_data_pull = cbRead(&cam_circular_buff);
 			
 				if (cam_data_pull == NULL)
-						return kGeneralErr;		
+						return kGeneralErr;
+#if 1				
 			/*查找文件*/	
-			//
-				*len_p = find_jpeg_tail(cam_data_pull->head,&jpeg_start_offset,cam_data_pull->img_dma_len*2/3);
+				
+			*len_p = find_jpeg_tail(cam_data_pull->head,&jpeg_start_offset,cam_data_pull->img_dma_len*2/3);
+
+//			*len_p = find_jpeg_tail(cam_data_pull->head,&jpeg_start_offset,0);
+
+#elif 0		//用于调试，对比快速搜索文件与慢速的	区别
+				camera_data_queue_log("-------------------------------------");
+				
+				time_old = host_rtos_get_time();			
+				*len_p = find_jpeg_tail(cam_data_pull->head,&jpeg_start_offset,cam_data_pull->img_dma_len*99/100);
+				time_new = host_rtos_get_time();			
+				len_p_get =  cam_data_pull->img_real_len;
+			
+				camera_data_queue_log("find len = %d,get_len=%d",*len_p,len_p_get);
+				camera_data_queue_log("find time = %d ",time_new-time_old);
+			
+				camera_data_queue_log("---****************-------------");
+				time_old = host_rtos_get_time();
+				*len_p = find_jpeg_tail(cam_data_pull->head,&jpeg_start_offset,0);
+
+				time_new = host_rtos_get_time();
+			
+				camera_data_queue_log("find len = %d,get_len=%d",*len_p,len_p_get);
+				camera_data_queue_log("find time = %d ",time_new-time_old);
+				
+#else	//用于调试，对比快速搜索文件与慢速的	区别
+			
+				{
+							//分母
+					static uint8_t numerator = 99 ,denominator=100 ;
+
+					
+						time_old = host_rtos_get_time();			
+						len_p_get = find_jpeg_tail(cam_data_pull->head,&jpeg_start_offset,cam_data_pull->img_dma_len*numerator/denominator);
+						time_new = host_rtos_get_time();						
 
 
+			
+						time_old = host_rtos_get_time();
+						*len_p = find_jpeg_tail(cam_data_pull->head,&jpeg_start_offset,0);
+						time_new = host_rtos_get_time();
+						
+						if(len_p_get != *len_p )
+						{						
+
+							camera_data_queue_log("--------------different-------------");
+							camera_data_queue_log("fast find len = %d,find=%d",len_p_get,*len_p);
+							camera_data_queue_log("img_real_len = %d",cam_data_pull->img_dma_len);
+							
+							//调整分母，减少出错
+							if(numerator != 1)
+							{
+								numerator--;
+								denominator--;					
+							}
+							camera_data_queue_log("newly search point =  %d/%d",numerator,denominator);
+
+
+						}
+						
+//						*len_p = len_p_get;
+				}
+			
+
+#endif			
+				
 				if(*len_p != -1)
 				{
 						*data_p = cam_data_pull->head + jpeg_start_offset;
@@ -241,7 +304,7 @@ int32_t pull_data_from_queue(uint8_t **data_p, int32_t *len_p)
 int32_t find_jpeg_tail(uint8_t *data,uint8_t *jpeg_start,int32_t search_point) 
 {
     uint32_t i = 0,j=0;//,z=0;
-    uint8_t *p = data;
+    __IO uint8_t *p = data;
 	
 	/*默认文件头位置*/
 	*jpeg_start = 0;
@@ -257,16 +320,16 @@ int32_t find_jpeg_tail(uint8_t *data,uint8_t *jpeg_start,int32_t search_point)
 //			printf("jpeg帧头->0xFF--0xD8\r\n");
 			if(j!=0)//如果内存起始不是照片头，就将指针偏移
 			{
-				camera_data_queue_log("JPEG_HEAD_SEARCH_MAX *p=0x%x,j=%d", *p,j );
+				//camera_data_queue_log("JPEG_HEAD_SEARCH_MAX *p=0x%x,j=%d", *p,j );
 				/*文件头实际偏移*/
 				*jpeg_start=j;
 			}
 
-				/*搜索起点*/
-				p += search_point;
-			
-        for(i = search_point ; i < CAMERA_QUEUE_DATA_LEN - 2; i ++)
+			/*搜索起点*/
+			p += search_point;
+			for(i = search_point ; i < CAMERA_QUEUE_DATA_LEN - 2; i ++)
         {
+
             if((*p == 0xFF) && (*(p + 1) == 0xD8))//再次判断
             {
                 if(i == 0)
@@ -277,7 +340,8 @@ int32_t find_jpeg_tail(uint8_t *data,uint8_t *jpeg_start,int32_t search_point)
                 {
                     return -1;
                 }
-            }else if((*p == 0xFF) && (*(p + 1) == 0xD9))
+            }
+						else if((*p == 0xFF) && (*(p + 1) == 0xD9))
             {//找到图片尾
 //								camera_data_queue_log("pic len = %d", i+2 );
 								//printf("jpeg帧尾->0xFF--0xD9\r\n");
@@ -290,8 +354,7 @@ int32_t find_jpeg_tail(uint8_t *data,uint8_t *jpeg_start,int32_t search_point)
 				camera_data_queue_log("picture tail error!");
 				return -1;				
     }
-	}
-
+	}	
 	
   camera_data_queue_log("picture head error!");	
 	
@@ -329,7 +392,7 @@ int32_t find_jpeg(camera_data *cambuf)
 			if(j!=0)			
 			{	
 				/*文件头实际偏移*/
-				camera_data_queue_log("JPEG_HEAD_SEARCH *p=0x%x,j=%d", *p,j );
+				//camera_data_queue_log("JPEG_HEAD_SEARCH *p=0x%x,j=%d", *p,j );
 			}
 			
 				/*文件头实际指针*/

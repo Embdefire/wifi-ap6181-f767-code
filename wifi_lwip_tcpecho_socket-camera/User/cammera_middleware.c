@@ -215,6 +215,7 @@ void DCMI_Start(void)
 	DCMI_CaptureCmd(ENABLE);
 }
 
+__IO int testview=0;
 void DCMI_Stop(void)
 {	
 	camera_data *data_p;
@@ -225,7 +226,7 @@ void DCMI_Stop(void)
 
 	/*获取正在操作的写指针*/	
 	data_p = cbWriteUsing(&cam_circular_buff);
-		
+	testview++;
 	/*计算dma传输的数据个数，用于减少jpeg搜索文件尾的时间*/	
 	if (data_p != NULL)	
 	{
@@ -235,6 +236,7 @@ void DCMI_Stop(void)
 		{
 
 			data_p->img_dma_len = (XferSize - DMA_GetCurrDataCounter(DMA2_Stream1))*4; //最后一个包 __HAL_DMA_GET_COUNTER
+			//data_p->img_dma_len = XferSize - (DMA_GetCurrDataCounter(DMA2_Stream1))*4; //最后一个包 __HAL_DMA_GET_COUNTER
 			
 			if(dma_complete_counter>=2)
 				data_p->img_dma_len += ((dma_complete_counter-1)*XferSize)*4 ;		//	dma_complete_counter个大小为XferSize的包
@@ -251,7 +253,7 @@ void DCMI_Stop(void)
 
 
 
-#if 1
+#if 0
 
 /*帧中断实现*/
 void DCMI_IRQHandler_Funtion(void)

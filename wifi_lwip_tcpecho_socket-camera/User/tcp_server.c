@@ -122,11 +122,6 @@ extern __align(4) uint8_t queue_buff[CAMERA_QUEUE_NUM][CAMERA_QUEUE_DATA_LEN];
 
 int send_fream=0;
 /* TCP server listener thread */
-
-
-#if 0
-
-
 void tcp_server_thread( void *arg )
 {
 		static int  num=0;
@@ -205,6 +200,8 @@ void tcp_server_thread( void *arg )
 	
                 err = pull_data_from_queue(&in_camera_data, &camera_data_len);
 							
+
+							
                 if(err != kNoErr)
                 {
 										//更新读指针		
@@ -273,164 +270,7 @@ void tcp_server_thread( void *arg )
 		
 }
 
-#else
 
-
-void tcp_server_thread( void *arg )
-{
-		static int  num=0;
-    int32_t err = kNoErr;
-    struct sockaddr_in server_addr,client_addr;
-    socklen_t sockaddr_t_size;
-    char  client_ip_str[16];
-    int sock = -1, client_fd = -1;
-//    IPStatusTypedef para;
-    int32_t camera_data_len = 0, i = 0;
-    uint8_t *in_camera_data = NULL;
-    uint8_t packet_index = 0;
-    uint8_t *no_used_buff = NULL;
-		int start_time=0, end_time=0, use_time=0;
-
-//    micoWlanGetIPStatus(&para, Station);
-//    tcp_server_log("TCP server ip:%s, port:%d", para.ip, SERVER_PORT);     //打印本地IP和端口
-		PRINTF("本地端口号是%d\n\n",SERVER_PORT);
-	
-	  no_used_buff = pvPortMalloc(NO_USED_BUFF_LEN);
-		memset(no_used_buff, 0, NO_USED_BUFF_LEN);
-		if (no_used_buff == NULL)
-		{
-				PRINTF("No memory\n");
-//				goto __exit;
-		}
-    sock = socket( AF_INET, SOCK_STREAM, IPPROTO_TCP );
-		if (sock < 0)
-		{
-				PRINTF("Socket error\n");
-				//goto __exit;
-		}
-	
-		server_addr.sin_family = AF_INET;
-		server_addr.sin_addr.s_addr = INADDR_ANY;
-		server_addr.sin_port = htons(SERVER_PORT);
-		memset(&(server_addr.sin_zero), 0, sizeof(server_addr.sin_zero));
-	
-		if (bind(sock, (struct sockaddr *)&server_addr, sizeof(struct sockaddr)) == -1)
-		{
-				PRINTF("Unable to bind\n");
-		}
-
-
-		if (listen(sock, 5) == -1)
-		{
-				PRINTF("Listen error\n");
-		}
-		int ret_len=0;
-
-    while(1)
-    {
-				sockaddr_t_size = sizeof(struct sockaddr_in);
-        client_fd = accept( sock, (struct sockaddr *)&client_addr, &sockaddr_t_size );
-			  PRINTF("new client connected from (%s, %d)\n",
-			            inet_ntoa(client_addr.sin_addr), ntohs(client_addr.sin_port));
-				{
-					int flag = 1;
-					
-					setsockopt(client_fd,
-										 IPPROTO_TCP,     /* set option at TCP level */
-										 TCP_NODELAY,     /* name of option */
-										 (void *) &flag,  /* the cast is historical cruft */
-										 sizeof(int));    /* length of option value */
-				}
-				
-        if( IsValidSocket( client_fd ) )
-        {			
-            tcp_server_log( "TCP Client %s:%d connected, fd: %d", inet_ntoa(client_addr.sin_addr), ntohs(client_addr.sin_port), client_fd );
-
-//					int test=0;
-//					while(1)
-//					{
-//						/*获取队列数据*/
-//						start_time=HAL_GetTick();
-
-//						err = pull_data_from_queue(&in_camera_data, &camera_data_len);
-//						
-//						if(err != kNoErr)
-//						{
-//								//更新读指针		
-//								cbReadFinish(&cam_circular_buff);                  		
-//								continue;
-//						}
-//						
-//							end_time=HAL_GetTick();
-//							use_time=end_time-start_time;
-////							printf("使用时间 -> %d ，更新读指针次数 -> %d\r\n",use_time,test);
-//							test=0;				//更新次数清零
-//							send_fream++;	//帧计数器
-//							//更新读指针		
-//							cbReadFinish(&cam_circular_buff);
-//							
-//					}
-
-				
-            while(1)
-            {
-                //2.数据出队列 
-								/*获取队列数据*/
-               err = pull_data_from_queue(&in_camera_data, &camera_data_len);
-						
-               if(err != kNoErr)
-               {
-									//更新读指针		
-									cbReadFinish(&cam_circular_buff);                  		
-									continue;
-               }
-							
-
-                if((err = jpeg_tcp_send(client_fd, (const uint8_t *)in_camera_data, camera_data_len)) != kNoErr)
-								{
-										//更新读指针		
-										cbReadFinish(&cam_circular_buff);
-										printf("error-->[%d]%d KB\r\n", packet_index, camera_data_len/1024);
-										break;
-                }					
-
-								send_fream++;
-								
-								//4.发送间隔数据
-								if((err = jpeg_send(client_fd, (const uint8_t *)no_used_buff, NO_USED_BUFF_LEN)) != kNoErr)
-								{
-										//更新读指针		
-										cbReadFinish(&cam_circular_buff);
-										printf("error-->[%d]\r\n", packet_index);
-										break;
-								}
-//								
-                //更新读指针		
-								cbReadFinish(&cam_circular_buff);
-            }
-
-            jpeg_socket_close( &client_fd );
-
-        }
-    }
-
- exit:
-    if( err != kNoErr )
-    {
-        printf( "Server listerner thread exit with err: %d\r\n", err );
-    }
-
-    jpeg_socket_close( &sock );	
-		
-}
-
-
-
-
-
-
-
-#endif
 
 
 

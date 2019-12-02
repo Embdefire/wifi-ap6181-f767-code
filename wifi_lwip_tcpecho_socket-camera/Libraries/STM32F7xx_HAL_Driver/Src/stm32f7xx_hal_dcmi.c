@@ -477,7 +477,7 @@ HAL_StatusTypeDef HAL_DCMI_Suspend(DCMI_HandleTypeDef* hdcmi)
 }
 
 /**
-  * @brief  »Ö¸´DCMI²¶»ñ  
+  * @brief  »Ö¸´DCMI²¶»ñ 
   * @param  hdcmi: pointer to a DCMI_HandleTypeDef structure that contains
   *                the configuration information for DCMI. 
   * @retval HAL status     

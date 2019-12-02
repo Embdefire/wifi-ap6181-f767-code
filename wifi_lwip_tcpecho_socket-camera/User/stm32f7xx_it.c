@@ -220,9 +220,6 @@ void DMA2_Stream1_IRQHandler(void)
 void DCMI_IRQHandler(void)
 {
   HAL_DCMI_IRQHandler(&DCMI_Handle);
-	//DCMI_IRQHandler_Funtion();
 }
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
-
-

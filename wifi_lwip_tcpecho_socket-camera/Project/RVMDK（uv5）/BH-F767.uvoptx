@@ -120,6 +120,7 @@
         <SetRegEntry>
           <Number>0</Number>
           <Key>DLGUARM</Key>
+          <Name>猬9wtr?tr?/X</Name>
         </SetRegEntry>
         <SetRegEntry>
           <Number>0</Number>
@@ -152,155 +153,94 @@
           <Name>UL2CM3(-S0 -C0 -P0 ) -FN1 -FC1000 -FD20020000 -FF0STM32F7x_1024 -FL0100000 -FS08000000 -FP0($$Device:STM32F767IGTx$CMSIS\Flash\STM32F7x_1024.FLM)</Name>
         </SetRegEntry>
       </TargetDriverDllRegistry>
-      <Breakpoint>
-        <Bp>
-          <Number>0</Number>
-          <Type>0</Type>
-          <LineNumber>564</LineNumber>
-          <EnabledFlag>1</EnabledFlag>
-          <Address>134222552</Address>
-          <ByteObject>0</ByteObject>
-          <HtxType>0</HtxType>
-          <ManyObjects>0</ManyObjects>
-          <SizeOfObject>0</SizeOfObject>
-          <BreakByAccess>0</BreakByAccess>
-          <BreakIfRCount>1</BreakIfRCount>
-          <Filename>E:\閲庣伀鐢靛瓙\WIFI\WIFI__AP6181\base_code_f767\wifi_lwip_tcpecho_socket-camera\Project\Libraries\STM32F7xx_HAL_Driver\Src\stm32f7xx_hal_dcmi.c</Filename>
-          <ExecCommand></ExecCommand>
-          <Expression>\\F767\../../Libraries/STM32F7xx_HAL_Driver/Src/stm32f7xx_hal_dcmi.c\564</Expression>
-        </Bp>
-        <Bp>
-          <Number>1</Number>
-          <Type>0</Type>
-          <LineNumber>555</LineNumber>
-          <EnabledFlag>1</EnabledFlag>
-          <Address>134222534</Address>
-          <ByteObject>0</ByteObject>
-          <HtxType>0</HtxType>
-          <ManyObjects>0</ManyObjects>
-          <SizeOfObject>0</SizeOfObject>
-          <BreakByAccess>0</BreakByAccess>
-          <BreakIfRCount>1</BreakIfRCount>
-          <Filename>E:\閲庣伀鐢靛瓙\WIFI\WIFI__AP6181\base_code_f767\wifi_lwip_tcpecho_socket-camera\Project\Libraries\STM32F7xx_HAL_Driver\Src\stm32f7xx_hal_dcmi.c</Filename>
-          <ExecCommand></ExecCommand>
-          <Expression>\\F767\../../Libraries/STM32F7xx_HAL_Driver/Src/stm32f7xx_hal_dcmi.c\555</Expression>
-        </Bp>
-        <Bp>
-          <Number>2</Number>
-          <Type>0</Type>
-          <LineNumber>540</LineNumber>
-          <EnabledFlag>1</EnabledFlag>
-          <Address>134222506</Address>
-          <ByteObject>0</ByteObject>
-          <HtxType>0</HtxType>
-          <ManyObjects>0</ManyObjects>
-          <SizeOfObject>0</SizeOfObject>
-          <BreakByAccess>0</BreakByAccess>
-          <BreakIfRCount>1</BreakIfRCount>
-          <Filename>E:\閲庣伀鐢靛瓙\WIFI\WIFI__AP6181\base_code_f767\wifi_lwip_tcpecho_socket-camera\Project\Libraries\STM32F7xx_HAL_Driver\Src\stm32f7xx_hal_dcmi.c</Filename>
-          <ExecCommand></ExecCommand>
-          <Expression>\\F767\../../Libraries/STM32F7xx_HAL_Driver/Src/stm32f7xx_hal_dcmi.c\540</Expression>
-        </Bp>
-        <Bp>
-          <Number>3</Number>
-          <Type>0</Type>
-          <LineNumber>525</LineNumber>
-          <EnabledFlag>1</EnabledFlag>
-          <Address>134222480</Address>
-          <ByteObject>0</ByteObject>
-          <HtxType>0</HtxType>
-          <ManyObjects>0</ManyObjects>
-          <SizeOfObject>0</SizeOfObject>
-          <BreakByAccess>0</BreakByAccess>
-          <BreakIfRCount>1</BreakIfRCount>
-          <Filename>E:\閲庣伀鐢靛瓙\WIFI\WIFI__AP6181\base_code_f767\wifi_lwip_tcpecho_socket-camera\Project\Libraries\STM32F7xx_HAL_Driver\Src\stm32f7xx_hal_dcmi.c</Filename>
-          <ExecCommand></ExecCommand>
-          <Expression>\\F767\../../Libraries/STM32F7xx_HAL_Driver/Src/stm32f7xx_hal_dcmi.c\525</Expression>
-        </Bp>
-        <Bp>
-          <Number>4</Number>
-          <Type>0</Type>
-          <LineNumber>340</LineNumber>
-          <EnabledFlag>1</EnabledFlag>
-          <Address>134222894</Address>
-          <ByteObject>0</ByteObject>
-          <HtxType>0</HtxType>
-          <ManyObjects>0</ManyObjects>
-          <SizeOfObject>0</SizeOfObject>
-          <BreakByAccess>0</BreakByAccess>
-          <BreakIfRCount>1</BreakIfRCount>
-          <Filename>E:\閲庣伀鐢靛瓙\WIFI\WIFI__AP6181\base_code_f767\wifi_lwip_tcpecho_socket-camera\Project\Libraries\STM32F7xx_HAL_Driver\Src\stm32f7xx_hal_dcmi.c</Filename>
-          <ExecCommand></ExecCommand>
-          <Expression>\\F767\../../Libraries/STM32F7xx_HAL_Driver/Src/stm32f7xx_hal_dcmi.c\340</Expression>
-        </Bp>
-      </Breakpoint>
+      <Breakpoint/>
       <WatchWindow1>
         <Ww>
           <count>0</count>
           <WinNumber>1</WinNumber>
-          <ItemText>in_camera_data</ItemText>
+          <ItemText>data_p,0x0A</ItemText>
         </Ww>
         <Ww>
           <count>1</count>
           <WinNumber>1</WinNumber>
-          <ItemText>camera_data_len,0x0A</ItemText>
+          <ItemText>cam_circular_buff,0x0A</ItemText>
         </Ww>
         <Ww>
           <count>2</count>
           <WinNumber>1</WinNumber>
-          <ItemText>cam_circular_buff,0x0A</ItemText>
+          <ItemText>data_fps,0x0A</ItemText>
         </Ww>
         <Ww>
           <count>3</count>
           <WinNumber>1</WinNumber>
-          <ItemText>data_p</ItemText>
+          <ItemText>cam_data_pull,0x0A</ItemText>
         </Ww>
         <Ww>
           <count>4</count>
           <WinNumber>1</WinNumber>
-          <ItemText>XferSize,0x0A</ItemText>
+          <ItemText>cam_data_pull-&gt;head</ItemText>
         </Ww>
         <Ww>
           <count>5</count>
           <WinNumber>1</WinNumber>
-          <ItemText>dma_complete_counter</ItemText>
+          <ItemText>Length,0x0A</ItemText>
         </Ww>
         <Ww>
           <count>6</count>
           <WinNumber>1</WinNumber>
-          <ItemText>frame_counter,0x0A</ItemText>
+          <ItemText>hdcmi,0x0A</ItemText>
         </Ww>
         <Ww>
           <count>7</count>
           <WinNumber>1</WinNumber>
-          <ItemText>frame_counter,0x0A</ItemText>
+          <ItemText>pData</ItemText>
         </Ww>
         <Ww>
           <count>8</count>
           <WinNumber>1</WinNumber>
-          <ItemText>send_fream,0x0A</ItemText>
+          <ItemText>SecondMemAddress</ItemText>
         </Ww>
         <Ww>
           <count>9</count>
           <WinNumber>1</WinNumber>
-          <ItemText>dma_start_counter,0x0A</ItemText>
+          <ItemText>in_camera_data</ItemText>
         </Ww>
         <Ww>
           <count>10</count>
           <WinNumber>1</WinNumber>
-          <ItemText>data_p</ItemText>
+          <ItemText>camera_data_len,0x0A</ItemText>
         </Ww>
         <Ww>
           <count>11</count>
           <WinNumber>1</WinNumber>
-          <ItemText>hdcmi,0x0A</ItemText>
+          <ItemText>cam_data_pull</ItemText>
+        </Ww>
+        <Ww>
+          <count>12</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>cam_circular_buff,0x0A</ItemText>
+        </Ww>
+        <Ww>
+          <count>13</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>use_time</ItemText>
+        </Ww>
+        <Ww>
+          <count>14</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>start_time,0x0A</ItemText>
+        </Ww>
+        <Ww>
+          <count>15</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>cb</ItemText>
         </Ww>
       </WatchWindow1>
       <MemoryWindow1>
         <Mm>
           <WinNumber>1</WinNumber>
           <SubType>0</SubType>
-          <ItemText>hdcmi</ItemText>
+          <ItemText>in_camera_data</ItemText>
           <AccSizeX>0</AccSizeX>
         </Mm>
       </MemoryWindow1>
@@ -1518,7 +1458,7 @@
 
   <Group>
     <GroupName>FreeRTOS-Source</GroupName>
-    <tvExp>0</tvExp>
+    <tvExp>1</tvExp>
     <tvExpOptDlg>0</tvExpOptDlg>
     <cbSel>0</cbSel>
     <RteFlg>0</RteFlg>

@@ -249,6 +249,26 @@ void DCMI_Stop(void)
 
 
 
+
+
+#if 1
+
+/*帧中断实现*/
+void DCMI_IRQHandler_Funtion(void)
+{
+	
+	camera_data *data_p;	
+
+	frame_counter ++;
+	
+		HAL_DCMI_Stop(&DCMI_Handle) ;
+	/*配置DMA传输*/
+	HAL_DCMI_Start_DMA(&DCMI_Handle, DCMI_MODE_CONTINUOUS, (uint32_t )data_p->head, CAMERA_QUEUE_DATA_LEN);
+
+	
+}
+
+#else 
 /*帧中断实现*/
 void DCMI_IRQHandler_Funtion(void)
 {
@@ -263,4 +283,6 @@ void DCMI_IRQHandler_Funtion(void)
 	dma_complete_counter=0;
 	
 }
+#endif
+
 

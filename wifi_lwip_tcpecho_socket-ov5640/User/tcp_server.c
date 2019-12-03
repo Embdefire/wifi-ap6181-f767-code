@@ -56,8 +56,7 @@ int32_t jpeg_send( int fd, const uint8_t *inBuf, size_t inBufLen )
 		
     while( numWritten < inBufLen )
     {
-
-time1=HAL_GetTick();			
+	
         FD_ZERO( &writeSet );
         FD_SET( fd, &writeSet );
 
@@ -65,11 +64,6 @@ time1=HAL_GetTick();
 			
         require( selectResult >= 1, exit );//log显示这个出问题
 
-time2=HAL_GetTick();
-printf("---------------------------->>>use time is %d <<<-\r\n",(time2-time1));
-time1=0;
-time2=0;	
-			
         if(FD_ISSET( selectResult, &writeSet ))
         {
             writeResult = write( fd, (void *)( inBuf + numWritten ), ( inBufLen - numWritten ) );
@@ -240,13 +234,13 @@ void tcp_server_thread( void *arg )
 								
 
 								//4.发送间隔数据
-//								if((err = jpeg_send(client_fd, (const uint8_t *)no_used_buff, NO_USED_BUFF_LEN)) != kNoErr)
-//								{
-//																				//更新读指针		
-//										cbReadFinish(&cam_circular_buff);
-//										printf("error-->[%d]\r\n", packet_index);
-//										break;
-//								}
+								if((err = jpeg_send(client_fd, (const uint8_t *)no_used_buff, NO_USED_BUFF_LEN)) != kNoErr)
+								{
+																				//更新读指针		
+										cbReadFinish(&cam_circular_buff);
+										printf("error-->[%d]\r\n", packet_index);
+										break;
+								}
 
                 //更新读指针		
 

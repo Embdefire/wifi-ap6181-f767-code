@@ -51,16 +51,22 @@ extern DCMI_HandleTypeDef DCMI_Handle;
 #define FSMC_LCD_ADDRESS      LCD_FRAME_BUFFER
 
 
-
-
-/* Image Sizes enumeration */
-typedef enum   
+typedef enum
 {
-  BMP_320x240          =   0x00,	  /* BMP Image 320x240 Size */
-  BMP_352x288          =   0x01,      /* BMP Image 352x288 Size */
-  BMP_640x480          =   0x02,	  /* BMP Image 640x480 Size */
-  BMP_800x480          =   0x03,	  /* BMP Image 800x480 Size */
+		JPEG_160x120          =   0x00,	    /* JPEG Image 160x120 Size */
+		JPEG_320x240          =   0x01,	    /* JPEG Image 320x240 Size */
+		JPEG_640x480          =   0x02,     /* JPEG Image 640X480 Size */
+		JPEG_800x600          =   0x03,     /* JPEG Image 800x600 Size */
+		JPEG_1024x768         =   0x04,    	/* JPEG Image 1024x768 Size */
+		JPEG_1280x960         =   0x05,    	/* JPEG Image 1280x720 Size */
+		JPEG_1600x1200        =   0x06,    	/* JPEG Image 1600x1200 Size */
+		JPEG_2048x1536        =   0x07,     /* JPEG Image 2048*1536 Size */
+		JPEG_2320x1740        =   0x08,     /* JPEG Image 2320*1740 Size */
+		JPEG_2592x1944        =   0x09,     /* JPEG Image 2592*1944 Size */
 }ImageFormat_TypeDef;
+
+#define JPEG_IMAGE_FORMAT 		JPEG_320x240
+
 
 
 

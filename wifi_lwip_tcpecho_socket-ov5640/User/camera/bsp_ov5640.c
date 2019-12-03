@@ -18,12 +18,14 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "./camera/bsp_ov5640.h"
+#include "./camera/ov5640_reg.h"
 #include "./i2c/bsp_i2c.h"
 
 #include "camera_data_queue.h"
 #include "wifi_base_config.h"
 #include "cammera_middleware.h"
 #include "./delay/core_delay.h" 
+
 
 DCMI_HandleTypeDef DCMI_Handle;
 DMA_HandleTypeDef DMA_Handle_dcmi;
@@ -833,6 +835,118 @@ unsigned short RGB565_WVGA[][2]=
 //    0x4741, 0x00,
 
 };
+
+
+
+void OV5640_JPEGConfig(ImageFormat_TypeDef ImageFormat)
+{
+    uint32_t i;
+
+    OV5640_Reset();
+    CPU_TS_Tmr_Delay_US(200);
+    /* Initialize OV5640 */
+    for(i=0; i<(sizeof(OV5640_JPEG_INIT)/4); i++)
+    {
+        OV5640_WriteReg(OV5640_JPEG_INIT[i][0], OV5640_JPEG_INIT[i][1]);
+    }
+
+    CPU_TS_Tmr_Delay_US(10);
+
+    switch(ImageFormat)
+    {
+     case JPEG_160x120:
+        {
+            for(i=0; i<(sizeof(OV5640_160x120_JPEG)/4); i++)
+            {
+                OV5640_WriteReg(OV5640_160x120_JPEG[i][0], OV5640_160x120_JPEG[i][1]);
+            }
+            break;
+        }
+     case JPEG_320x240:
+        {
+            for(i=0; i<(sizeof(OV5640_320x240_JPEG)/4); i++)
+            {
+                OV5640_WriteReg(OV5640_320x240_JPEG[i][0], OV5640_320x240_JPEG[i][1]);
+            }
+            break;
+        }
+     case JPEG_640x480:
+        {
+            for(i=0; i<(sizeof(OV5640_640x480_JPEG)/4); i++)
+            {
+                OV5640_WriteReg(OV5640_640x480_JPEG[i][0], OV5640_640x480_JPEG[i][1]);
+            }
+            break;            
+        }
+
+     case JPEG_800x600:
+        {
+            for(i=0; i<(sizeof(OV5640_800x600_JPEG)/4); i++)
+            {
+                OV5640_WriteReg(OV5640_800x600_JPEG[i][0], OV5640_800x600_JPEG[i][1]);
+            }
+            break;
+        }
+     case JPEG_1024x768:
+        {
+            for(i=0; i<(sizeof(OV5640_1024x768_JPEG)/4); i++)
+            {
+                OV5640_WriteReg(OV5640_1024x768_JPEG[i][0], OV5640_1024x768_JPEG[i][1]);
+            }
+            break;
+        }
+		case JPEG_1280x960:
+        {
+            for(i=0; i<(sizeof(OV5640_1280x960_JPEG)/4); i++)
+            {
+                    OV5640_WriteReg(OV5640_1280x960_JPEG[i][0], OV5640_1280x960_JPEG[i][1]);
+            }
+            break;
+        }
+		case JPEG_1600x1200:
+        {
+            for(i=0; i<(sizeof(OV5640_1600x1200_JPEG)/4); i++)
+            {
+                    OV5640_WriteReg(OV5640_1600x1200_JPEG[i][0], OV5640_1600x1200_JPEG[i][1]);
+            }
+            break;
+        }
+        case JPEG_2048x1536:
+        {
+            for(i=0; i<(sizeof(OV5640_2048x1536_JPEG)/4); i++)
+            {
+                    OV5640_WriteReg(OV5640_2048x1536_JPEG[i][0], OV5640_2048x1536_JPEG[i][1]);
+            }
+            break;
+        }
+        case JPEG_2320x1740:
+        {
+            for(i=0; i<(sizeof(OV5640_2320x1740_JPEG)/4); i++)
+            {
+                    OV5640_WriteReg(OV5640_2320x1740_JPEG[i][0], OV5640_2320x1740_JPEG[i][1]);
+            }
+            break;
+        }
+        case JPEG_2592x1944:
+        {
+            for(i=0; i<(sizeof(OV5640_2592x1944_JPEG)/4); i++)
+            {
+                    OV5640_WriteReg(OV5640_2592x1944_JPEG[i][0], OV5640_2592x1944_JPEG[i][1]);
+            }
+            break;
+        }
+     default:
+        {
+            for(i=0; i<(sizeof(OV5640_320x240_JPEG)/4); i++)
+            {
+                OV5640_WriteReg(OV5640_320x240_JPEG[i][0], OV5640_320x240_JPEG[i][1]);
+            }
+            break;
+        }
+    }
+}
+
+
 /**
   * @brief  初始化控制摄像头使用的GPIO(I2C/DCMI)
   * @param  None
@@ -1051,7 +1165,7 @@ int32_t open_camera(uint32_t *BufferSRC, uint32_t BufferSize)
 		OV5640_IDTypeDef OV5640_Camera_ID;	
 		camera_data *data_p;
 
-		/*2640 IO 初始化*/
+		/*5640 IO 初始化*/
 		I2CMaster_Init(); 
 		OV5640_HW_Init();
 		/*DCMI 初始化*/
@@ -1079,7 +1193,8 @@ int32_t open_camera(uint32_t *BufferSRC, uint32_t BufferSize)
 			while(1);  
 		}
 			/* 配置摄像头输出像素格式 */
-		//OV5640_JPEGConfig(JPEG_IMAGE_FORMAT);
+		OV5640_JPEGConfig(JPEG_IMAGE_FORMAT);
+		printf(" OV5640_JPEGConfig ok !!! \r\n");
 
 		
 }

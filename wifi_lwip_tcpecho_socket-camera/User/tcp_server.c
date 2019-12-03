@@ -75,19 +75,12 @@ time2=0;
 			
         if(FD_ISSET( selectResult, &writeSet ))
         {
-					
-
-					
             writeResult = write( fd, (void *)( inBuf + numWritten ), ( inBufLen - numWritten ) );
 				
             require( writeResult > 0, exit );
-					
-
-            numWritten += writeResult;
-					
-        }
 				
-	
+            numWritten += writeResult;
+        }
 				
     }
 

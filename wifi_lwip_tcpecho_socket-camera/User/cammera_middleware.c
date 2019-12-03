@@ -5,23 +5,7 @@
 #include "stm32f7xx.h"
 #include "stm32f7xx_hal.h"
 
-
-
 uint32_t frame_counter = 0;
-
-uint32_t dcmi_start_counter = 0;
-uint32_t dma_start_counter = 0;
-uint32_t dma_complete_counter = 0;
-
-
-
-uint32_t  XferTransferNumber=0;
-uint32_t 	XferCount = 0;
-uint32_t 	XferSize = 0;
-uint32_t 	pBuffPtr = 0;
-uint8_t 	DCMI_State;
-uint32_t	DMA2_Stream1_State;
-
 
 void DMA_Cmd(DMA_Stream_TypeDef* DMAy_Streamx, FunctionalState NewState)
 {
@@ -41,23 +25,6 @@ void DMA_Cmd(DMA_Stream_TypeDef* DMAy_Streamx, FunctionalState NewState)
   }
 }
 
-
-void DCMI_JPEGCmd(FunctionalState NewState)
-{
-  /* Check the parameters */
-  assert_param(IS_FUNCTIONAL_STATE(NewState));
- 
-  if (NewState != DISABLE)
-  {
-    /* Enable the DCMI JPEG format */
-    DCMI->CR |= (uint32_t)DCMI_CR_JPEG;
-  }
-  else
-  {
-    /* Disable the DCMI JPEG format */
-    DCMI->CR &= ~(uint32_t)DCMI_CR_JPEG;
-  }
-}
 
 
 
@@ -99,90 +66,7 @@ uint16_t DMA_GetCurrDataCounter(DMA_Stream_TypeDef* DMAy_Streamx)
   return ((uint16_t)(DMAy_Streamx->NDTR));
 }
 
-/**
-  * @brief  Enables or disables the DCMI Capture.
-  * @param  NewState: new state of the DCMI capture. 
-  *          This parameter can be: ENABLE or DISABLE.
-  * @retval None
-  */
-void DCMI_CaptureCmd(FunctionalState NewState)
-{
-  /* Check the parameters */
-  assert_param(IS_FUNCTIONAL_STATE(NewState));
-    
-  if (NewState != DISABLE)
-  {
-    /* Enable the DCMI Capture */
-    DCMI->CR |= (uint32_t)DCMI_CR_CAPTURE;
-  }
-  else
-  {
-    /* Disable the DCMI Capture */
-    DCMI->CR &= ~(uint32_t)DCMI_CR_CAPTURE;
-  }
-}
-/**
-  * @brief  Enables or disables the DCMI interface.
-  * @param  NewState: new state of the DCMI interface. 
-  *          This parameter can be: ENABLE or DISABLE.
-  * @retval None
-  */
-void DCMI_Cmd(FunctionalState NewState)
-{
-  /* Check the parameters */
-  assert_param(IS_FUNCTIONAL_STATE(NewState));
-  
-  if (NewState != DISABLE)
-  {
-    /* Enable the DCMI by setting ENABLE bit */
-    DCMI->CR |= (uint32_t)DCMI_CR_ENABLE;
-  }
-  else
-  {
-    /* Disable the DCMI by clearing ENABLE bit */
-    DCMI->CR &= ~(uint32_t)DCMI_CR_ENABLE;
-  }
-}
 
-
-
-/**
-* @brief  关闭摄像头
-* @param
-* @param
-*/
-int close_camera()
-{
-//	DCMI_Cmd(DISABLE);
-
-//	DMA_Cmd(DMA2_Stream1, DISABLE);
-
-//	DCMI_DeInit();
-
-//	RCC_AHB2PeriphClockCmd(RCC_AHB2Periph_DCMI, DISABLE);
-
-	return 0;
-}
-
-/**
-* @brief  开始捕获图像，如果是连续获取模式，图片会源源不断的发往img_send_thread线程，等待发送出去
-* @param
-* @param
-*/
-void start_capture_img()
-{
-	DCMI_CaptureCmd(ENABLE);
-}
-
-/**
-* @brief  停止捕获图像
-* @param
-* @param
-*/
-void stop_capture_img()
-{
-	DCMI_CaptureCmd(DISABLE);
-}
 
 
 extern DCMI_HandleTypeDef DCMI_Handle;
@@ -191,8 +75,6 @@ extern DMA_HandleTypeDef DMA_Handle_dcmi;
 
 void DCMI_Start(void)
 {
-//	__HAL_DMA_ENABLE(&DMA_Handle_dcmi); //使能DMA
-//	DCMI->CR|=DCMI_CR_CAPTURE;          //DCMI捕获使能
 	
 	camera_data *data_p;
 	
@@ -200,24 +82,20 @@ void DCMI_Start(void)
 	data_p = cbWrite(&cam_circular_buff);
 	
 	if (data_p != NULL)	//若缓冲队列未满，开始传输
-	{		
-		dma_start_counter++;
-		
+	{				
 		HAL_DCMI_Stop(&DCMI_Handle) ;
 		/*配置DMA传输*/
 		HAL_DCMI_Start_DMA(&DCMI_Handle, DCMI_MODE_CONTINUOUS, (uint32_t )data_p->head, CAMERA_QUEUE_DATA_LEN);
 
-		DMA_Cmd(DMA2_Stream1, ENABLE);			//重新传输	
 	}
-	
-	 dcmi_start_counter ++;
+
 		
-	DCMI_CaptureCmd(ENABLE);
 }
 
 __IO int testview=0;
 void DCMI_Stop(void)
 {	
+
 	camera_data *data_p;
 	
 	/*关闭dma*/
@@ -226,21 +104,12 @@ void DCMI_Stop(void)
 
 	/*获取正在操作的写指针*/	
 	data_p = cbWriteUsing(&cam_circular_buff);
-	testview++;
+	
 	/*计算dma传输的数据个数，用于减少jpeg搜索文件尾的时间*/	
 	if (data_p != NULL)	
 	{
 		data_p->img_dma_len =0; //复位	
-		XferSize = DCMI_Handle.XferSize;//HAL库里面获取 长度
-		if(CAMERA_QUEUE_DATA_LEN>65536*4)	//双dma buff
-		{
-
-			data_p->img_dma_len = (XferSize - DMA_GetCurrDataCounter(DMA2_Stream1))*4; //最后一个包 __HAL_DMA_GET_COUNTER			
-			if(dma_complete_counter>=2)
-				data_p->img_dma_len += ((dma_complete_counter-1)*XferSize)*4 ;		//	dma_complete_counter个大小为XferSize的包
-		}
-		else	//单dma buf
-			data_p->img_dma_len = (CAMERA_QUEUE_DATA_LEN/4 - DMA_GetCurrDataCounter(DMA2_Stream1))*4;
+		data_p->img_dma_len = (DCMI_Handle.XferSize - DMA_GetCurrDataCounter(DMA2_Stream1))*4; //最后一个包 __HAL_DMA_GET_COUNTER			
 	}
 	
 	/*写入缓冲区完毕*/
@@ -272,15 +141,11 @@ void DCMI_IRQHandler_Funtion(void)
 /*帧中断实现*/
 void DCMI_IRQHandler_Funtion(void)
 {
-	
-	
-	//DCMI_ClearITPendingBit(DCMI_IT_FRAME);
 	frame_counter ++;
 	//1.停止DCMI传输
 	DCMI_Stop();
 	//2.根据缓冲区使用情况决定是否开启dma
 	DCMI_Start();
-	dma_complete_counter=0;
 	
 }
 #endif

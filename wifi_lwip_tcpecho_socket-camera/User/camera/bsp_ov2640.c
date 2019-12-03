@@ -1293,14 +1293,11 @@ void OV2640_DMA_Config(uint32_t DMA_Memory0BaseAddr,uint32_t DMA_BufferSize)
   /*DMA中断配置 */
   __HAL_LINKDMA(&DCMI_Handle, DMA_Handle, DMA_Handle_dcmi);
   __HAL_DMA_ENABLE_IT(&DMA_Handle_dcmi,DMA_IT_TE); 
-	
-  //HAL_NVIC_SetPriority(DMA2_Stream1_IRQn, 5, 0);
+
 	HAL_NVIC_SetPriority(DMA2_Stream1_IRQn, 10, 0);
   HAL_NVIC_EnableIRQ(DMA2_Stream1_IRQn);
   
   HAL_DMA_Init(&DMA_Handle_dcmi);
-
-	DMA_Cmd(DMA2_Stream1, ENABLE);
   
 }
 
@@ -1717,20 +1714,20 @@ void OV2640_ContrastConfig(uint8_t value1, uint8_t value2)
   */
 extern DMA_HandleTypeDef DMA_Handle_dcmi;
 
-//void HAL_DCMI_FrameEventCallback(DCMI_HandleTypeDef *hdcmi)
-//{
-//	DCMI_IRQHandler_Funtion();
+void HAL_DCMI_FrameEventCallback(DCMI_HandleTypeDef *hdcmi)
+{
+	DCMI_IRQHandler_Funtion();
 
-//   //重新使能帧中断
+   //重新使能帧中断
 //  __HAL_DCMI_ENABLE_IT(&DCMI_Handle,DCMI_IT_FRAME);
-//}
+}
 
 void HAL_DCMI_VsyncEventCallback(DCMI_HandleTypeDef *hdcmi)
 {
 		DCMI_IRQHandler_Funtion();
 
 		//重新使能帧中断
-		__HAL_DCMI_ENABLE_IT(&DCMI_Handle,DCMI_FLAG_VSYNCRI);
+//		__HAL_DCMI_ENABLE_IT(&DCMI_Handle,DCMI_FLAG_VSYNCRI);
 }
 
 uint8_t fps=0;
@@ -1759,10 +1756,10 @@ int32_t open_camera(uint32_t *BufferSRC, uint32_t BufferSize)
 //		__HAL_DCMI_DISABLE_IT(&DCMI_Handle,DCMI_IT_LINE|DCMI_IT_VSYNC|DCMI_IT_ERR|DCMI_IT_OVR);
 //		__HAL_DCMI_ENABLE_IT(&DCMI_Handle,DCMI_IT_FRAME);      //使能帧中断
 //		__HAL_DCMI_ENABLE(&DCMI_Handle);                       //使能DCMI
-	
-//		__HAL_DCMI_DISABLE_IT(&DCMI_Handle,DCMI_IT_LINE|DCMI_IT_FRAME|DCMI_IT_ERR|DCMI_IT_OVR);
-//		__HAL_DCMI_ENABLE_IT(&DCMI_Handle,DCMI_IT_VSYNC);      //使能帧中断
-//		__HAL_DCMI_ENABLE(&DCMI_Handle);                       //使能DCMI
+//	
+		__HAL_DCMI_DISABLE_IT(&DCMI_Handle,DCMI_IT_LINE|DCMI_IT_FRAME|DCMI_IT_ERR|DCMI_IT_OVR);
+		__HAL_DCMI_ENABLE_IT(&DCMI_Handle,DCMI_IT_VSYNC);      //使能帧中断
+		__HAL_DCMI_ENABLE(&DCMI_Handle);                       //使能DCMI
 	
 		
 		/* 读取摄像头芯片ID，确定摄像头正常连接 */

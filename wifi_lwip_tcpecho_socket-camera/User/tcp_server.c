@@ -29,8 +29,8 @@ extern CircularBuffer cam_circular_buff;
 
 #define SERVER_PORT 5001 /*set up a tcp server,port at 20000*/
 
-#define NO_USED_BUFF_LEN    (1024)
-#define TCP_MAX_SEND_SIZE   (1024*100)
+#define NO_USED_BUFF_LEN    (512)
+#define TCP_MAX_SEND_SIZE   (1024*50)
 
 #define IsValidSocket( X )                  ( ( X ) >= 0 )
 
@@ -42,11 +42,11 @@ int32_t jpeg_send( int fd, const uint8_t *inBuf, size_t inBufLen )
     int selectResult;
     size_t numWritten;
     fd_set writeSet;
-    struct timeval t;
+		struct timeval t;
 
-//    require( fd>=0, exit );
-//    require( inBuf, exit );
-//    require( inBufLen, exit );
+    require( fd>=0, exit );
+    require( inBuf, exit );
+    require( inBufLen, exit );
 
     err = kNotWritableErr;
 
@@ -54,27 +54,44 @@ int32_t jpeg_send( int fd, const uint8_t *inBuf, size_t inBufLen )
     t.tv_usec = 0;
     numWritten = 0;
 
+	
+	int time1=0,time2=0;	
+		
     while( numWritten < inBufLen )
     {
+
+time1=HAL_GetTick();			
         FD_ZERO( &writeSet );
         FD_SET( fd, &writeSet );
 
 				selectResult = select( fd + 1, NULL, &writeSet, NULL,&t );
 			
-//        require( selectResult >= 1, exit );//log显示这个出问题
+        require( selectResult >= 1, exit );//log显示这个出问题
 
+time2=HAL_GetTick();
+printf("---------------------------->>>use time is %d <<<-\r\n",(time2-time1));
+time1=0;
+time2=0;	
+			
         if(FD_ISSET( selectResult, &writeSet ))
         {
+					
 
+					
             writeResult = write( fd, (void *)( inBuf + numWritten ), ( inBufLen - numWritten ) );
-						
-//            require( writeResult > 0, exit );
+				
+            require( writeResult > 0, exit );
+					
 
             numWritten += writeResult;
+					
         }
+				
+	
+				
     }
 
-//    require_action( numWritten == inBufLen, exit, tcp_server_log("ERROR: Did not write all the bytes in the buffer. BufLen: %zu, Bytes Written: %zu", inBufLen, numWritten ); err = kUnderrunErr );
+    require_action( numWritten == inBufLen, exit, tcp_server_log("ERROR: Did not write all the bytes in the buffer. BufLen: %zu, Bytes Written: %zu", inBufLen, numWritten ); err = kUnderrunErr );
 
     err = kNoErr;
 
@@ -86,23 +103,26 @@ int32_t jpeg_tcp_send( int fd, const uint8_t *inBuf, size_t inBufLen )
     uint32_t i = 0, count = 0, index = 0;
     int32_t err = kGeneralErr;
 
+
+	
 		count =  inBufLen / TCP_MAX_SEND_SIZE;//计算需要发送的包数
 	
     for(i = 0; i < count; i ++)//整包数
     {
          err = jpeg_send(fd, inBuf + index, TCP_MAX_SEND_SIZE);
-			//	 printf("img data buffer send ing...\r\n");
+
          require( err == kNoErr, exit);
          index = index + TCP_MAX_SEND_SIZE;
     }
+		
 
     if((inBufLen % TCP_MAX_SEND_SIZE) != 0)//不足一包
     {
         err = jpeg_send(fd, inBuf + index, inBufLen % TCP_MAX_SEND_SIZE);
-//				printf("img data buffer send ing...\r\n");
+
         require( err == kNoErr, exit);
     }
-	
+		
 
 
  exit:
@@ -171,12 +191,6 @@ void tcp_server_thread( void *arg )
 		{
 				PRINTF("Listen error\n");
 		}
-		int ret_len=0;
-
-		__HAL_DCMI_DISABLE_IT(&DCMI_Handle,DCMI_IT_LINE|DCMI_IT_FRAME|DCMI_IT_ERR|DCMI_IT_OVR);
-		__HAL_DCMI_ENABLE_IT(&DCMI_Handle,DCMI_IT_VSYNC);      //使能帧中断
-		__HAL_DCMI_ENABLE(&DCMI_Handle);                       //使能DCMI
-		
 		
 		printf(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>\r\n");
 		cbPrint(&cam_circular_buff) ;//输出
@@ -195,18 +209,18 @@ void tcp_server_thread( void *arg )
 										 (void *) &flag,  /* the cast is historical cruft */
 										 sizeof(int));    /* length of option value */
 				}
-				
+
         if( IsValidSocket( client_fd ) )
         {			
             tcp_server_log( "TCP Client %s:%d connected, fd: %d", inet_ntoa(client_addr.sin_addr), ntohs(client_addr.sin_port), client_fd );
-//            //1.打开摄像头
-//            DCMI_Cmd(ENABLE);
+
 						cbPrint(&cam_circular_buff) ;//输出
 						printf("-------------------------\r\n");
+					
             while(1)
             {
                 //2.数据出队列 
-	
+								
                 err = pull_data_from_queue(&in_camera_data, &camera_data_len);
 												
                 if(err != kNoErr)
@@ -229,25 +243,22 @@ void tcp_server_thread( void *arg )
 										break;
                 }					
 							
-								send_fream++;
-								for(i = 0; i < 1; i ++)
-								{
-									jpeg_send(client_fd, (const uint8_t *)no_used_buff, NO_USED_BUFF_LEN);
-
-										//4.发送间隔数据
-//										if((err = jpeg_send(client_fd, (const uint8_t *)no_used_buff, NO_USED_BUFF_LEN)) != kNoErr)
-//										{
-//																						//更新读指针		
-//												cbReadFinish(&cam_circular_buff);
-//												printf("error-->[%d]\r\n", packet_index);
-//												break;
-//										}
-
-
-								}
-                //更新读指针		
 								cbReadFinish(&cam_circular_buff);
-								vTaskDelay(25);
+
+								
+								send_fream++;
+								
+
+								//4.发送间隔数据
+//								if((err = jpeg_send(client_fd, (const uint8_t *)no_used_buff, NO_USED_BUFF_LEN)) != kNoErr)
+//								{
+//																				//更新读指针		
+//										cbReadFinish(&cam_circular_buff);
+//										printf("error-->[%d]\r\n", packet_index);
+//										break;
+//								}
+
+                //更新读指针		
 
             }
 
@@ -256,7 +267,7 @@ void tcp_server_thread( void *arg )
         }
     }
 
-// exit:
+ exit:
     if( err != kNoErr )
     {
         printf( "Server listerner thread exit with err: %d\r\n", err );

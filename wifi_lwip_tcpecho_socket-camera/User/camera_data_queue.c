@@ -1,7 +1,13 @@
 #include "camera_data_queue.h"
 #include "./sdram/bsp_sdram.h"  
 #include "wifi_base_config.h"
+#include "stdlib.h"
 #include "debug.h"
+	
+//#define LOG_SW  	//是否打印开关
+#if defined(LOG_SW)
+
+#endif 
 
 #define camera_data_queue_log(M, ...) custom_log("camera_data_queue", M, ##__VA_ARGS__)
 
@@ -46,7 +52,7 @@ void cbInit(CircularBuffer *cb, int size)
   */
 void cbPrint(CircularBuffer *cb) 
 {
-#if 1
+#if 0
     printf("\r\n size=0x%x, start=%d, end=%d\r\n ", cb->size, cb->start, cb->end);
 	  printf("\r\n size=0x%x, start_using=%d, end_using=%d\r\n ", cb->size, cb->start_using, cb->end_using);
 #endif
@@ -95,8 +101,14 @@ camera_data* cbWrite(CircularBuffer *cb)
 		}		
 		else
 			cb->end_using = cbIncr(cb, cb->end); //未满，则增加1
+
+		__IO int temp_index=cb->end_using&(cb->size-1);
+#if defined(LOG_SW)
+		//printf("可进行写入的指针 %d\r\n",temp_index);
+		printf("cbWrite %d\r\n",temp_index);
+#endif 				
 		
-	return  cb->elems[cb->end_using&(cb->size-1)];
+	return  cb->elems[temp_index];
 }
 
 /**
@@ -104,9 +116,15 @@ camera_data* cbWrite(CircularBuffer *cb)
   * @param  cb:缓冲队列结构体
   * @return  当前正在使用的写缓冲区指针
   */
+extern int 	frame_counter;
 camera_data* cbWriteUsing(CircularBuffer *cb) 
 {
-	return  cb->elems[cb->end_using&(cb->size-1)];
+	__IO int temp_index=cb->end_using&(cb->size-1);
+#if defined(LOG_SW)
+		//printf("正在使用写缓冲区指针 %d\r\n",temp_index);
+	printf("using buffer %d   frame %d   \r\n",temp_index,frame_counter ++);
+#endif 			
+	return  cb->elems[temp_index];
 }
 
 /**
@@ -128,9 +146,15 @@ camera_data* cbRead(CircularBuffer *cb)
 {
 		if(cbIsEmpty(cb))
 			return NULL;
+
+		cb->start_using = cbIncr(cb, cb->start);
 		
-	cb->start_using = cbIncr(cb, cb->start);
-	return cb->elems[cb->start_using&(cb->size-1)];
+		__IO int temp_index=cb->start_using&(cb->size-1);		
+#if defined(LOG_SW)
+		//printf("可进行读取的指针 %d\r\n",temp_index);
+		printf("cbRead  %d\r\n",temp_index);
+#endif 			
+		return cb->elems[temp_index];
 }
 
 
@@ -145,7 +169,7 @@ void cbReadFinish(CircularBuffer *cb)
 
 
 
-#include "stdlib.h"
+
 
 
 //摄像头队列的指针指向的缓冲区全部销毁
@@ -193,89 +217,25 @@ int32_t camera_queue_init(void)
 
 
 
-
+__IO int get_data_num=0;
 //从队列中取数据, data_p:起始地址, len_p:长度, array_index:下标
 int32_t pull_data_from_queue(uint8_t **data_p, int32_t *len_p)
 {
-//		int32_t len_p_get = 0 ;		
+	
 		uint8_t jpeg_start_offset = 0;	
 		camera_data *cam_data_pull;	
-		//uint32_t time_old,time_new;
 		
 		if(!cbIsEmpty(&cam_circular_buff))//缓冲队列非空
 		{
 				/*从缓冲区读取数据，进行处理，*/
 				cam_data_pull = cbRead(&cam_circular_buff);
-			
+				get_data_num++;//读取数据计数器
 				if (cam_data_pull == NULL)
 						return kGeneralErr;
-#if 1				
+
 			/*查找文件*/	
 				
-			*len_p = find_jpeg_tail(cam_data_pull->head,&jpeg_start_offset,cam_data_pull->img_dma_len*2/3);
-
-//			*len_p = find_jpeg_tail(cam_data_pull->head,&jpeg_start_offset,0);
-
-#elif 0		//用于调试，对比快速搜索文件与慢速的	区别
-				camera_data_queue_log("-------------------------------------");
-				
-				time_old = host_rtos_get_time();			
-				*len_p = find_jpeg_tail(cam_data_pull->head,&jpeg_start_offset,cam_data_pull->img_dma_len*99/100);
-				time_new = host_rtos_get_time();			
-				len_p_get =  cam_data_pull->img_real_len;
-			
-				camera_data_queue_log("find len = %d,get_len=%d",*len_p,len_p_get);
-				camera_data_queue_log("find time = %d ",time_new-time_old);
-			
-				camera_data_queue_log("---****************-------------");
-				time_old = host_rtos_get_time();
-				*len_p = find_jpeg_tail(cam_data_pull->head,&jpeg_start_offset,0);
-
-				time_new = host_rtos_get_time();
-			
-				camera_data_queue_log("find len = %d,get_len=%d",*len_p,len_p_get);
-				camera_data_queue_log("find time = %d ",time_new-time_old);
-				
-#else	//用于调试，对比快速搜索文件与慢速的	区别
-			
-				{
-							//分母
-					static uint8_t numerator = 99 ,denominator=100 ;
-
-					
-						time_old = host_rtos_get_time();			
-						len_p_get = find_jpeg_tail(cam_data_pull->head,&jpeg_start_offset,cam_data_pull->img_dma_len*numerator/denominator);
-						time_new = host_rtos_get_time();						
-
-
-			
-						time_old = host_rtos_get_time();
-						*len_p = find_jpeg_tail(cam_data_pull->head,&jpeg_start_offset,0);
-						time_new = host_rtos_get_time();
-						
-						if(len_p_get != *len_p )
-						{						
-
-							camera_data_queue_log("--------------different-------------");
-							camera_data_queue_log("fast find len = %d,find=%d",len_p_get,*len_p);
-							camera_data_queue_log("img_real_len = %d",cam_data_pull->img_dma_len);
-							
-							//调整分母，减少出错
-							if(numerator != 1)
-							{
-								numerator--;
-								denominator--;					
-							}
-							camera_data_queue_log("newly search point =  %d/%d",numerator,denominator);
-
-
-						}
-						
-//						*len_p = len_p_get;
-				}
-			
-
-#endif			
+				*len_p = find_jpeg_tail(cam_data_pull->head,&jpeg_start_offset,cam_data_pull->img_dma_len*2/3);
 				
 				if(*len_p != -1)
 				{
@@ -415,8 +375,6 @@ int32_t find_jpeg(camera_data *cambuf)
                 }
             }else if((*p == 0xFF) && (*(p + 1) == 0xD9))
             {
-								//camera_data_queue_log("pic len = %d", i+2 );
-
 								cambuf->img_real_len = i+2;
                 return  kNoErr;
             }

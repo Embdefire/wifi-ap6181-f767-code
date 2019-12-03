@@ -235,9 +235,7 @@ void DCMI_Stop(void)
 		if(CAMERA_QUEUE_DATA_LEN>65536*4)	//双dma buff
 		{
 
-			data_p->img_dma_len = (XferSize - DMA_GetCurrDataCounter(DMA2_Stream1))*4; //最后一个包 __HAL_DMA_GET_COUNTER
-			//data_p->img_dma_len = XferSize - (DMA_GetCurrDataCounter(DMA2_Stream1))*4; //最后一个包 __HAL_DMA_GET_COUNTER
-			
+			data_p->img_dma_len = (XferSize - DMA_GetCurrDataCounter(DMA2_Stream1))*4; //最后一个包 __HAL_DMA_GET_COUNTER			
 			if(dma_complete_counter>=2)
 				data_p->img_dma_len += ((dma_complete_counter-1)*XferSize)*4 ;		//	dma_complete_counter个大小为XferSize的包
 		}

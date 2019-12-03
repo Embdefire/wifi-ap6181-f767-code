@@ -46,7 +46,7 @@ void cbInit(CircularBuffer *cb, int size)
   */
 void cbPrint(CircularBuffer *cb) 
 {
-#if 0
+#if 1
     printf("\r\n size=0x%x, start=%d, end=%d\r\n ", cb->size, cb->start, cb->end);
 	  printf("\r\n size=0x%x, start_using=%d, end_using=%d\r\n ", cb->size, cb->start_using, cb->end_using);
 #endif

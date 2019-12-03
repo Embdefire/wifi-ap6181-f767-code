@@ -52,11 +52,9 @@ void app_main( void )
 			/*ÑÓÊ±*/
 			vTaskDelay(1000);
 			/*Êä³öÖ¡ÂÊ*/
-			//printf("------->>>>>>>>frame_counter=%d fps/s ,send_fream ->%d fps/s  cbReadFinish_num = %d \r\n",frame_counter,send_fream,cbReadFinish_num);
-			printf("------->>>>>>>>frame_counter=%d fps/s ,send_fream ->%d fps/s \r\n",frame_counter,send_fream);
+			//printf("------->>>>>>>>frame_counter=%d fps/s ,send_fream ->%d fps/s \r\n",frame_counter,send_fream);
 			frame_counter=0;			
 			send_fream=0;
-		
     }
 
 }

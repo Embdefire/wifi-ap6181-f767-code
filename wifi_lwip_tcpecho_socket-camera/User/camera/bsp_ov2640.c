@@ -1760,9 +1760,9 @@ int32_t open_camera(uint32_t *BufferSRC, uint32_t BufferSize)
 //		__HAL_DCMI_ENABLE_IT(&DCMI_Handle,DCMI_IT_FRAME);      //使能帧中断
 //		__HAL_DCMI_ENABLE(&DCMI_Handle);                       //使能DCMI
 	
-		__HAL_DCMI_DISABLE_IT(&DCMI_Handle,DCMI_IT_LINE|DCMI_IT_FRAME|DCMI_IT_ERR|DCMI_IT_OVR);
-		__HAL_DCMI_ENABLE_IT(&DCMI_Handle,DCMI_IT_VSYNC);      //使能帧中断
-		__HAL_DCMI_ENABLE(&DCMI_Handle);                       //使能DCMI
+//		__HAL_DCMI_DISABLE_IT(&DCMI_Handle,DCMI_IT_LINE|DCMI_IT_FRAME|DCMI_IT_ERR|DCMI_IT_OVR);
+//		__HAL_DCMI_ENABLE_IT(&DCMI_Handle,DCMI_IT_VSYNC);      //使能帧中断
+//		__HAL_DCMI_ENABLE(&DCMI_Handle);                       //使能DCMI
 	
 		
 		/* 读取摄像头芯片ID，确定摄像头正常连接 */

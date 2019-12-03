@@ -743,11 +743,6 @@
               <FilePath>..\..\User\wifi_base_config.c</FilePath>
             </File>
             <File>
-              <FileName>tcpecho.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\User\tcpecho.c</FilePath>
-            </File>
-            <File>
               <FileName>bsp_sdram.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\User\sdram\bsp_sdram.c</FilePath>

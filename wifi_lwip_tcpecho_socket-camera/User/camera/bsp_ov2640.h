@@ -299,7 +299,6 @@ void OV2640_HW_Init(void);
 void OV2640_I2C_Init(void);
 void OV2640_Reset(void);
 void OV2640_ReadID(OV2640_IDTypeDef *OV2640ID);
-//void OV2640_Init(uint32_t *BufferSRC, uint32_t BufferSize);
 void OV2640_DCMI_Init();
 void OV2640_QQVGAConfig(void);
 void OV2640_UXGAConfig(void);

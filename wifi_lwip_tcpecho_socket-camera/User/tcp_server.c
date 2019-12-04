@@ -88,7 +88,7 @@ time2=0;
 
     err = kNoErr;
 
-//exit:
+exit:
     return err;
 }
 int32_t jpeg_tcp_send( int fd, const uint8_t *inBuf, size_t inBufLen )

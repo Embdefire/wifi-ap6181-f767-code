@@ -229,7 +229,7 @@ int32_t pull_data_from_queue(uint8_t **data_p, int32_t *len_p)
 		{
 				/*从缓冲区读取数据，进行处理，*/
 				cam_data_pull = cbRead(&cam_circular_buff);
-				get_data_num++;//读取数据计数器
+				
 				if (cam_data_pull == NULL)
 						return kGeneralErr;
 
@@ -239,6 +239,7 @@ int32_t pull_data_from_queue(uint8_t **data_p, int32_t *len_p)
 				
 				if(*len_p != -1)
 				{
+						get_data_num++;//读取数据计数器
 						*data_p = cam_data_pull->head + jpeg_start_offset;
 						return kNoErr;
 				}else

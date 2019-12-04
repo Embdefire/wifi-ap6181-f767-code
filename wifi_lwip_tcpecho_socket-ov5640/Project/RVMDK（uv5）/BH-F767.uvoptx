@@ -119,6 +119,11 @@
       <TargetDriverDllRegistry>
         <SetRegEntry>
           <Number>0</Number>
+          <Key>DLGUARM</Key>
+          <Name>猬Gw????/^</Name>
+        </SetRegEntry>
+        <SetRegEntry>
+          <Number>0</Number>
           <Key>ARMRTXEVENTFLAGS</Key>
           <Name>-L70 -Z18 -C0 -M0 -T1</Name>
         </SetRegEntry>
@@ -147,34 +152,18 @@
         <Bp>
           <Number>0</Number>
           <Type>0</Type>
-          <LineNumber>64</LineNumber>
+          <LineNumber>343</LineNumber>
           <EnabledFlag>1</EnabledFlag>
-          <Address>134259236</Address>
+          <Address>134222352</Address>
           <ByteObject>0</ByteObject>
           <HtxType>0</HtxType>
           <ManyObjects>0</ManyObjects>
           <SizeOfObject>0</SizeOfObject>
           <BreakByAccess>0</BreakByAccess>
           <BreakIfRCount>1</BreakIfRCount>
-          <Filename>E:\閲庣伀鐢靛瓙\WIFI\WIFI__AP6181\base_code_f767\wifi_lwip_tcpecho_socket-camera\Project\User\tcp_server.c</Filename>
+          <Filename>E:\閲庣伀鐢靛瓙\WIFI\WIFI__AP6181\base_code_f767\wifi_lwip_tcpecho_socket-ov5640\Project\User\camera\bsp_ov5640.c</Filename>
           <ExecCommand></ExecCommand>
-          <Expression>\\F767\../../User/tcp_server.c\64</Expression>
-        </Bp>
-        <Bp>
-          <Number>1</Number>
-          <Type>0</Type>
-          <LineNumber>67</LineNumber>
-          <EnabledFlag>1</EnabledFlag>
-          <Address>134259258</Address>
-          <ByteObject>0</ByteObject>
-          <HtxType>0</HtxType>
-          <ManyObjects>0</ManyObjects>
-          <SizeOfObject>0</SizeOfObject>
-          <BreakByAccess>0</BreakByAccess>
-          <BreakIfRCount>1</BreakIfRCount>
-          <Filename>E:\閲庣伀鐢靛瓙\WIFI\WIFI__AP6181\base_code_f767\wifi_lwip_tcpecho_socket-camera\Project\User\tcp_server.c</Filename>
-          <ExecCommand></ExecCommand>
-          <Expression>\\F767\../../User/tcp_server.c\67</Expression>
+          <Expression>\\F767\../../User/camera/bsp_ov5640.c\343</Expression>
         </Bp>
       </Breakpoint>
       <WatchWindow1>
@@ -203,12 +192,22 @@
           <WinNumber>1</WinNumber>
           <ItemText>writeSet</ItemText>
         </Ww>
+        <Ww>
+          <count>5</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>data_p</ItemText>
+        </Ww>
+        <Ww>
+          <count>6</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>cam_data_pull</ItemText>
+        </Ww>
       </WatchWindow1>
       <MemoryWindow1>
         <Mm>
           <WinNumber>1</WinNumber>
           <SubType>0</SubType>
-          <ItemText>data_p-&gt;head</ItemText>
+          <ItemText>\\F767\../../User/camera_data_queue.c\cam_circular_buff.elems[0]-&gt;head</ItemText>
           <AccSizeX>0</AccSizeX>
         </Mm>
       </MemoryWindow1>

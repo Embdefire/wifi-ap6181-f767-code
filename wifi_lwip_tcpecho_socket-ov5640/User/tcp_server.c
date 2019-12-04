@@ -234,13 +234,13 @@ void tcp_server_thread( void *arg )
 								
 
 								//4.发送间隔数据
-								if((err = jpeg_send(client_fd, (const uint8_t *)no_used_buff, NO_USED_BUFF_LEN)) != kNoErr)
-								{
-																				//更新读指针		
-										cbReadFinish(&cam_circular_buff);
-										printf("error-->[%d]\r\n", packet_index);
-										break;
-								}
+//								if((err = jpeg_send(client_fd, (const uint8_t *)no_used_buff, NO_USED_BUFF_LEN)) != kNoErr)
+//								{
+//																				//更新读指针		
+//										cbReadFinish(&cam_circular_buff);
+//										printf("error-->[%d]\r\n", packet_index);
+//										break;
+//								}
 
                 //更新读指针		
 

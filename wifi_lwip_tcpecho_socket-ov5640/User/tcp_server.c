@@ -175,8 +175,7 @@ void tcp_server_thread( void *arg )
 		{
 				PRINTF("Listen error\n");
 		}
-		
-		printf(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>\r\n");
+
 		cbPrint(&cam_circular_buff) ;//Êä³ö
     while(1)
     {
@@ -196,10 +195,9 @@ void tcp_server_thread( void *arg )
 
         if( IsValidSocket( client_fd ) )
         {			
-            tcp_server_log( "TCP Client %s:%d connected, fd: %d", inet_ntoa(client_addr.sin_addr), ntohs(client_addr.sin_port), client_fd );
+            printf( "TCP Client %s:%d connected, fd: %d\r\n", inet_ntoa(client_addr.sin_addr), ntohs(client_addr.sin_port), client_fd );
 
 						cbPrint(&cam_circular_buff) ;//Êä³ö
-						printf("-------------------------\r\n");
 					
             while(1)
             {

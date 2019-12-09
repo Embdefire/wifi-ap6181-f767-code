@@ -53,7 +53,7 @@ void app_main( void )
 			/*ÑÓÊ±*/
 			vTaskDelay(1000);
 			/*Êä³öÖ¡ÂÊ*/
-			printf("------------------------------------>>>>>>>>frame_counter=%d fps/s , get_data_num -> %d ,send_fream ->%d fps/s \r\n",frame_counter,get_data_num,send_fream);
+			//printf("------------------------------------>>>>>>>>frame_counter=%d fps/s , get_data_num -> %d ,send_fream ->%d fps/s \r\n",frame_counter,get_data_num,send_fream);
 			frame_counter=0;			
 			send_fream=0;
 			get_data_num=0;

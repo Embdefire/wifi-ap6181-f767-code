@@ -60,18 +60,13 @@ int32_t jpeg_send( int fd, const uint8_t *inBuf, size_t inBufLen )
     while( numWritten < inBufLen )
     {
 
-time1=HAL_GetTick();			
+		
         FD_ZERO( &writeSet );
         FD_SET( fd, &writeSet );
 
 				selectResult = select( fd + 1, NULL, &writeSet, NULL,&t );
 			
         require( selectResult >= 1, exit );//log显示这个出问题
-
-time2=HAL_GetTick();
-printf("---------------------------->>>use time is %d <<<-\r\n",(time2-time1));
-time1=0;
-time2=0;	
 			
         if(FD_ISSET( selectResult, &writeSet ))
         {
@@ -184,8 +179,7 @@ void tcp_server_thread( void *arg )
 		{
 				PRINTF("Listen error\n");
 		}
-		
-		printf(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>\r\n");
+
 		cbPrint(&cam_circular_buff) ;//输出
     while(1)
     {
@@ -205,10 +199,9 @@ void tcp_server_thread( void *arg )
 
         if( IsValidSocket( client_fd ) )
         {			
-            tcp_server_log( "TCP Client %s:%d connected, fd: %d", inet_ntoa(client_addr.sin_addr), ntohs(client_addr.sin_port), client_fd );
+            printf( "TCP Client %s:%d connected, fd: %d", inet_ntoa(client_addr.sin_addr), ntohs(client_addr.sin_port), client_fd );
 
 						cbPrint(&cam_circular_buff) ;//输出
-						printf("-------------------------\r\n");
 					
             while(1)
             {
@@ -223,8 +216,8 @@ void tcp_server_thread( void *arg )
 
 										continue;
                 }
-									cbPrint(&cam_circular_buff) ;//输出
-												
+								cbPrint(&cam_circular_buff) ;//输出
+								printf("jpeg_tcp_send->[%d]%d KB\r\n", packet_index, camera_data_len/1024);
                 //3.发送数据
 
                 if((err = jpeg_tcp_send(client_fd, (const uint8_t *)in_camera_data, camera_data_len)) != kNoErr)

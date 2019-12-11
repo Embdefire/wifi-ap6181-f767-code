@@ -1,6 +1,6 @@
 # 野火WiFi模块AP6181-F767配套代码
 
-### **[wifi-ap6181-f767-code](https://github.com/Embdefire/wifi-ap6181-f767-code)**包含了配套野火h743挑战者开发板的wifi-ap6181示例程序。
+### **[wifi-ap6181-f767-code](https://github.com/Embdefire/wifi-ap6181-f767-code)**包含了配套野火f743开发板的wifi-ap6181示例程序。
 
 程序配套代码目录如下：
 
@@ -40,4 +40,13 @@
 （4）以上三条是所有例程必须要配置的硬件环境，每个例程都有相应的必读说明，必读说明更加详细；
 
 （5）例程是基于lwip 、 freertos 的，相关问题可以参考野火的书籍；
+
+
+
+## 关于本项目
+
+本项目通过git开源：
+
+- github仓库地址：https://github.com/Embdefire/wifi-ap6181-f767-code 
+- gitee仓库地址：https://gitee.com/wildfireteam/wifi-ap6181-f767-code
 
